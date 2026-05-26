@@ -1,2 +1,3 @@
 # ignore the timeseries data (too big)
 data/
+*.npz
