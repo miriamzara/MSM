@@ -33,6 +33,7 @@ Journal of Chemical Theory and Computation 2023 19 (11), 3391-3405
 DOI: [https://doi.org/10.1021/acs.jctc.3c00240](https://doi.org/10.1021/acs.jctc.3c00240)
 
 
+
 3. **An Introduction to Markov State Models and Their Application to Long Timescale Molecular Simulation**
 
 Gregory R. Bowman, Vijay S. Pande, Frank Noé
@@ -43,6 +44,17 @@ Published: 02 December 2013
 
 DOI: [https://doi.org/10.1007/978-94-007-7606-7](https://doi.org/10.1007/978-94-007-7606-7)
 
+
+4. **Hierarchical Folding Free Energy Landscape of HP35 Revealed by
+Most Probable Path Clustering**
+
+Abhinav Jain and Gerhard Stock
+
+J. Phys. Chem. B 2014, 118, 28, 7750–7760
+
+Published January 9, 2014
+
+DOI: [https://doi.org/10.1021/jp410398a](https://doi.org/10.1021/jp410398a)
 
 ### Additional references:
 
