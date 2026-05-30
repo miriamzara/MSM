@@ -2,3 +2,4 @@
 data/
 *.npz
 *.npy
+backbone_reconstructions/
