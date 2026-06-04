@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1780587530.08694 "main.aux" "main.bbl" "main" 1780587653.95614 0
-  "./mainNotes.bib" 1780587653.72892 103 48ad29797468f16e2853d8797278d7af ""
+["bibtex main"] 1780588631.22797 "main.aux" "main.bbl" "main" 1780588762.14018 0
+  "./mainNotes.bib" 1780588761.90343 103 48ad29797468f16e2853d8797278d7af ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/revtex4-1/apsrev4-1.bst" 1602107945 71515 e333383ed72bf24aa6de7e8cabb55f84 ""
-  "main.aux" 1780587653.72798 6177 ff64576c6ffc06c0fa5dc64b8e1fbd6b "pdflatex"
+  "main.aux" 1780588761.90266 6237 4dd90c733789a84e32f3fd64e8939e3f "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1780587652.98706 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1780587653.9563 0
-  "/Users/miriamzara/MSM/LaTeX/main.tex" 1780587652.74333 26720 bc0a751d9a946eb696c040e53265f95b ""
+["pdflatex"] 1780588761.1454 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1780588762.14033 0
+  "/Users/miriamzara/MSM/LaTeX/main.tex" 1780588760.94848 26553 1e262d9ce0496c94df8599f628eb3410 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -136,10 +136,10 @@
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
   "figures/mosaic_clusters.png" 1780496729.87084 163423 b3fd035b9c0481c09a6898ca0077e7ac ""
   "figures/sample_fig1.png" 1780496200.02042 261811 cd21e180ddb8901a9c87f31d9d51d68f ""
-  "main.aux" 1780587653.72798 6177 ff64576c6ffc06c0fa5dc64b8e1fbd6b "pdflatex"
-  "main.bbl" 1780587530.1912 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
-  "main.out" 1780587653.72876 4231 098b88ad57a09df251a2435df30f6315 "pdflatex"
-  "main.tex" 1780587652.74333 26720 bc0a751d9a946eb696c040e53265f95b ""
+  "main.aux" 1780588761.90266 6237 4dd90c733789a84e32f3fd64e8939e3f "pdflatex"
+  "main.bbl" 1780588631.32106 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
+  "main.out" 1780588761.90328 4231 098b88ad57a09df251a2435df30f6315 "pdflatex"
+  "main.tex" 1780588760.94848 26553 1e262d9ce0496c94df8599f628eb3410 ""
   (generated)
   "main.aux"
   "main.log"

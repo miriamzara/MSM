@@ -356,6 +356,7 @@ If $\ket{\hat{u}}\bra{\hat{u}}$ is a projection operator (i.e. $\ket{\hat{u}}$ i
 is the variance of the projection of the data along $\ket{\hat{u}}$, and
 
 \begin{align}
+    \label{eq:autocorrelation}
     \textrm{ACF}_{\hat{u}}(\tau) &=\frac{\bra{\hat{u}}\mathbf{C}_{\tau}\ket{\hat{u}}}{\bra{\hat{u}}\mathbf{C}_{0}\ket{\hat{u}}} \\
     \\ &= \frac{\mathbb{E}[\braket{\hat{u}|x(t)}\braket{\hat{u}|x(t+\tau)}]}{\mathbb{E}[\braket{\hat{u}|x}^2]}
 \end{align}
@@ -396,23 +397,12 @@ optimization problem:
 
 which again can be solved with Lagrange multipliers. Iterating, this implies that the principal components form an orthonormal basis of eigenvectors of the covariance matrix.
 Dimensionality reduction ($d < D$) is achieved by projecting the data onto the subspace spanned by the first $d$ 
-principal components $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.  In the new basis, compoents are uncorrelated and ordered by decreasing variance. 
+principal components $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.  In the reduced space, components are uncorrelated and ordered by decreasing variance. 
 
 \vspace{1em}
-Unlike PCA, tICA \cite{my_tica_ref} seeks directions that maximize the autocorrelation at a fixed lag time $\tau$. This intention would frame the optimization problem as
-
-
-\begin{align*}
-\ket{\hat{u}_1} = 
-\arg\max \frac{\bra{u}\mathbf{C}_{\tau}\ket{u}}{
-\bra{u}\mathbf{C}_{0}\ket{u}
-} \notag \\
-\text{subject to} \,\, \|\hat{u}\|=1
-\end{align*}
-
-Instead, the normalization constraint is usually implemented as $\bra{u}\mathbf{C}_{0}\ket{u}=1$, which
-corresponds to fixing the variance of the projected coordinate to $1$.  The autocorrelation is invariant under scaling of the projection vector, so this is a natural choice that simplifies the optimization problem.
-The tICA optimization problem is then defined as:
+Unlike PCA, tICA \cite{my_tica_ref} seeks directions $\ket{u}$ that maximize the autocorrelation Eq.\eqref{eq:autocorrelation} at a fixed lag time $\tau$. The lagtime $\tau$ is a free parameter.
+The autocorrelation is invariant under scaling of the projection vector $\ket{u}$. Differently from PCA, the normalization constraint is usually implemented as $\bra{u}\mathbf{C}_{0}\ket{u}=1$, as this choice simplifies the optimization problem.
+Formally, tICA solves the optimization problem:
 
 \begin{align}
     \label{eq:generalized_eigenvalue_problem}
@@ -489,8 +479,11 @@ Unlike PCA, the tIC vectors are generally not orthogonal under the standard Eucl
 $$
 \bra{u_i}\mathbf C_0\ket{u_j}=\delta_{ij}.
 $$
+i.e. they are \textit{uncorrelated} with each other.
+Consequently, Euclidean distances in the original feature space do not directly correspond to Euclidean distances in the tIC representation. 
+Instead, distances in the tIC space correspond to Mahalanobis distances in the original feature space or, equivalently, to Euclidean distances in the whitened space.
 
-Consequently, Euclidean distances in the original feature space do not directly correspond to Euclidean distances in the tIC representation. The whitening transformation makes this structure explicit by mapping the generalized eigenvalue problem into an ordinary eigenvalue problem in a space where the covariance matrix is the identity.
+
 
 \subsection{Estimation of Markov state models}
 \label{sec:SI_msm}
