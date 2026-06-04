@@ -44,7 +44,7 @@
 
 
 \begin{document}
-\title{Markov State Models: a methodological study on the HP35 villin headpiece}
+\title{Markov State Modelling for the folding of HP35 villin headpiece}
 
 \author{Miriam Zara}
 
@@ -117,41 +117,43 @@ section we describe synthetically the motivation for each step and define the me
 \end{enumerate}
 
 
-\subsubsection{Feature selection}
-This is the first step. If all degrees of freedom were included, the system would trivially have a markovian dynamics.
-But this would not be useful, since the model would not be able to provide any insight on the system. The aim of feature selection is to select a subset of degrees of freedom that are relevant for the process under study, and that can provide a good description of the dynamics.
-In this work we compare two sets of features: contact distances and dihedrals. 
+\textbf{Feature definition and filtering}
+The feature representations employed in this work were adopted from the preprocessing pipeline of Nagel \textit{et al.} \cite{selecting_features}. We therefore provide only a brief summary here and refer the reader to the original publication for a detailed discussion.
+Two classes of structural descriptors were considered: native-contact distances and backbone dihedral angles. While the total number of pairwise residue distances grows quadratically with protein size, native contacts provide a compact representation focused on interactions that are relevant to the folding process. Following Nagel \textit{et al.}, native contacts were defined from the folded structures observed in the simulation rather than directly from the crystal structure. Distance and frequency cutoffs were applied to exclude transient contacts, yielding a set of 42 contact-distance features.
+Backbone conformations were described by the $\phi$ and $\psi$ dihedral angles. Instead of the standard sine--cosine transformation commonly used to handle angular periodicity, we adopted the angular representation proposed by Nagel \textit{et al.}, based on shifting the angular coordinates such that the largest gap in the Ramachandran distribution coincides with the periodic boundary. This minimizes distortions introduced by Euclidean distance measures while preserving the original angular coordinates \cite{Sittel2017}.
+As typically only a small subset of those coordinates is involved in a specific biomolecular process, it is important to discard the remaining uncorrelated motions or weakly correlated noise coordinates. This is because they may exhibit large amplitudes or long time scales and therefore will be erroneously considered important by PCA and TICA, respectively.
+To remove motions that are unlikely to contribute to the folding dynamics, the authors further applied the MoSAIC correlation analysis \cite{selecting_features}, which identifies groups of collectively varying coordinates and filters out largely uncorrelated motions. After this filtering step, the final feature sets consisted of 42 native-contact distances and 62 backbone dihedral angles, with the dihedrals $\psi_1$, $\psi_2$, $\psi_{34}$, $\phi_2$, $\phi_{34}$, and $\phi_{35}$ excluded from the analysis.
+\bigskip \newline \noindent
 
-Specifically, we analyzed the following time series of different internal coordinate representations:
+\textbf{Dimensionality reduction and clustering}
+The feature representations described above are high-dimensional and therefore unsuitable for direct clustering. A dimensionality-reduction step is commonly employed to obtain a compact representation of the conformational ensemble while retaining the information relevant to the slow dynamics. Ideally, conformations that rapidly interconvert should remain close in the reduced space, whereas conformations separated by slow transitions should be well separated. Since microstates are subsequently defined by clustering in this reduced space, the quality of the dimensionality reduction directly affects the quality of the resulting Markov state model.
+Many methods have been proposed, both linear and nonlinear, some aided by deep learning. 
 
-\begin{itemize}
-    \setlength{\itemsep}{0.1pt}  % adjust to taste
-    \item hp35.mindists2: all atom pairwise distances occurring more frequently than 30$\%$ [nm];
-    \item hp35.crystaldists: the atom distances of all contacts occurring in the crystal structure 2f4k \cite{experimental_folding_time} [nm];
-    \item hp35.dihs: backbone dihedral angles [degrees].
-\end{itemize}
-Refer to the paper by Nagel \textit{et al.} \cite{selecting_features} for details on the feature selection.
+In this work we restrict ourselves to considering two widely used linear dimensionality-reduction methods: principal component analysis (PCA) and time-lagged independent component analysis (tICA). PCA identifies orthogonal directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation at a specified lag time. Because slow molecular processes are typically associated with slowly decorrelating coordinates, tICA is often regarded as more suitable for MSM construction.
 
+After dimensionality reduction, conformations were partitioned into microstates using the k-means clustering algorithm.
+\bigskip \newline \noindent
 
-\subsubsection{Dimensionality reduction}
-The aim is to compress the input coordinates (features) into a lower-dimensional space that still carriers
-\textit{kinetic} information. The notion of geometric distance in this space should ideally reflect the kinetic distance, meaning that two points that are close in this space 
-should have a high probability to interconvert in a short time, while two points that are far should have a low probability to interconvert in a short time.
-Indeed, the next stage is clustering the samples into a finite set of microstates, and the clustering is based on the geometric distance in the reduced space.
-If the reduced space does not reflect the kinetic distance, then the clustering will not be able to capture the metastable states of the system, and the resulting MSM will not be able to provide a good description of the dynamics.
+\textbf{Markov state model estimation and validation}
+Talk about the estimation of the transition matrix, selection of lag time, implied timescales test and CK test.
+\bigskip \newline \noindent
 
-Any dimensionality reduction will distorce the free energy landscape by some extent. The goal is to keep the distortion as low as possible.
+\textbf{Hyperparameter selection with the VAMP score}
+The number of retained components and the number of microstates constitute important hyperparameters of the MSM construction procedure.
 
-For this reason, the dimensionality reduction stage is a crucial one. However, there is no clear objective function to optimize, and the choice of the method and the number of dimensions to retain is often based on heuristics and trial-and-error. 
-Actually, recently a variational approach has been proposed.
-In this work we set a baseline, with the comparison two methods: PCA and TICA. PCA is a linear method that finds the directions of maximum variance in the data, while TICA is a linear method that finds the directions of maximum autocorrelation in the data. 
-TICA is often considered more suitable for MSM construction, since it is designed to capture the slow dynamics of the system, which are often the most relevant for the process under study. However, PCA is still widely used, and it is interesting to compare the
-As a baseline, we will check if we find indeed that the tICA model is better as we expect.
+For tICA, the relevant hyperparameters are the number of retained time-lagged independent components and the tICA lag time ($\tau_{\mathrm{tICA}}$). The corresponding eigenvalues quantify the autocorrelation of the projected coordinates at lag time ($\tau_{\mathrm{tICA}}$).
+
+Historically, the selection of these hyperparameters relied largely on heuristic criteria and subsequent validation of the resulting MSM through Chapman-Kolmogorov (CK) tests. 
+More recently, variational approaches such as the Variational Approach for Markov Processes (VAMP) \cite{vamp_2013, vamp_2020} have introduced objective scoring functions that can be used to compare different choices of features, dimensionality-reduction parameters, and clustering schemes. 
+These scores provide a principled framework for model selection and are discussed in more detail in the Supporting Information.
+
+The hyperparameters of the dimensionality-reduction and clustering pipeline were selected by comparing cross-validated VAMP-2 scores over a grid of tICA lag times, 
+retained tICs, and numbers of k-means microstates. The model with the highest validation VAMP-2 score was selected, subject to subsequent MSM validation
+ by implied-timescale convergence and Chapman-Kolmogorov tests.
+
 
 \subsection{Statistical analysis}
-Here talk about Bayesian uncertainty estimation, implied timescales test, CK test. 
-Maybe show tables and figures of the results of the statistical analysis here? Something, the other can go in SI. Also estimation of the folding time.
-
+Here talk about everything you do after you have the validated MSM: the TPT analysis, the estimation of pathways, and the coarse graining.
 
 \section{Results}
 This is the real talk, the biological talk! Comparative analysis of the results of the various MSM constructed.
@@ -231,6 +233,9 @@ The text should contain references, to previous results, data, methods, software
 % --------------------------------------------------------
 % ---------------- METHODS  ------------------------------
 
+
+% Big things
+
 \bibitem{thebible}
     G.R. Bowman, V.S. Pande and F. Noé,
     \textit{An Introduction to Markov State Models and Their Application to Long Timescale Molecular Simulation}
@@ -256,15 +261,34 @@ DOI: 10.1088/2632-2153/ac3de0.
     J. Chem. Phys., 148(24):241703, 2018. 
     DOI: 10.1063/1.5011399.
 
+\bibitem{vamp_2013}
+    F. No\'e and F. Nüske,
+    \textit{A variational approach to modeling slow processes in stochastic dynamical systems},
+    Multiscale Modeling \& Simulation 11(2):635-655, 2013.
+    DOI: 10.1137/12089574X.
+
+\bibitem{vamp_2020}
+    H. Wu and F. Noé,
+    \textit{Variational approach for learning markov processes from time series data},
+    Journal of Nonlinear Science 30(1):23-66, 2020.
+    DOI: 10.1007/s00332-019-09576-8.
+
+% Small things
+
+\bibitem{Sittel2017}
+    F. Sittel, T. Filk and G. Stock,
+    \textit{Principal component analysis on a torus: Theory and application to protein dynamics}
+    J Chem Phys. 147(24):244101, 2017.  
+    DOI: 10.1063/1.4998259.
+
+
+\bibitem{MoSAIC}
+   G. Diez, D. Nagel and G. Stock,
+   \textit{Correlation-based feature selection to identify functional dynamics in proteins.} 
+   J. Chem. Theory Comput. 2022, 18, 5079-5088.
+   DOI: 10.1021/acs.jctc.2c00337.
+
 \end{thebibliography}
-
-
-
-
-
-
-
-
 
 \newpage
 \appendix
