@@ -356,32 +356,28 @@ its autocorrelation at lag time $\tau$.
 
 \noindent \textbf{PCA} seeks the direction of maximal variance. The first principal component is defined as
 \begin{align}
-\ket{\hat{u}_1}
-=\arg\max
-\bra{\hat{u}}\mathbf{C}_0\ket{\hat{u}}  \notag \\
-\text{subject to}\,\,
-\|\hat{u}\|=1
+\ket{\hat{u}_1} =& \arg\max \bra{\hat{u}}\mathbf{C}_0\ket{\hat{u}}  \notag \\
+&\text{subject to}\,\,\|\hat{u}\|=1
 \end{align}
 
 this optimization problem can be solved introducing a Lagrange multiplier $\lambda$, and the stationarity condition yields
 
 \begin{equation}
-\mathbf{C}_0 \ket{\hat{u}_i}
-=
-\lambda_i \ket{\hat{u}_i},
+\mathbf{C}_0 \ket{\hat{u}_i} =\lambda_i \ket{\hat{u}_i},
 \end{equation}
 
 i.e. the projection versor is an eigenvector of the covariance matrix. The corresponding eigenvalue equals the variance of the data projected onto the principal component:
 
-\begin{equation}
+\begin{equation*}
 \bra{\hat{u}_i}\mathbf{C}_0\ket{\hat{u}_i} = \lambda_i \cdot \braket{\hat{u}_i|\hat{u}_i} = \lambda_i.
-\end{equation}
+\end{equation*}
 
 Then the second principal component is defined as the direction of maximal variance orthogonal to the first, giving the 
 optimization problem:
 \begin{align}
-\ket{\hat{u}_2} &= \bra{\hat{u}}\mathbf{C}_0\ket{\hat{u}} \notag \\
-\text{subject to} & \,\, \|\hat{u}\|=1, \braket{\hat{u}|\hat{u}_1}=0
+\ket{\hat{u}_2} = &\text{argmax}\bra{u}\mathbf{C}_0\ket{u} \notag \\
+&\text{subject to}  \,\, \braket{u|u} = 1 \notag \\
+&\text{and}   \,\, \braket{u|\hat{u}_1} = 0
 \end{align}
 
 which again can be solved with Lagrange multipliers. Iterating, this implies that the principal components form an orthonormal basis of eigenvectors of the covariance matrix, i.e. they diagonalize the covariance matrix.
@@ -390,16 +386,14 @@ principal components $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.
 
 
 \begin{equation}
-z_i = \braket{u_i|x},
-\qquad
-\mathbf z = U^T \mathbf x.
+z_i = \braket{\hat{u}_i|x}, \qquad \mathbf z = U^T \mathbf x.
 \end{equation}
 
 This is a linear projection onto an ortonormal basis:
 
-\begin{equation}
-    \ket{x} \rightarrow \ket{z} := \sum_{i = 1}^{d}\, \braket{x | u_i}\, \ket{u_i} 
-\end{equation}
+\begin{equation*}
+    \ket{x} \rightarrow \ket{z} := \sum_{i = 1}^{d}\, \braket{x | \hat{u}_i}\, \ket{\hat{u}_i} 
+\end{equation*}
 
 By construction, in the reduced space components are uncorrelated and ordered by decreasing variance:
 
@@ -414,21 +408,21 @@ Formally, tICA solves the optimization problem:
 
 \begin{align}
     \label{eq:generalized_eigenvalue_problem}
-\ket{\hat{u}_1} &= \bra{\hat{u}}\mathbf{C}_{\tau}\ket{\hat{u}} \notag \\
-\text{subject to} & \,\, \bra{\hat{u}}\mathbf{C}_{0}\ket{\hat{u}} = 1
+\ket{\hat{u}_1} =& \text{argmax}\bra{u}\mathbf{C}_{\tau}\ket{u} \notag \\
+&\text{subject to}  \,\, \bra{u}\mathbf{C}_{0}\ket{u} = 1
 \end{align}
 
 using the same procedure as for PCA, we can solve this with Lagrange multipliers, and show that
 
 
 \begin{equation}
-\mathbf{C}_{\tau}\ket{u_1}
+\mathbf{C}_{\tau}\ket{\hat{u}_1}
 =
 \lambda_1
-\mathbf{C}_{0}\ket{u_1},
+\mathbf{C}_{0}\ket{\hat{u}_1},
 \end{equation}.
 
-The generalized eigenvalue $\lambda_i$ is the autocorrelation of $\braket{u_1 | x}$ at lag time $\tau$. Under the assumption that the corresponding mode is approximately a single relaxation process, the eigenvalue is interpreted as
+The generalized eigenvalue $\lambda_1$ is the autocorrelation of $\braket{\hat{u}_1 | x(t)}$ at lag time $\tau$. Under the assumption that the corresponding mode is approximately a single relaxation process, the eigenvalue is interpreted as
 
 \begin{equation}
     \label{eq:eigvals_and_timescales}
@@ -442,20 +436,20 @@ Similarly as done with PCA, we can iterate this procedure and define the second 
 
 
 \begin{align}
-\ket{\hat{u}_2} &= \text{argmax} \bra{u}\mathbf{C}_{\tau}\ket{u} \notag \\
-\text{subject to} & \,\, \bra{u}\mathbf{C}_{0}\ket{u} = 1 \notag \\
-\text{and}  & \,\, \bra{\hat{u}}\mathbf{C}_{0}\ket{\hat{u}_1} = 0
+\ket{\hat{u}_2} = &\text{argmax} \bra{u}\mathbf{C}_{\tau}\ket{u} \notag \\
+&\text{subject to}  \,\, \bra{u}\mathbf{C}_{0}\ket{u} = 1 \notag \\
+&\text{and}   \,\, \bra{u}\mathbf{C}_{0}\ket{\hat{u}_1} = 0
 \end{align}
 
 the solution $\ket{\hat{u}_1}$ is again a solution of the same generalized eigenvalue problem as in Eq.\eqref{eq:generalized_eigenvalue_problem}.
 generalized eigenvalue problem.
-Dimensionality reduction ($d < D$) is achieved by projecting the data onto the subspace spanned by the first $d$ tICs $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.
+Dimensionality reduction ($d < D$) is achieved by taking the components of the data $\mathbf{x}(t)$ along the first $d$ tICs $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.
 
 \begin{equation}
-    \mathbf{z} = (\braket{x | u_i}, \cdots, \braket{x | u_d})
+    \mathbf{z}(t) = (\braket{x(t) | \hat{u}_i}, \cdots, \braket{x(t) | \hat{u}_d})
 \end{equation}
 
-By construction, in the reduced space components have unit variance, are uncorrelated,  and are ordered by decreasing autocorrelation at lag time $\tau$.
+By construction, in the reduced space components $z_i$ have unit variance, are uncorrelated at zero lag,  and are ordered by decreasing autocorrelation at lag time $\tau$.
 
 \begin{equation}
     \label{eq:original_tica}
@@ -470,42 +464,48 @@ It is worth noting that unlike in PCA, the tIC vectors are generally not orthogo
 $$
 \bra{u_i}\mathbf C_0\ket{u_j}=\delta_{ij}.
 $$
-i.e. they are \textit{uncorrelated} with each other. Nevertheless, the tICA procedure can be reformulated as a standard eigenvalue problem in a transformed coordinate system. The key idea is to first apply a whitening transformation, which rescales and rotates the original data so that all directions have unit variance and are mutually uncorrelated.
+i.e. they corresponding components $z_i$ and $z_j$ are \textit{uncorrelated} at zero lag. Nevertheless, the tICA procedure can be reformulated as a standard eigenvalue problem in a transformed coordinate system. The key idea is to first apply a whitening transformation, which rescales and rotates the original data so that all directions have unit variance and are mutually uncorrelated. Define the ZCA whitening transformation
 
-Define the whitening transformation
-
-\begin{equation}
+\begin{equation*}
 \ket{y} = \mathbf C_0^{-1/2} \ket{x}
-\end{equation}
+\end{equation*}
 
-By construction, the covariance matrix in the transformed space is the identity:
+where $C_0^{-1/2}$ is symmetric and positive definite. By construction, the covariance matrix in the transformed space is the identity:
 
-\begin{equation}
+\begin{equation*}
 \mathbb E\left[\ket{y}\bra{y}\right] = \mathbf{C}_0^{-1/2} \mathbf{C}_0 \mathbf{C}_0^{-1/2} = \mathbf I.
-\end{equation}
+\end{equation*}
 
 and time-lagged covariance matrix in the whitened space is
 
-\begin{equation}
+\begin{equation*}
 \hat{\mathbf{C}}_\tau = \mathbf C_0^{-1/2} \mathbf C_\tau \mathbf C_0^{-1/2}
-\end{equation}
+\end{equation*}
 
 $\hat{\mathbf{C}}_\tau$ is symmetric and can thus be diagonalized:,
 
-\begin{equation}
+\begin{equation*}
 \hat{\mathbf{C}}_\tau \ket{v_i} = \lambda_i \ket{v_i}, \qquad
 \braket{v_i|v_j} = \delta_{ij}.
-\end{equation}
+\end{equation*}
 
-The generalized eigenvectors of the original tICA problem are recovered through
+If $\ket{u_i}$ solves the tICA problem \eqref{eq:generalized_eigenvalue_problem}, then $\ket{v_i} = \mathbf C_0^{1/2} \ket{u_i}$ is an eigenvector of $\hat{\mathbf{C}}_\tau$ with the same eigenvalue.
 
-\begin{equation}
-\ket{u_i} = \mathbf C_0^{-1/2}\ket{v_i}.
-\end{equation}
+Indeed, multiplying the generalized eigenvalue problem \eqref{eq:generalized_eigenvalue_problem} from the left by $\mathbf C_0^{-1/2}$ and defining
+$\ket{v_i} = \mathbf C_0^{1/2}\ket{u_i}$ yields
 
-Therefore, tICA can be interpreted as PCA-like diagonalization of the time-lagged covariance matrix after whitening the data. In the whitened space, the tICs form an orthonormal basis.
+\begin{equation*}
+\hat{\mathbf C}_\tau \ket{v_i} = \lambda_i \ket{v_i}.
+\end{equation*}
+
+Consequently, the tICA components $z_i$ correspond to the ortogonal projection of the whitened data $\mathbf{y}$ onto the ortonormal basis defined by $\{\ket{v_i}\}$:
+
+\begin{equation*}
+z_i(t) = \braket{x(t)|u_i} = \braket{x(t) | C_0^{-1/2} v_i}  = \braket{y(t) | v_i}.
+\end{equation*}
+
+
 \vspace{1em}
-
 \noindent \textbf{Alternative generalized eigenvector normalizations for tICA}\newline 
 The construction presented above corresponds to the original formulation of tICA, in which the covariance matrix of the transformed data is the identity \eqref{eq:original_tica}.
 However, alternative rescaling of the transformed coordinates have been used in the literature and are usually implemented in softwares to endow Euclidean distances in the reduced space with a more direct kinetic interpretation. These can 
@@ -514,13 +514,13 @@ be particularly useful when the tICA coordinates are subsequently clustered to c
 The most commonly used choice is the \textit{kinetic map} in which each tIC component $z_i$ is multiplied by its corresponding eigenvalue,
 
 \begin{equation}
-\tilde z_i = \lambda_i z_i.
+\tilde z_i(t) = \lambda_i z_i(t).
 \end{equation}
 
 With this normalization, the coordinates representing the slowest processes "weight more", and a unit step in those directions in the reduced space is assigned a larger distance.
 An alternative is the \textit{commute map}, where each coordinate is rescaled according to its implied timescale,
 \begin{equation}
-\tilde z_i = \sqrt{\frac{t_i}{2}} z_i, \qquad t_i = -\frac{\tau}{\ln \lambda_i}.
+\tilde z_i(t) = \sqrt{\frac{t_i}{2}} z_i(t), \qquad t_i = -\frac{\tau}{\ln \lambda_i}.
 \end{equation}
 With this normalization, Euclidean distances approximate commute distances, i.e. the expected time required to travel from one configuration to another and back. This is a variation on the same idea behind the kinetic map, being eigenvalues and timescales connected by \eqref{eq:eigvals_and_timescales}.
 \subsection{Estimation of Markov state models}
