@@ -318,13 +318,8 @@ DOI: 10.1088/2632-2153/ac3de0.
 PCA and tICA are both linear dimensionality reduction techniques, i.e. they project the data onto a linear subspace of the original feature space. 
 Let $\{\mathbf{x}(t)\}_{t=0}^{T-1}$ be a multidimensional, discrete time-series, where each snapshot is a column vector, 
 of dimension $D$, corresponding to an arbitrary, vectorized representation of a protein conformation (e.g. a set of dihedral angles). 
-Suppose the data has been sampled from a stationary and time-reversible stochastic process (with unkown propagator) \textbf{tocheck}. 
-Without loss of generality, we assume that the data have been centered,
-\(
-\mathbb E[\mathbf{x}] = 0.
-\)
-
-Using the braket notation $\bra{x} := \mathbf{x}^T, \ket{x} := \mathbf{x} $, we define the covariance matrix:
+Suppose the data has been sampled from a \textit{stationary} and \textit{time-reversible} stochastic process. 
+Without loss of generality, we assume that the data have been centered, $\mathbb E[\mathbf{x}] = 0 $. Using the braket notation $\bra{x} := \mathbf{x}^T, \ket{x} := \mathbf{x} $, we define the covariance matrix:
 
 
 \begin{equation}
@@ -337,15 +332,9 @@ and the time-lagged covariance matrix:
 \end{align}
 
 For a stationary reversible process,
-
-\[
-\mathbf C_{0,\tau}
-=
-\mathbf C_{\tau,0}^{T}
-=
-\mathbf C_{\tau,0},
-\]
-
+\begin{equation*}
+\mathbf C_{0,\tau} = \mathbf C_{\tau,0}^{T} = \mathbf C_{\tau,0},
+\end{equation*}
 so that the lagged covariance matrix may be denoted simply by \(\mathbf C_\tau\).
 
 If $\ket{\hat{u}}\bra{\hat{u}}$ is a projection operator (i.e. $\ket{\hat{u}}$ is a unit vector), then:
@@ -357,15 +346,15 @@ is the variance of the projection of the data along $\ket{\hat{u}}$, and
 
 \begin{align}
     \label{eq:autocorrelation}
-    \textrm{ACF}_{\hat{u}}(\tau) &=\frac{\bra{\hat{u}}\mathbf{C}_{\tau}\ket{\hat{u}}}{\bra{\hat{u}}\mathbf{C}_{0}\ket{\hat{u}}} \\
-    \\ &= \frac{\mathbb{E}[\braket{\hat{u}|x(t)}\braket{\hat{u}|x(t+\tau)}]}{\mathbb{E}[\braket{\hat{u}|x}^2]}
+    \textrm{ACF}_{\hat{u}}(\tau) &=\frac{\bra{\hat{u}}\mathbf{C}_{\tau}\ket{\hat{u}}}{\bra{\hat{u}}\mathbf{C}_{0}\ket{\hat{u}}} \notag \\
+    \\ &= \frac{\mathbb{E}[\braket{\hat{u}|x(t)}\braket{\hat{u}|x(t+\tau)}]}{\mathbb{E}[\braket{\hat{u}|x}^2]} \notag 
 \end{align}
 
 its autocorrelation at lag time $\tau$.
 
 \vspace{0.5em}
 
-PCA seeks the direction of maximal variance. The first principal component is defined as
+\noindent \textbf{PCA} seeks the direction of maximal variance. The first principal component is defined as
 \begin{align}
 \ket{\hat{u}_1}
 =\arg\max
@@ -374,7 +363,7 @@ PCA seeks the direction of maximal variance. The first principal component is de
 \|\hat{u}\|=1
 \end{align}
 
-this can be solved introducing a Lagrange multiplier $\lambda$, and the stationarity condition yields
+this optimization problem can be solved introducing a Lagrange multiplier $\lambda$, and the stationarity condition yields
 
 \begin{equation}
 \mathbf{C}_0 \ket{\hat{u}_i}
@@ -395,12 +384,31 @@ optimization problem:
 \text{subject to} & \,\, \|\hat{u}\|=1, \braket{\hat{u}|\hat{u}_1}=0
 \end{align}
 
-which again can be solved with Lagrange multipliers. Iterating, this implies that the principal components form an orthonormal basis of eigenvectors of the covariance matrix.
-Dimensionality reduction ($d < D$) is achieved by projecting the data onto the subspace spanned by the first $d$ 
-principal components $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.  In the reduced space, components are uncorrelated and ordered by decreasing variance. 
+which again can be solved with Lagrange multipliers. Iterating, this implies that the principal components form an orthonormal basis of eigenvectors of the covariance matrix, i.e. they diagonalize the covariance matrix.
+Dimensionality reduction ($d < D$) is achieved by taking the components along the first $d$ 
+principal components $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.
 
+
+\begin{equation}
+z_i = \braket{u_i|x},
+\qquad
+\mathbf z = U^T \mathbf x.
+\end{equation}
+
+This is a linear projection onto an ortonormal basis:
+
+\begin{equation}
+    \ket{x} \rightarrow \ket{z} := \sum_{i = 1}^{d}\, \braket{x | u_i}\, \ket{u_i} 
+\end{equation}
+
+By construction, in the reduced space components are uncorrelated and ordered by decreasing variance:
+
+\begin{equation}
+ \mathbb{E}\!\left[\ket{z}\bra{z}\right] = \text{diag}(\lambda_1,\, \cdots \lambda_d)
+\end{equation}
 \vspace{1em}
-Unlike PCA, tICA \cite{my_tica_ref} seeks directions $\ket{u}$ that maximize the autocorrelation Eq.\eqref{eq:autocorrelation} at a fixed lag time $\tau$. The lagtime $\tau$ is a free parameter.
+
+\noindent \textbf{tICA} Unlike PCA, tICA \cite{my_tica_ref} seeks directions $\ket{u}$ that maximize the autocorrelation Eq.\eqref{eq:autocorrelation} at a fixed lag time $\tau$. The lagtime $\tau$ is a free parameter.
 The autocorrelation is invariant under scaling of the projection vector $\ket{u}$. Differently from PCA, the normalization constraint is usually implemented as $\bra{u}\mathbf{C}_{0}\ket{u}=1$, as this choice simplifies the optimization problem.
 Formally, tICA solves the optimization problem:
 
@@ -419,8 +427,18 @@ using the same procedure as for PCA, we can solve this with Lagrange multipliers
 \lambda_1
 \mathbf{C}_{0}\ket{u_1},
 \end{equation}.
-the eigenvalue $\lambda_1$ is exactly the autocorrelation of the projected coordinate at lag time $\tau$. Similarly as done with PCA,
-we can iterate this procedure and define the second tIC as the direction of maximal autocorrelation at lag time $\tau$ that is \textit{uncorrelated} with the first:
+
+The generalized eigenvalue $\lambda_i$ is the autocorrelation of $\braket{u_1 | x}$ at lag time $\tau$. Under the assumption that the corresponding mode is approximately a single relaxation process, the eigenvalue is interpreted as
+
+\begin{equation}
+    \label{eq:eigvals_and_timescales}
+\lambda_i \approx e^{-\tau/t_i},
+\end{equation}
+
+where $t_i$ is the associated relaxation timescale.
+
+
+Similarly as done with PCA, we can iterate this procedure and define the second tIC as the direction of maximal autocorrelation at lag time $\tau$ that is \textit{uncorrelated} with the first:
 
 
 \begin{align}
@@ -431,60 +449,80 @@ we can iterate this procedure and define the second tIC as the direction of maxi
 
 the solution $\ket{\hat{u}_1}$ is again a solution of the same generalized eigenvalue problem as in Eq.\eqref{eq:generalized_eigenvalue_problem}.
 generalized eigenvalue problem.
-Dimensionality reduction is achieved by projecting the data onto the subspace spanned by the first $d$ tICs $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$, which are ordered by decreasing autocorrelation at lag time $\tau$.
-In the reduced space, components have unit variance.
+Dimensionality reduction ($d < D$) is achieved by projecting the data onto the subspace spanned by the first $d$ tICs $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.
+
+\begin{equation}
+    \mathbf{z} = (\braket{x | u_i}, \cdots, \braket{x | u_d})
+\end{equation}
+
+By construction, in the reduced space components have unit variance, are uncorrelated,  and are ordered by decreasing autocorrelation at lag time $\tau$.
+
+\begin{equation}
+    \label{eq:original_tica}
+ \mathbb{E}\!\left[\ket{z}\bra{z}\right] = \mathbb{I}
+\end{equation}
+
 \vspace{1em}
 
-It is worth noting that the tICA procedure outlined corresponds to:
-\begin{itemize}
-\item performing a whitening transformation of the data, which transforms the covariance matrix into the identity matrix,
 
-\begin{align*}
-\ket{y} &= \mathbf{W}\ket{x}  \notag \\
-\mathbb{E}\!\left[\ket{y}\bra{y}\right] &= \mathbf{W}\mathbf{C}_0\mathbf{W}^{T} = \mathbf{I}.
-\end{align*}
-
-\item and then performing an ordinary eigenvalue decomposition of the time-lagged covariance matrix in the whitened coordinates, with the unit norm constraint on the projection vectors.
-
-\begin{equation}
-\mathbf{K}
-=
-\mathbf{W}\mathbf{C}_{\tau}\mathbf{W}^{T}
-=
-\mathbf{C}_0^{-1/2}
-\mathbf{C}_{\tau}
-\mathbf{C}_0^{-1/2}.
-\end{equation}
-
-Defining
-
-\begin{equation}
-\ket{v}
-=
-\mathbf{C}_0^{1/2}\ket{u},
-\end{equation}
-the tICA optimization problem becomes
-
-\begin{equation}
-\ket{\hat{v}_1}
-=
-\arg\max_{\|v\|=1}
-\bra{v}\mathbf{K}\ket{v},
-\end{equation}
-
-\end{itemize}
-
-Unlike PCA, the tIC vectors are generally not orthogonal under the standard Euclidean inner product. Instead, they satisfy the generalized orthogonality relation
-
+\noindent \textbf{tICA as a diagonalization in the whitened coordinate space}
+It is worth noting that unlike in PCA, the tIC vectors are generally not orthogonal under the standard Euclidean inner product. Instead, as we said, they satisfy the generalized orthogonality relation
 $$
 \bra{u_i}\mathbf C_0\ket{u_j}=\delta_{ij}.
 $$
-i.e. they are \textit{uncorrelated} with each other.
-Consequently, Euclidean distances in the original feature space do not directly correspond to Euclidean distances in the tIC representation. 
-Instead, distances in the tIC space correspond to Mahalanobis distances in the original feature space or, equivalently, to Euclidean distances in the whitened space.
+i.e. they are \textit{uncorrelated} with each other. Nevertheless, the tICA procedure can be reformulated as a standard eigenvalue problem in a transformed coordinate system. The key idea is to first apply a whitening transformation, which rescales and rotates the original data so that all directions have unit variance and are mutually uncorrelated.
 
+Define the whitening transformation
 
+\begin{equation}
+\ket{y} = \mathbf C_0^{-1/2} \ket{x}
+\end{equation}
 
+By construction, the covariance matrix in the transformed space is the identity:
+
+\begin{equation}
+\mathbb E\left[\ket{y}\bra{y}\right] = \mathbf{C}_0^{-1/2} \mathbf{C}_0 \mathbf{C}_0^{-1/2} = \mathbf I.
+\end{equation}
+
+and time-lagged covariance matrix in the whitened space is
+
+\begin{equation}
+\hat{\mathbf{C}}_\tau = \mathbf C_0^{-1/2} \mathbf C_\tau \mathbf C_0^{-1/2}
+\end{equation}
+
+$\hat{\mathbf{C}}_\tau$ is symmetric and can thus be diagonalized:,
+
+\begin{equation}
+\hat{\mathbf{C}}_\tau \ket{v_i} = \lambda_i \ket{v_i}, \qquad
+\braket{v_i|v_j} = \delta_{ij}.
+\end{equation}
+
+The generalized eigenvectors of the original tICA problem are recovered through
+
+\begin{equation}
+\ket{u_i} = \mathbf C_0^{-1/2}\ket{v_i}.
+\end{equation}
+
+Therefore, tICA can be interpreted as PCA-like diagonalization of the time-lagged covariance matrix after whitening the data. In the whitened space, the tICs form an orthonormal basis.
+\vspace{1em}
+
+\noindent \textbf{Alternative generalized eigenvector normalizations for tICA}\newline 
+The construction presented above corresponds to the original formulation of tICA, in which the covariance matrix of the transformed data is the identity \eqref{eq:original_tica}.
+However, alternative rescaling of the transformed coordinates have been used in the literature and are usually implemented in softwares to endow Euclidean distances in the reduced space with a more direct kinetic interpretation. These can 
+be particularly useful when the tICA coordinates are subsequently clustered to construct a Markov state model, as we do in this work.
+
+The most commonly used choice is the \textit{kinetic map} in which each tIC component $z_i$ is multiplied by its corresponding eigenvalue,
+
+\begin{equation}
+\tilde z_i = \lambda_i z_i.
+\end{equation}
+
+With this normalization, the coordinates representing the slowest processes "weight more", and a unit step in those directions in the reduced space is assigned a larger distance.
+An alternative is the \textit{commute map}, where each coordinate is rescaled according to its implied timescale,
+\begin{equation}
+\tilde z_i = \sqrt{\frac{t_i}{2}} z_i, \qquad t_i = -\frac{\tau}{\ln \lambda_i}.
+\end{equation}
+With this normalization, Euclidean distances approximate commute distances, i.e. the expected time required to travel from one configuration to another and back. This is a variation on the same idea behind the kinetic map, being eigenvalues and timescales connected by \eqref{eq:eigvals_and_timescales}.
 \subsection{Estimation of Markov state models}
 \label{sec:SI_msm}
 
