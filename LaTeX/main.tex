@@ -52,7 +52,7 @@
 \date{\today}
 
 \begin{abstract}
-    Add at the very end
+    In this work, we compare different feature sets and dimensionality reduction methods for the construction of Markov state models (MSMs) of the folding of the HP35 villin headpiece.
 \end{abstract}
 
 \maketitle
@@ -130,8 +130,7 @@ To remove motions that are unlikely to contribute to the folding dynamics, the a
 The feature representations described above are high-dimensional and therefore unsuitable for direct clustering. A dimensionality-reduction step is commonly employed to obtain a compact representation of the conformational ensemble while retaining the information relevant to the slow dynamics. Ideally, conformations that rapidly interconvert should remain close in the reduced space, whereas conformations separated by slow transitions should be well separated. Since microstates are subsequently defined by clustering in this reduced space, the quality of the dimensionality reduction directly affects the quality of the resulting Markov state model.
 Many methods have been proposed, both linear and nonlinear, some aided by deep learning. 
 
-In this work we restrict ourselves to considering two widely used linear dimensionality-reduction methods: principal component analysis (PCA) and time-lagged independent component analysis (tICA). PCA identifies orthogonal directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation at a specified lag time. Because slow molecular processes are typically associated with slowly decorrelating coordinates, tICA is often regarded as more suitable for MSM construction.
-
+In this work we restrict ourselves to considering two widely used linear dimensionality-reduction methods: principal component analysis (PCA) and time-lagged independent component analysis (tICA). PCA identifies orthogonal directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation at a specified lag time. Because slow molecular processes are typically associated with slowly decorrelating coordinates, tICA is often regarded as more suitable for MSM construction. We compare different variations of tICA, namely i) no normalization, ii) kinetic map rescaling and ii) compute time rescaling [\ref{sec:SI_dimred}].
 After dimensionality reduction, conformations were partitioned into microstates using the k-means clustering algorithm.
 \bigskip \newline \noindent
 
@@ -153,7 +152,7 @@ Maybe also implied timescales test?
 
 
 \textbf{MSM validation}
-The models selected were validated with a Chapman-Kolmogorov test.
+The models selected were validated with a Chapman-Kolmogorov test [\ref{sec:SI_validation}].
 
 
 \subsection{Statistical analysis}
@@ -523,8 +522,14 @@ An alternative is the \textit{commute map}, where each coordinate is rescaled ac
 \tilde z_i(t) = \sqrt{\frac{t_i}{2}} z_i(t), \qquad t_i = -\frac{\tau}{\ln \lambda_i}.
 \end{equation}
 With this normalization, Euclidean distances approximate commute distances, i.e. the expected time required to travel from one configuration to another and back. This is a variation on the same idea behind the kinetic map, being eigenvalues and timescales connected by \eqref{eq:eigvals_and_timescales}.
-\subsection{Estimation of Markov state models}
-\label{sec:SI_msm}
+
+
+
+\subsection{Estimation and validationof Markov state models}
+\label{sec:SI_validation}
+
+\textbf{CK test} \newline \noindent
+To insert.
 
 \subsection{VAMP scores}
 \label{sec:SI_vamp}
