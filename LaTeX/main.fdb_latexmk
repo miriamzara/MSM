@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1780753857.19977 "main.aux" "main.bbl" "main" 1780826474.58828 0
-  "./mainNotes.bib" 1780826474.3174 103 48ad29797468f16e2853d8797278d7af ""
+["bibtex main"] 1780857360.90412 "main.aux" "main.bbl" "main" 1780857363.04122 0
+  "./mainNotes.bib" 1780857362.80486 103 48ad29797468f16e2853d8797278d7af ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/revtex4-1/apsrev4-1.bst" 1602107945 71515 e333383ed72bf24aa6de7e8cabb55f84 ""
-  "main.aux" 1780826474.31661 6387 0eaf5ad4f7cad7b77c8c034fa27520a9 "pdflatex"
+  "main.aux" 1780857362.80382 8659 0d76e41b45da83dea400c96610b1df67 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1780826473.4508 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1780826474.58848 0
-  "/Users/miriamzara/MSM/LaTeX/main.tex" 1780826473.24251 30578 5e469736fdf980e11fbd161c3c7652e1 ""
+["pdflatex"] 1780857360.99344 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1780857363.04137 0
+  "/Users/miriamzara/MSM/LaTeX/main.tex" 1780857358.55229 31393 d6c5f70cdc315ad2e6e8c12fe686821d ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -137,11 +137,14 @@
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1729844435 8221430 a04bf4689fa4be2174b5dfe2d7bff089 ""
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
   "figures/mosaic_clusters.png" 1780496729.87084 163423 b3fd035b9c0481c09a6898ca0077e7ac ""
+  "figures/pca_free_energies.png" 1780856817.39647 319278 18b3a531cdaa8df68fe5549e302008f0 ""
   "figures/sample_fig1.png" 1780496200.02042 261811 cd21e180ddb8901a9c87f31d9d51d68f ""
-  "main.aux" 1780826474.31661 6387 0eaf5ad4f7cad7b77c8c034fa27520a9 "pdflatex"
-  "main.bbl" 1780753857.2861 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
-  "main.out" 1780826474.31725 4304 31834028d33922c1e3cf616dbd964f86 "pdflatex"
-  "main.tex" 1780826473.24251 30578 5e469736fdf980e11fbd161c3c7652e1 ""
+  "figures/tica_dihedrals_lagtime.png" 1780856823.65463 810790 6dd306da3d177510a6df05cffa47dcb5 ""
+  "figures/tica_distances_lagtime.png" 1780856831.7309 759952 10aa87c082a753bf7124426810e5a449 ""
+  "main.aux" 1780857362.80382 8659 0d76e41b45da83dea400c96610b1df67 "pdflatex"
+  "main.bbl" 1780857360.9913 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
+  "main.out" 1780857362.80467 4468 f1b5fa1998a6ad21af70b70e52227f23 "pdflatex"
+  "main.tex" 1780857358.55229 31393 d6c5f70cdc315ad2e6e8c12fe686821d ""
   (generated)
   "main.aux"
   "main.log"
@@ -149,4 +152,3 @@
   "main.pdf"
   "mainNotes.bib"
   (rewritten before read)
-
