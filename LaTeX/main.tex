@@ -421,15 +421,14 @@ using the same procedure as for PCA, we can solve this with Lagrange multipliers
 \mathbf{C}_{0}\ket{\hat{u}_1},
 \end{equation}.
 
-The generalized eigenvalue $\lambda_1$ is the autocorrelation of $\braket{\hat{u}_1 | x(t)}$ at lag time $\tau$. Under the assumption that the corresponding mode is approximately a single relaxation process, the eigenvalue is interpreted as
+The generalized eigenvalue $\lambda_i$ is equal to the autocorrelation of the projected coordinate $\braket{\hat{u}_i|x(t)}$ at lag time $\tau$. Assuming that this coordinate approximates a single relaxation mode of the dynamics, its autocorrelation decays exponentially, yielding
 
 \begin{equation}
     \label{eq:eigvals_and_timescales}
-\lambda_i \approx e^{-\tau/t_i},
+    \lambda_i \approx e^{-\tau/t_i},
 \end{equation}
 
-where $t_i$ is the associated relaxation timescale.
-
+where $t_i$ is the corresponding relaxation timescale. In practice, the relation is approximate because a tIC may contain contributions from multiple dynamical modes.
 
 Similarly as done with PCA, we can iterate this procedure and define the second tIC as the direction of maximal autocorrelation at lag time $\tau$ that is \textit{uncorrelated} with the first:
 
