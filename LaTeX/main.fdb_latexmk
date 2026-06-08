@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1780910122.04297 "main.aux" "main.bbl" "main" 1780911182.33568 0
-  "./mainNotes.bib" 1780911182.05278 103 48ad29797468f16e2853d8797278d7af ""
+["bibtex main"] 1780940663.9777 "main.aux" "main.bbl" "main" 1780940666.45671 0
+  "./mainNotes.bib" 1780940666.21733 103 48ad29797468f16e2853d8797278d7af ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/revtex4-1/apsrev4-1.bst" 1602107945 71515 e333383ed72bf24aa6de7e8cabb55f84 ""
-  "main.aux" 1780911182.05141 14985 4fea443b7dcd551ed0714072215f5cfa "pdflatex"
+  "main.aux" 1780940666.21595 15693 1d126f22c7604b143094ad9268820b2f "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1780911179.87879 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1780911182.33582 0
-  "/Users/miriamzara/MSM/LaTeX/main.tex" 1780911179.60876 33707 03eccb3a330aba21c91172bef47892ce ""
+["pdflatex"] 1780940664.06763 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1780940666.45688 0
+  "/Users/miriamzara/MSM/LaTeX/main.tex" 1780940661.26999 33938 80cbf741dfdc89601a93f1c6083c7bf7 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -145,10 +145,11 @@
   "figures/sample_fig1.png" 1780496200.02042 261811 cd21e180ddb8901a9c87f31d9d51d68f ""
   "figures/tica_dihedrals_lagtime.png" 1780856823.65463 810790 6dd306da3d177510a6df05cffa47dcb5 ""
   "figures/tica_distances_lagtime.png" 1780856831.7309 759952 10aa87c082a753bf7124426810e5a449 ""
-  "main.aux" 1780911182.05141 14985 4fea443b7dcd551ed0714072215f5cfa "pdflatex"
-  "main.bbl" 1780910122.13261 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
-  "main.out" 1780911182.05259 4468 f1b5fa1998a6ad21af70b70e52227f23 "pdflatex"
-  "main.tex" 1780911179.60876 33707 03eccb3a330aba21c91172bef47892ce ""
+  "figures/timescales_test.png" 1780940393.29629 158254 8be8cb37b1cb97de137f4bbffbb6a63e ""
+  "main.aux" 1780940666.21595 15693 1d126f22c7604b143094ad9268820b2f "pdflatex"
+  "main.bbl" 1780940664.06541 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
+  "main.out" 1780940666.21713 4468 678416e2df27e57ce3484a6050775a46 "pdflatex"
+  "main.tex" 1780940661.26999 33938 80cbf741dfdc89601a93f1c6083c7bf7 ""
   (generated)
   "main.aux"
   "main.log"
