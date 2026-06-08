@@ -57,37 +57,24 @@
 
 \maketitle
 
-
 \section{Introduction}
 
 \subsection{Brief description of the biological problem, knowns and unknowns}
-Markov State Models (MSMs) have been used for nearly two decades to extract kinetic information from molecular dynamics
-simulations and provide a coarse-grained description of the conformational space of biomolecules \cite{thebible}.
-The classical pipeline for building MSMs consists of several steps, each 
-involving a number of choices that can affect the quality of the final model. 
-Although procedures have standardized over the years, still the process consists of stages where more than one choice is possible and free parameters 
-must be optimized in lack of a clear minimization objective, making the process appear somewhat "handcrafted".
-Recently, deep learning approaches have been proposed to automate some parts or all of the process of building MSMs 
-- most imporantly, feature selection and dimensionality reduction stages \cite{vampnets}\cite{time_lagged_autoencoders}, with the aim is improving the quality of the resulting models and reducing the human-induced bias.
-
+\noindent Markov State Models (MSMs) have become a standard framework for extracting long-timescale kinetics from molecular dynamics simulations and for constructing coarse-grained descriptions of biomolecular conformational landscapes \cite{thebible}. Building an MSM typically involves several stages, including feature selection, dimensionality reduction, clustering, transition matrix estimation, validation and coarse-graining. 
+In recent years, MSM methodology has evolved rapidly, with advances in state construction, uncertainty quantification, and the incorporation of machine learning for identifying collective variables and building models at scale, such as VAMPnets \cite{vampnets} and time-lagged autoencoders \cite{time_lagged_autoencoders}.
+Beyond methodological developments, MSMs are increasingly integrated with experimental observables and applied to larger and more complex systems. Together, these efforts reflect a field that continues to evolve in both rigor and scope \cite{2026_special_issue}.
 
 \subsection{Defining the question}
-In this work we review the classical pipeline of MSM construction, concentrating on the feature selection and dimensionality reduction stages. The aim is to
-review the classical approaches before moving on to the deep learning ones, and setting up a baseline for model comparison that can be extended to comphrehend the
-deep learning methods in future studies. 
+\noindent The purpose of this university project is to move the first steps into the world of Markov state modeling. The goal is to review and benchmark the classical MSM construction pipeline, with particular emphasis on feature selection and dimensionality reduction stages. Establishing a clear baseline based on conventional methods is a necessary step before evaluating more sophisticated machine-learning approaches in future studies.
 
 \subsection{Defining the plan: translating the question on the language of the computer (brief)}
-We use the HP35 villin headpiece as a case study, a small protein that has been extensively studied in the literature and for which long molecular dynamics simulations are available.
-We compare two sets of features: contact distances and dihedrals. We compare two dimensionality reduction methods: PCA and TICA. 
-We compare the resulting models in terms of accuracy of the folding time estimate, ability to provide a structural caracterization of the metastable states, and
-robustness to hyperparameter choice.
-
+\noindent As a case study, we consider the villin headpiece subdomain HP35, a small fast-folding protein for which extensive molecular dynamics trajectories are available. We compare two commonly used feature representations, native-contact distances and backbone dihedral angles, combined with two dimensionality-reduction methods, principal component analysis (PCA) and time-lagged independent component analysis (tICA). The resulting four MSMs are evaluated in terms of (i) their ability to reproduce the folding kinetics of the system and (ii) their ability to provide an interpretable characterization of the metastable conformational states.
 
 
 \section{Methods}
 \subsection{Dataset assembly}
 All analyses presented in this work are based on a single $300\,\mu\mathrm{s}$ molecular dynamics trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
-HP35 is a prototypical ultrafast-folding protein with an experimentally measured folding time of approximately $0.7,\mu\mathrm{s}$ at this temperature and has become a standard benchmark system for Markov state model construction and validation \cite{jain_stock_2014,selecting_features,towards_a_benchmark}.
+\noindent HP35 is a prototypical ultrafast-folding protein with an experimentally measured folding time of approximately $0.7,\mu\mathrm{s}$ at this temperature and has become a standard benchmark system for Markov state model construction and validation \cite{jain_stock_2014,selecting_features,towards_a_benchmark}.
 The trajectory was originally generated by D. E. Shaw Research on the Anton supercomputer and reported by Piana \textit{et al.} \cite{Shaw2012}. Their simulations predicted a folding time of approximately $1.5,\mu\mathrm{s}$, reasonably close to the experimental estimate of $0.73,\mu\mathrm{s}$ for the same mutant, although still larger by a factor of about $\times 2.5$.
 At the time of this work, the original trajectory generated by D. E. Shaw Research was temporarily unavailable due to maintenance of the data repository. We therefore used a preprocessed version distributed by Nagel \textit{et al.} through their GitHub repository, which has been adopted in recent benchmark studies of Markov state modeling \cite{selecting_features,towards_a_benchmark}.
 The timeseries consists of approximately $1.5\times10^6$ samples, with a sampling interval of $\simeq 200\, ps$.
@@ -103,38 +90,26 @@ The timeseries consists of approximately $1.5\times10^6$ samples, with a samplin
 \end{figure}
 
 \subsection{Methods used for analysis (in case you developed a method, it goes into Results)}
-All code is written in Python and is available on GitHub at \url{}. Markov state models were built using the Deeptime library \cite{deeptime}.
-Since MSM construction is a multi-step process, it is especially important to understand clearly the choices made at each step and validate them before moving on to the next one. The principle "garbage in, garbage out" applies here, and a mistake at an early stage can propagate and affect the final results. For this reason, in this
+Markov state models were built using the Deeptime library \cite{deeptime}.
+Since MSM construction is a multi-step process \ref{supp_fig:msm_flowchart}, it is especially important to understand clearly the choices made at each step and validate them before moving on to the next one. The principle "garbage in, garbage out" applies here, and a mistake at an early stage can propagate and affect the final results. For this reason, in this
 section we describe synthetically the motivation for each step and define the methods that were investigated and compared in this work.
 
+\vspace{0.5em}
 
+\noindent \textbf{Feature definition and filtering}
+The feature representations employed in this work were adopted from the preprocessing pipeline of Nagel \textit{et al.} \cite{selecting_features}, to which we refer the reader for a detailed description. Two feature sets were considered: native-contact distances and backbone dihedral angles. Native contacts were defined from folded conformations observed in the simulation and filtered using distance and frequency criteria, yielding 42 contact-distance features. 
+Backbone conformations were represented by ($\phi$) and ($\psi$) dihedral angles using the angular transformation proposed by Sittel \textit{et al.} \cite{Sittel2017} to account for periodicity. To remove weakly correlated motions unlikely to contribute to the folding dynamics, 
+the MoSAIC filtering procedure of Nagel \textit{et al.} \cite{selecting_features} was applied. The final dihedral feature set consisted of 62 coordinates, with ($\psi_1$), ($\psi_2$), ($\psi_{34}$), ($\phi_2$), ($\phi_{34}$), and ($\phi_{35}$) excluded.
 
-\begin{enumerate}
-    \item Feature selection: contact distances and dihedrals.
-    \item Dimensionality reduction: PCA and TICA.
-    \item Clustering into microstates.
-    \item MSM estimation: selection of lag time. Validation: implied timescales test.
-    \item Coarse-graining into macrostates: PCCA and MPP. Validation: CK test.
-\end{enumerate}
-
-
-\textbf{Feature definition and filtering}
-The feature representations employed in this work were adopted from the preprocessing pipeline of Nagel \textit{et al.} \cite{selecting_features}. We therefore provide only a brief summary here and refer the reader to the original publication for a detailed discussion.
-Two classes of structural descriptors were considered: native-contact distances and backbone dihedral angles. While the total number of pairwise residue distances grows quadratically with protein size, native contacts provide a compact representation focused on interactions that are relevant to the folding process. Following Nagel \textit{et al.}, native contacts were defined from the folded structures observed in the simulation rather than directly from the crystal structure. Distance and frequency cutoffs were applied to exclude transient contacts, yielding a set of 42 contact-distance features.
-Backbone conformations were described by the $\phi$ and $\psi$ dihedral angles. Instead of the standard sine--cosine transformation commonly used to handle angular periodicity, we adopted the angular representation proposed by Nagel \textit{et al.}, based on shifting the angular coordinates such that the largest gap in the Ramachandran distribution coincides with the periodic boundary. This minimizes distortions introduced by Euclidean distance measures while preserving the original angular coordinates \cite{Sittel2017}.
-As typically only a small subset of those coordinates is involved in a specific biomolecular process, it is important to discard the remaining uncorrelated motions or weakly correlated noise coordinates. This is because they may exhibit large amplitudes or long time scales and therefore will be erroneously considered important by PCA and TICA, respectively.
-To remove motions that are unlikely to contribute to the folding dynamics, the authors further applied the MoSAIC correlation analysis \cite{selecting_features}, which identifies groups of collectively varying coordinates and filters out largely uncorrelated motions. After this filtering step, the final feature sets consisted of 42 native-contact distances and 62 backbone dihedral angles, with the dihedrals $\psi_1$, $\psi_2$, $\psi_{34}$, $\phi_2$, $\phi_{34}$, and $\phi_{35}$ excluded from the analysis.
-\bigskip \newline \noindent
-
-\textbf{Dimensionality reduction and clustering}
+\vspace{0.5em}
+\noindent\textbf{Dimensionality reduction and clustering}
 The feature representations described above are high-dimensional and therefore unsuitable for direct clustering. A dimensionality-reduction step is commonly employed to obtain a compact representation of the conformational ensemble while retaining the information relevant to the slow dynamics. Ideally, conformations that rapidly interconvert should remain close in the reduced space, whereas conformations separated by slow transitions should be well separated. Since microstates are subsequently defined by clustering in this reduced space, the quality of the dimensionality reduction directly affects the quality of the resulting Markov state model.
 Many methods have been proposed, both linear and nonlinear, some aided by deep learning. 
-
 In this work we restrict ourselves to considering two widely used linear dimensionality-reduction methods: principal component analysis (PCA) and time-lagged independent component analysis (tICA). PCA identifies orthogonal directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation at a specified lag time. Because slow molecular processes are typically associated with slowly decorrelating coordinates, tICA is often regarded as more suitable for MSM construction. We compare different variations of tICA, namely i) no normalization, ii) kinetic map rescaling and ii) compute time rescaling [\ref{sec:SI_dimred}].
 After dimensionality reduction, conformations were partitioned into microstates using the k-means clustering algorithm.
-\bigskip \newline \noindent
 
-\textbf{MSM estimation and hyperparameter selection with VAMP}
+\vspace{0.5em}
+\noindent \textbf{MSM estimation and hyperparameter selection with VAMP}
 We estimated the transition matrix from the empirical count matrix of transitions between microstates and applying a maximum likelihood estimator. The selection of the lag time was one of the hyperparameters 
 to optimize and its optimization was done as explained in the next section.  
 
@@ -192,12 +167,20 @@ One paragraph, emphasizing the main finding and formulate a message for the futu
 \section{References}
 The text should contain references, to previous results, data, methods, softwares, etc.. Format is unrestricted, but you should use these refs in the text, and list them at the end. I expect ca 15-20 refs listed.
 
-
+\noindent \textbf{Data availability statement:} Preprocessed trajectories of the HP35 villin headpiece are kindly made available by Nagel et al. and downloadeable at their GitHub repository \url{https://github.com/moldyn/HP35-DESRES}.
+All code necessary to replicate the analysis showed in this work is available on GitHub at \url{https://github.com/miriamzara/MSM}.
 
 
 
 \begin{thebibliography}{99}
 \setlength{\itemsep}{3pt}  % adjust to taste
+
+\bibitem{2026_special_issue}
+    Bowman, Gregory R. and Clementi, Cecilia and Huang, Xuhui,  
+    \textit{Introduction to Markov State Modeling of Conformational Dynamics}, 
+    Journal of Chemical Theory and Computation, year 2026 volume 22.
+    DOI: 10.1021/acs.jctc.6c00351.
+
 
 % --------------------------------------------------------
 % -------- HP35 specific references ----------------------
@@ -547,25 +530,46 @@ To insert.
 \renewcommand{\thefigure}{SF\arabic{figure}}
 
 
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/draft_flowchart.png}
+    \caption{\small \textbf{Flowchart of the MSM construction pipeline used in this work}.}
+    \label{supp_fig:msm_flowchart}
+\end{figure*}
+
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/tica_dihedrals_lagtime.png}
-    \caption{\small tICA on dihedrals feature set. "Kinetic map" scaling is used. }
-    \label{fig:tica_dihedrals_lagtime}
+    \caption{\small \textbf{tICA projections obtained from the dihedral-angle feature set using kinetic-map scaling}. Columns correspond to different tICA lag times spanning four
+    orders of magnitude ($10,10^2,10^3,10^5$ frames; values in $\mu s$ are reported above each panel).
+    The top row shows the free-energy landscape projected onto the first two tICs, while the lower panels report the
+    first seven tIC time series (left) and their one-dimensional free-energy profiles (right) for the first $40\,\mu s$ of simulation.
+    A useful tICA projection should separate slowly interconverting conformations into distinct regions of configuration space and produce components exhibiting metastable, jump-like dynamics. 
+    Very short lag times lead to projections dominated by fast fluctuations, whereas excessively large lag times wash out the dynamical structure and yield nearly unimodal projections. 
+    Intermediate lag times ($\tau\sim 1{-}2\,\mu s$) provide the clearest separation of metastable states and the most pronounced residence/jump behaviour in the leading components.
+    Based on this analysis, a lag time of approximately $2\,\mu s$ and the first five tICs were retained for subsequent MSM construction.}
+    \label{supp_fig:tica_dihedrals_lagtime}
 \end{figure*}
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/tica_distances_lagtime.png}
-    \caption{\small tICA on distances feature set. "Kinetic map" scaling is used. }
-    \label{fig:tica_distances_lagtime}
+    \caption{\small \textbf{tICA projections obtained from the contact-distance feature set using kinetic-map scaling}. Compared to the dihedral-angle representation, the contact-distance features yield tICA coordinates with less clearly separated
+     free-energy minima and less pronounced metastable, jump-like dynamics. This suggests a weaker separation of slow conformational processes in the resulting low-dimensional projection. A lag time of $\tau = 10^3 frames (\approx 0.2\,\mu s)$ was selected to maintain consistency with the analysis performed on the dihedral feature set. 
+    At this lag time, the free-energy profiles become largely unimodal beyond the first few tICs, indicating that most of the slow dynamical information is concentrated in the leading components. 
+    Although the first three tICs appear to capture the dominant slow processes, as a more conservative choice the first five components were retained for subsequent MSM construction.}
+    \label{supp_fig:tica_distances_lagtime}
 \end{figure*}
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=0.7\linewidth]{figures/pca_free_energies.png}
-    \caption{\small PCA on free energy landscape. }
-    \label{fig:pca_free_energy}
+    \includegraphics[width=0.7\linewidth]{figures/pca_retained_components.png}
+    \caption{\small \textbf{Comparison of PCA projections obtained from the contact-distance feature set and from the dihedrals feature set.}. In contrast to tICA, the PCA projections provide a less clear separation of metastable conformational states. 
+    Free-energy profiles exhibit weaker clustering, the one-dimensional free-energy profiles are predominantly unimodal, and the principal-component time series do not display a pronounced residence/jump behavior, with exception of the first PC. Consistent with the tICA results, the dihedral-angle representation yields a more structured 
+    low-dimensional projection than the contact-distance features. For subsequent MSM construction we retain the first $7$ components for the dihedrals set and the first $5$ for the contact-distance set.}
+    \label{supp_fig:pca_retained_components}
 \end{figure*}
 
 
