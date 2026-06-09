@@ -3,4 +3,5 @@ data/
 *.npz
 *.npy
 *.csv
+.DS_Store
 backbone_reconstructions/
