@@ -72,6 +72,9 @@ Beyond methodological developments, MSMs are increasingly integrated with experi
 
 
 \section{Methods}
+
+{\color{blue}Rule of thumb: methods describe the procedure before seeing the outcome.}
+
 \subsection{Dataset assembly}
 All analyses presented in this work are based on a single $300\,\mu\mathrm{s}$ molecular dynamics trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
 \noindent HP35 is a prototypical ultrafast-folding protein with an experimentally measured folding time of approximately $0.7,\mu\mathrm{s}$ at this temperature and has become a standard benchmark system for Markov state model construction and validation \cite{jain_stock_2014,selecting_features,towards_a_benchmark}.
@@ -89,7 +92,7 @@ The timeseries consists of approximately $1.5\times10^6$ samples, with a samplin
     \label{fig:pipeline}
 \end{figure}
 
-\subsection{Methods used for analysis (in case you developed a method, it goes into Results)}
+\subsection{Methods used for MSM construction {\color{blue} used for analysis (in case you developed a method, it goes into Results)}}
 Markov state models Ire built using the Deeptime library \cite{deeptime}.
 Since MSM construction is a multi-step process \ref{supp_fig:msm_flowchart}, it is especially important to understand clearly the choices made at each step and validate them before moving on to the next one. The principle "garbage in, garbage out" applies here, and a mistake at an early stage can propagate and affect the final results. For this reason, in this
 section I describe synthetically the motivation for each step and define the methods that Ire investigated and compared in this work.
@@ -105,58 +108,65 @@ the MoSAIC filtering procedure of Nagel \textit{et al.} \cite{selecting_features
 %
 %
 \vspace{0.5em}\newline
-\noindent\textbf{Dimensionality reduction and clustering}
-Dimensionality reduction has the scope of reducing the dimensionality of the features for the subsequent definition of the states of the markov chain (referred to as microstates). 
-The feature representations described above are high-dimensional and therefore unsuitable
-for direct clustering. A dimensionality-reduction step is commonly employed to obtain a compact representation of the conformational ensemble while retaining the information relevant to the slow dynamics. 
-Ideally, conformations that rapidly interconvert should remain close in the reduced space, whereas conformations separated by slow transitions should be Ill separated. 
-Since microstates are subsequently defined by clustering in this reduced space, the quality of the dimensionality reduction directly affects the quality of the resulting Markov state model.
-Many methods have been proposed, both linear and nonlinear, some aided by deep learning. 
-In this work I restrict ourselves to considering two widely used linear dimensionality-reduction methods: principal component analysis (PCA) and time-lagged independent component analysis (tICA).
-PCA identifies orthogonal directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation at a specified lag time. Because slow molecular
-processes are typically associated with slowly decorrelating coordinates, tICA is often regarded as more suitable for MSM construction.
-I compare different variations of tICA, namely i) no normalization, ii) kinetic map rescaling and ii) compute time rescaling [\ref{sec:SI_dimred}].
-After dimensionality reduction, conformations Ire partitioned into microstates using the k-means clustering algorithm.
+\noindent\textbf{Dimensionality reduction}
+The purpose of dimensionality reduction in the MSM workflow is not only to compress the information contained in the molecular descriptors, 
+but also to \textit{encode kinetic information into the geometry} of the reduced space. This aspect is particularly important because the reduced
+coordinates are subsequently clustered into discrete states (so-called \textit{microstates}) that form the state set of the Markov chain.
+Since commonly used clustering algorithms such as k-means rely on Euclidean distance, conformations that interconvert rapidly should ideally be mapped
+to nearby points in the reduced space. Otherwise, conformations separated by substantial kinetic barriers may be assigned to the same cluster, resulting 
+in visible memory effects and inaccurate MSMs.
+Constructing low-dimensional representations that preserve kinetic information remains an active area of research. In this work, however, we restrict the analysis to the two classical linear approaches,
+principal component analysis (PCA) and time-lagged independent component analysis (tICA), which remain standard baselines in the MSM literature. PCA identifies directions of maximal variance in the data, 
+whereas tICA identifies directions of maximal autocorrelation and is therefore explicitly designed to emphasize slow dynamical processes. 
+A detailed mathematical description of both methods is provided in the Supplementary Information [\ref{sec:SI_dimred}].
+\newline
+Both PCA and tICA require selecting the number of retained components, while tICA additionally requires specifying a lag time. To guide this choice, 
+the reduced coordinates were evaluated through i) their free-energy profiles and ii) projected time series. The free energy associated with a coordinate $z$ was estimated as
+\begin{equation}
+F(z)=-\ln p(z),
+\end{equation}
+where $p(z)$ denotes the marginal probability density of the coordinate. The rationale behind this analysis is that coordinates relevant to the folding process should separate distinct metastable regions
+and therefore display multimodal free-energy profiles. Furthermore, if a coordinate captures transitions between metastable states, its time series should exhibit relatively long-lived plateaus separated by rapid transitions.
+For tICA, lag times between $100$ and $1000$ frames (approximately $20-200$ ns) were considered. Since HP$35$ is known to fold a microsecond timescale, 
+the autocorrelation -  which tICA maximizes - should be inspected at times shorter than this timescale.
 %
 %
 %
-\vspace{0.5em}
-\noindent \textbf{MSM estimation and hyperparameter selection with VAMP}
-I estimated the transition matrix from the empirical count matrix of transitions betIen microstates and applying a maximum likelihood estimator. The selection of the lag time was one of the hyperparameters 
-to optimize and its optimization was done as explained in the next section.  
-
-The number of retained components and the number of microstates constitute important hyperparameters of the MSM construction procedure.
-
-For tICA, the relevant hyperparameters are the number of retained time-lagged independent components and the tICA lag time ($\tau_{\mathrm{tICA}}$). The corresponding eigenvalues quantify the autocorrelation of the projected coordinates at lag time ($\tau_{\mathrm{tICA}}$).
-
-Historically, the selection of these hyperparameters relied largely on heuristic criteria and subsequent validation of the resulting MSM through Chapman-Kolmogorov (CK) tests. 
-More recently, variational approaches such as the Variational Approach for Markov Processes (VAMP) \cite{vamp_2013, vamp_2020} have introduced objective scoring functions that can be used to compare different choices of features, dimensionality-reduction parameters, and clustering schemes. 
-These scores provide a principled framework for model selection and are discussed in more detail in the Supporting Information.
-
-The hyperparameters of the dimensionality-reduction and clustering pipeline Ire selected by comparing cross-validated VAMP-2 scores over a grid of tICA lag times, 
-retained tICs, and numbers of k-means microstates. The model with the highest validation VAMP-2 score was selected, subject to subsequent MSM validation.
-Maybe also implied timescales test?
-
-
-\textbf{MSM validation}
-The models selected Ire validated with a Chapman-Kolmogorov test [\ref{sec:SI_validation}].
-
-
+\vspace{0.5em}\newline
+\noindent\textbf{Clustering and selection of MSM lagtime}
+The reduced coordinates were clustered using k-means with $100$, $200$, and $500$ clusters.
+Cluster centres were initialized uniformly and the algorithm was run for a maximum of $100$ iterations. Transition matrices were estimated using a maximum-likelihood 
+MSM estimator at lag times $\tau$ ranging from $10$ to $1000$ frames ($\sim 2-200\,ns$).
+\begin{equation}
+\hat{T}^{MLE}_{ij}(\tau) = \frac{C_{ij}(\tau)}{\sum_k C_{ki}(\tau)}
+\end{equation}
+where $C_{ij}(\tau)$ is the number of observed transitions from cluster $j$ to cluster $i$ at lag time $\tau$. The counting scheme used was the "sliding window" scheme, which counts transitions at every time step, as opposed to the "discrete" scheme, which counts transitions only at multiples of $\tau$.
+{\color{red} Detailed balance $(T_{ij}\pi_j = T_{ji}\pi_i)$, denoting as $\pi$ the stationary distribution) was enforced during the estimation of the transition matrix.}
+The range of lagtimes investigated was chosen to remain substantially shorter than the characteristic folding timescale ($\sim2 \,\mu s$), ensuring that the process of interest
+remained temporally resolved. Markovianity assessment and optimal lagtime choice was performed through the implied-timescale convergence test. 
+\begin{equation}
+t_i(\tau) = -\frac{\tau}{\ln \lambda_i(\tau)}
+\end{equation}
+where $\lambda_i(\tau)$ is the $i$-th eigenvalue ($i \geq 2$) of the transition matrix estimated at lag time $\tau$.
+Leading eigenvectors were visually inspected on the reduced coordinates spaces.
+%
+%
+%
 \subsection{Statistical analysis}
-Here talk about everything you do after you have the validated MSM: the TPT analysis, the estimation of pathways, and the coarse graining.
-
-
-
-
+\textbf{MSM validation and coarse graining}
+The models selected Ire validated with a Chapman-Kolmogorov test [\ref{sec:SI_validation}].
+%
+%
+%
+\vspace{0.5em}\newline
+\textbf{Transition Path Theory (TPT) analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
-
-\begin{figure*}[ht]
-    \centering
-    \includegraphics[width=\linewidth]{figures/implied_timescales.png}
-    \caption{\small \textbf{Implied timescales convergence test.}}
-    \label{supp_fig:implied_timescales}
-\end{figure*}
-
+{\color{blue} Rule of thumb: results report what happened when you applied the things you described in methods.
 
 This is the real talk, the biological talk! Comparative analysis of the results of the various MSM constructed.
 \bigskip \newline \noindent
@@ -170,11 +180,29 @@ Sections describing different aspects of your analysis (~3a-3d). All sections sh
 \item You can add more sentences for the interpretation. Please use precise phrases for the level of evidence, if the results 'suggest', 'indicate', 'show','demonstrate', 'support', 'corroborate'. Do not put too much 'hypothesis', and 'propose' these are synthetic phrases.
 \item End each section with a conclusion sentence for example, 'Taken together the results consistently show that X is larger than Y, indicating that X was an ancestor of Y'.
 \end{itemize}
-
-
-
-
+}
+\textit{Dimensionality reduction: } The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) were qualitatively similar, suggesting that the method is robust within this range (Supplementary Figures \ref{supp_fig:tica_dihedrals_lagtime} and \ref{supp_fig:tica_distances_lagtime}].
+Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
+only for approximately the first three components.  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
+Based on this analysis, a tICA lag time of 1000 frames (200 ns) was selected for subsequent modelling. The final dimensionality-reduction parameters were: five tICs for the dihedral feature set, five tICs for the distance feature set, seven principal components for the dihedral feature set, and five principal components for the distance feature set.
+\newline \textit{Clustering and selection of MSM lagtime: } Implied convergence test shows moderate convergence of the first timescales around $20-50\,ns$ \ref{fig:implied_timescales}. The feature set and dimensionality reduction method clearly appear to
+influence the results of the test much more than the number of microstates. All four methods agree reasonably over the first timescale, while they start to differ more for the subsequent ones.
+It is known that the true timescales are approximated from below {\color{red}[insert precise reference to the book]}. Therefore, the combination tICA-dihedrals is the best performing one, followed by tICA-distances. {\color{red} add values of the timescales and interpretation}.
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/implied_timescales.png}
+    \caption{\small \textbf{Implied timescales convergence test.} First three timescales. Colors distinguish the four combinations of features and dimensionality reduction method, marker styles distinguish the number 
+    of microstates used. Shaded grey area marks the region $y \leq x$. Any timescale falling in the shaded area is not resolved, referring to an equilibration process that happens in less than one evolution step of
+    the Markov chain.}
+    \label{fig:implied_timescales}
+\end{figure*}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Discussion}
+{\color{blue}
 Here you try to put your results into a broader context and present your scientific view/model based on that. This is a continuous text, broken into paragraphs. 
 In case you have two distinct 'huge' conclusions, you may generate separate sections (max 2). Chapter 4 should be organised as follows:
 \begin{itemize}
@@ -185,17 +213,27 @@ In case you have two distinct 'huge' conclusions, you may generate separate sect
 \item If possible, present a model. This can be a molecular 'mechanism', 'scenario', 'reason'. For example: 'A and B belong to the same family'; 'mutation XD likely changes the interaction in liver'; 'in disease T I have less phosphorylation sites or the level of phosphorylation decreased'; 'in this experiment, there is a problem with degradation of protein P. ' etc.
 \item The model can be presented as: 'propose', 'suggest', 'indicate','hypothesize', or even 'support' or 'demonstrate'. If possible try to present a cartoon figure or scheme.
 \end{itemize}
-
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
+{ \color{blue}
 One paragraph, emphasizing the main finding and formulate a message for the future (perspective), how to continue from here, what kind of further studies are needed. You may have Conclusion as chapter 5.
-
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{References}
+{ \color{blue}
 The text should contain references, to previous results, data, methods, softwares, etc.. Format is unrestricted, but you should use these refs in the text, and list them at the end. I expect ca 15-20 refs listed.
-
-\noindent \textbf{Data availability statement:} Preprocessed trajectories of the HP35 villin headpiece are kindly made available by Nagel et al. and downloadeable at their GitHub repository \url{https://github.com/moldyn/HP35-DESRES}.
+}
+\newline \noindent \textbf{Data availability statement:} Preprocessed trajectories of the HP35 villin headpiece are kindly made available by Nagel et al. and downloadeable at their GitHub repository \url{https://github.com/moldyn/HP35-DESRES}.
 All code necessary to replicate the analysis shoId in this work is available on GitHub at \url{https://github.com/miriamzara/MSM}.
-
-
 
 \begin{thebibliography}{99}
 \setlength{\itemsep}{3pt}  % adjust to taste
@@ -308,14 +346,14 @@ DOI: 10.1088/2632-2153/ac3de0.
 
 
 \end{thebibliography}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-
-
-
 \appendix
 \section*{Supporting Information}
-
 
 \renewcommand{\thesubsection}{S\arabic{subsection}}
 \setcounter{subsection}{0}
@@ -548,14 +586,15 @@ To insert.
 \label{sec:SI_pcca}
 
 
-
-\newpage
+\newpage 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Supplementary Figures}
 \setcounter{figure}{0}
 \renewcommand{\thefigure}{SF\arabic{figure}}
-
-
-
 
 \begin{figure*}[t]
     \centering
