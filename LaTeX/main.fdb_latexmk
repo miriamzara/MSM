@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1780940663.9777 "main.aux" "main.bbl" "main" 1780940666.45671 0
-  "./mainNotes.bib" 1780940666.21733 103 48ad29797468f16e2853d8797278d7af ""
+["bibtex main"] 1781016620.31708 "main.aux" "main.bbl" "main" 1781016638.26109 0
+  "./mainNotes.bib" 1781016638.02442 103 48ad29797468f16e2853d8797278d7af ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/revtex4-1/apsrev4-1.bst" 1602107945 71515 e333383ed72bf24aa6de7e8cabb55f84 ""
-  "main.aux" 1780940666.21595 15693 1d126f22c7604b143094ad9268820b2f "pdflatex"
+  "main.aux" 1781016638.02319 15681 998c5dd3c0c322eed3dfc28b8a4213ab "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1780940664.06763 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1780940666.45688 0
-  "/Users/miriamzara/MSM/LaTeX/main.tex" 1780940661.26999 33938 80cbf741dfdc89601a93f1c6083c7bf7 ""
+["pdflatex"] 1781016635.83987 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1781016638.26127 0
+  "/Users/miriamzara/MSM/LaTeX/main.tex" 1781016635.68334 34113 6c8fc175aaf81fba01c7e2c6a23d842a ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -140,16 +140,16 @@
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1729844435 8221430 a04bf4689fa4be2174b5dfe2d7bff089 ""
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
   "figures/draft_flowchart.png" 1780911170.77148 262221 d28fc8b800d10c4989a9fb75fdd0c045 ""
+  "figures/implied_timescales.png" 1781016304.83863 113629 31bf5b15a39cb308e89edeb8f98962be ""
   "figures/mosaic_clusters.png" 1780496729.87084 163423 b3fd035b9c0481c09a6898ca0077e7ac ""
   "figures/pca_retained_components.png" 1780907398.93587 306235 46fec4f893fd33f9c332d779a7fa62c2 ""
   "figures/sample_fig1.png" 1780496200.02042 261811 cd21e180ddb8901a9c87f31d9d51d68f ""
   "figures/tica_dihedrals_lagtime.png" 1780856823.65463 810790 6dd306da3d177510a6df05cffa47dcb5 ""
   "figures/tica_distances_lagtime.png" 1780856831.7309 759952 10aa87c082a753bf7124426810e5a449 ""
-  "figures/timescales_test.png" 1780940393.29629 158254 8be8cb37b1cb97de137f4bbffbb6a63e ""
-  "main.aux" 1780940666.21595 15693 1d126f22c7604b143094ad9268820b2f "pdflatex"
-  "main.bbl" 1780940664.06541 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
-  "main.out" 1780940666.21713 4468 678416e2df27e57ce3484a6050775a46 "pdflatex"
-  "main.tex" 1780940661.26999 33938 80cbf741dfdc89601a93f1c6083c7bf7 ""
+  "main.aux" 1781016638.02319 15681 998c5dd3c0c322eed3dfc28b8a4213ab "pdflatex"
+  "main.bbl" 1781016620.40422 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
+  "main.out" 1781016638.02426 4468 678416e2df27e57ce3484a6050775a46 "pdflatex"
+  "main.tex" 1781016635.68334 34113 6c8fc175aaf81fba01c7e2c6a23d842a ""
   (generated)
   "main.aux"
   "main.log"
