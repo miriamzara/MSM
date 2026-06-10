@@ -46,16 +46,16 @@ def plot_free_energy_projection(dimred_traj, component_x, component_y, ax = None
         vmin=vmin,
         vmax=vmax
     )
-    if colorbarlabel is not None:
-        plt.colorbar(im, ax=ax__, label=r"$F/k_B T$")
-    else:
-        plt.colorbar(im, ax=ax__)
+    #if colorbarlabel is not None:
+    #    plt.colorbar(im, ax=ax__, label=r"$F/k_B T$")
+    #else:
+    #    plt.colorbar(im, ax=ax__)
     ax__.set_xlabel(f"{axlabel}{component_x}")
     ax__.set_ylabel(f"{axlabel}{component_y}")
     if axtitle is not None:
         ax__.set_title(f"{axtitle}")
 
-    return ax__
+    return ax__, im
 
 
 ###########################################
