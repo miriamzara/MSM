@@ -136,19 +136,18 @@ the autocorrelation -  which tICA maximizes - should be inspected at times short
 \noindent\textbf{Clustering and selection of MSM lagtime}
 The reduced coordinates were clustered using k-means with $100$, $200$, and $500$ clusters.
 Cluster centres were initialized uniformly and the algorithm was run for a maximum of $100$ iterations. Transition matrices were estimated using a maximum-likelihood 
-MSM estimator at lag times $\tau$ ranging from $10$ to $1000$ frames ($\sim 2-200\,ns$).
-\begin{equation}
-\hat{T}^{MLE}_{ij}(\tau) = \frac{C_{ij}(\tau)}{\sum_k C_{ki}(\tau)}
-\end{equation}
-where $C_{ij}(\tau)$ is the number of observed transitions from cluster $j$ to cluster $i$ at lag time $\tau$. The counting scheme used was the "sliding window" scheme, which counts transitions at every time step, as opposed to the "discrete" scheme, which counts transitions only at multiples of $\tau$.
-{\color{red} Detailed balance $(T_{ij}\pi_j = T_{ji}\pi_i)$, denoting as $\pi$ the stationary distribution) was enforced during the estimation of the transition matrix.}
+MSM estimator at lag times $\tau$ ranging from $10$ to $1000$ frames ($\sim 2-200\,ns$). The counting scheme used was the "sliding window" scheme, which counts transitions at every time step, as opposed to the "discrete" scheme, which counts transitions only at multiples of $\tau$ \cite[Chap. 4.1]{thebible}.
+Detailed balance was enforced during the estimation of the transition matrix \cite[Chap. 4.6]{thebible}.
 The range of lagtimes investigated was chosen to remain substantially shorter than the characteristic folding timescale ($\sim2 \,\mu s$), ensuring that the process of interest
-remained temporally resolved. Markovianity assessment and optimal lagtime choice was performed through the implied-timescale convergence test. 
+remained temporally resolved. \newline
+Markovianity assessment and optimal lagtime choice was performed through the implied-timescale convergence test. The i-th implied timescale estimated at lag $\tau$,  $t_i(\tau)$ is given by the relation:
 \begin{equation}
 t_i(\tau) = -\frac{\tau}{\ln \lambda_i(\tau)}
 \end{equation}
 where $\lambda_i(\tau)$ is the $i$-th eigenvalue ($i \geq 2$) of the transition matrix estimated at lag time $\tau$.
-Leading eigenvectors were visually inspected on the reduced coordinates spaces.
+It is known that the true timescales of the underlying continuous-state Markov process, $t_i^{*}$, are approximated from below ($t_i(\tau) \leq t_i^{*}$) and the relative error decreases as
+i) the discretization error decreases or ii) the lagtime $\tau$ increases. With this consideration, the implied timescale test consists in plotting $t_i(\tau)$ as a function of $\tau$ and looking for a region of approximate convergence, where the estimated timescales are approximately constant.
+The lagtime is selected as the minimum value in the region of convergence, as this choice minimizes the loss of temporal resolution while ensuring that the process of interest is approximately Markovian \cite[Ch. 4.7]{thebible}. 
 %
 %
 %
@@ -185,17 +184,24 @@ Sections describing different aspects of your analysis (~3a-3d). All sections sh
 Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
 only for approximately the first three components.  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
 Based on this analysis, a tICA lag time of 1000 frames (200 ns) was selected for subsequent modelling. The final dimensionality-reduction parameters were: five tICs for the dihedral feature set, five tICs for the distance feature set, seven principal components for the dihedral feature set, and five principal components for the distance feature set.
-\newline \textit{Clustering and selection of MSM lagtime: } Implied convergence test shows moderate convergence of the first timescales around $20-50\,ns$ \ref{fig:implied_timescales}. The feature set and dimensionality reduction method clearly appear to
-influence the results of the test much more than the number of microstates. All four methods agree reasonably over the first timescale, while they start to differ more for the subsequent ones.
-It is known that the true timescales are approximated from below {\color{red}[insert precise reference to the book]}. Therefore, the combination tICA-dihedrals is the best performing one, followed by tICA-distances. {\color{red} add values of the timescales and interpretation}.
+\newline \textit{Clustering and selection of MSM lagtime: } 
+
 \begin{figure*}[ht]
     \centering
     \includegraphics[width=\linewidth]{figures/implied_timescales.png}
-    \caption{\small \textbf{Implied timescales convergence test.} First three timescales. Colors distinguish the four combinations of features and dimensionality reduction method, marker styles distinguish the number 
-    of microstates used. Shaded grey area marks the region $y \leq x$. Any timescale falling in the shaded area is not resolved, referring to an equilibration process that happens in less than one evolution step of
-    the Markov chain.}
+    \caption{\small \textbf{Implied timescales convergence test.} First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
+    The shaded region corresponds to $t_i \leq \tau$, where $t_i$ is the implied timescale and $\tau$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
+    as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step.}
     \label{fig:implied_timescales}
 \end{figure*}
+
+The implied timescale test indicates approximate convergence of the slowest dynamical processes
+for MSM lagtimes in the range of $20$-$50,\mathrm{ns}$ as shown in Fig.\ref{fig:implied_timescales}.
+The estimated timescales depend much more strongly on the choice of feature set and dimensionality reduction method than on the number of microstates
+used in the discretization (here, tried as $100, 200$ and $500$). For all four feature-reduction pipelines considered, the slowest implied timescale is in reasonable agreement ($\simeq 1-2\, \mu s$), 
+whereas larger discrepancies are observed for the higher-order timescales. The pipeline dihedrals-tICA consistenltly yelds the largest timescales, followed by distances-tICA, indicating more accurate approximation
+of the underlying continuous dynamics.
+\newline \textit{Coarse graining and spectral analysis} Next I inspected the leading eigenvectors, to understand the modes of probability exchange associated to the timescales. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -279,12 +285,6 @@ All code necessary to replicate the analysis shoId in this work is available on 
     DOI: 10.1021/jp410398a.
 
 
-% --------------------------------------------------------
-% ---------------- METHODS  ------------------------------
-
-
-% Big things
-
 \bibitem{thebible}
     G.R. Bowman, V.S. Pande and F. Noé,
     \textit{An Introduction to Markov State Models and Their Application to Long Timescale Molecular Simulation}
@@ -310,19 +310,17 @@ DOI: 10.1088/2632-2153/ac3de0.
     J. Chem. Phys., 148(24):241703, 2018. 
     DOI: 10.1063/1.5011399.
 
-\bibitem{vamp_2013}
-    F. No\'e and F. Nüske,
-    \textit{A variational approach to modeling slow processes in stochastic dynamical systems},
-    Multiscale Modeling \& Simulation 11(2):635-655, 2013.
-    DOI: 10.1137/12089574X.
+%\bibitem{vamp_2013}
+%    F. No\'e and F. Nüske,
+%    \textit{A variational approach to modeling slow processes in stochastic dynamical systems},
+%    Multiscale Modeling \& Simulation 11(2):635-655, 2013.
+%    DOI: 10.1137/12089574X.
 
-\bibitem{vamp_2020}
-    H. Wu and F. Noé,
-    \textit{Variational approach for learning markov processes from time series data},
-    Journal of Nonlinear Science 30(1):23-66, 2020.
-    DOI: 10.1007/s00332-019-09576-8.
-
-% Small things
+%\bibitem{vamp_2020}
+%    H. Wu and F. Noé,
+%    \textit{Variational approach for learning markov processes from time series data},
+%    Journal of Nonlinear Science 30(1):23-66, 2020.
+%    DOI: 10.1007/s00332-019-09576-8.
 
 \bibitem{Sittel2017}
     F. Sittel, T. Filk and G. Stock,
@@ -343,8 +341,6 @@ DOI: 10.1088/2632-2153/ac3de0.
     J. Chem. Theory Comput. 2013, 9, 4, 2000-2009
     DOI: 10.1021/ct300878a.
 
-
-
 \end{thebibliography}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -360,6 +356,9 @@ DOI: 10.1088/2632-2153/ac3de0.
 
 \subsection{Dimensionality reduction and clustering}
 \label{sec:SI_dimred}
+The presentation of tICA in this section follows closely that of \cite{my_tica_ref}.
+
+
 PCA and tICA are both linear dimensionality reduction techniques, i.e. they project the data onto a linear subspace of the original feature space. 
 Let $\{\mathbf{x}(t)\}_{t=0}^{T-1}$ be a multidimensional, discrete time-series, where each snapshot is a column vector, 
 of dimension $D$, corresponding to an arbitrary, vectorized representation of a protein conformation (e.g. a set of dihedral angles). 
