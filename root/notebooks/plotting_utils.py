@@ -5,7 +5,7 @@ from matplotlib.gridspec import GridSpec
 import numpy as np
 
 
-def plot_free_energy_projection(dimred_traj, component_x, component_y, ax = None, vmin=None, vmax=None, axlabel = "PC", colorbarlabel = None, axtitle = None):
+def plot_free_energy_projection(dimred_traj, component_x, component_y, ax = None, nbins_linear=100, vmin=None, vmax=None, axlabel = "PC", colorbarlabel = None, axtitle = None):
 
     if ax == None:
         fig, ax__ = plt.subplots(1, 1, figsize=(5, 4))
@@ -30,7 +30,7 @@ def plot_free_energy_projection(dimred_traj, component_x, component_y, ax = None
     H, xedges, yedges = np.histogram2d(
         dimred_traj[:, component_x],
         dimred_traj[:, component_y],
-        bins=100,
+        bins=nbins_linear,
         density=True
     )
     mask = H > 0
@@ -145,3 +145,37 @@ def make_violin_plot(ax, macro_traj, observable_traj, n_macro, macro_color_seque
     
 
     return ax, vp
+
+
+
+def clean_assignments(dirty_array, max_dist=100):
+
+    """
+    Replace -1 frames with the closest assigned macrostate in time,
+    if one exists within max_dist frames. Ties are resolved to the left.
+    """
+    arr = np.asarray(dirty_array)
+    cleaned = arr.copy()
+    valid_idx = np.flatnonzero(arr != -1)
+    missing_idx = np.flatnonzero(arr == -1)
+
+    if len(valid_idx) == 0:
+        return cleaned
+
+    # insertion positions of missing frames among valid frames
+    pos = np.searchsorted(valid_idx, missing_idx)
+    left_pos = np.clip(pos - 1, 0, len(valid_idx) - 1)
+    right_pos = np.clip(pos, 0, len(valid_idx) - 1)
+    left_idx = valid_idx[left_pos]
+    right_idx = valid_idx[right_pos]
+    left_dist = np.abs(missing_idx - left_idx)
+    right_dist = np.abs(right_idx - missing_idx)
+
+    # choose left in ties
+
+    use_left = left_dist <= right_dist
+    nearest_idx = np.where(use_left, left_idx, right_idx)
+    nearest_dist = np.where(use_left, left_dist, right_dist)
+    fill_mask = nearest_dist <= max_dist
+    cleaned[missing_idx[fill_mask]] = arr[nearest_idx[fill_mask]]
+    return cleaned
