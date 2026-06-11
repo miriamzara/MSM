@@ -203,7 +203,23 @@ The estimated timescales depend much more strongly on the choice of feature set 
 used in the discretization (here, tried as $100, 200$ and $500$). For all four feature-reduction pipelines considered, the slowest implied timescale is in reasonable agreement ($\simeq 1-2\, \mu s$), 
 whereas larger discrepancies are observed for the higher-order timescales. The pipeline dihedrals-tICA consistenltly yelds the largest timescales, followed by distances-tICA, indicating more accurate approximation
 of the underlying continuous dynamics.
-\newline \textit{Coarse graining and spectral analysis} Next I inspected the leading eigenvectors, to understand the modes of probability exchange associated to the timescales. I build a macrostate model applying PCCA++ [Ch. 2.5.1 and 2.5.2]\cite{thebible}.
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/first_eigvec.png}
+
+    \vspace{1em}
+
+    \includegraphics[width=\linewidth]{figures/Q_reduced_projection.png}
+
+    \vspace{1em}
+
+    \caption{\textbf{Top row: Components of the first eigenvector, describing the slowest relaxation mode of the Markov chain. Bottom row: Projection of the fraction of native contacts $Q$ on the first two tICs.}}
+    \label{fig:eigenvectors}
+\end{figure*}
+\newline \textit{Coarse graining and spectral analysis} Next I inspected the leading eigenvectors, to understand the modes of probability exchange associated to the timescales. 
+The first eigenvector is clearly describing the folding process (see Fig.\ref{fig:eigenvectors}). This is robust across methods. Instead, the following eigenvectors are more method-dependent, and their interpretation is less straightforward.
+
+I build a macrostate model applying PCCA++ [Ch. 2.5.1 and 2.5.2]\cite{thebible}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %

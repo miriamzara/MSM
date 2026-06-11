@@ -224,6 +224,16 @@ INPUT ./figures/implied_timescales.png
 INPUT ./figures/implied_timescales.png
 INPUT ./figures/implied_timescales.png
 INPUT ./figures/implied_timescales.png
+INPUT ./figures/first_eigvec.png
+INPUT ./figures/first_eigvec.png
+INPUT ./figures/first_eigvec.png
+INPUT ./figures/first_eigvec.png
+INPUT ./figures/first_eigvec.png
+INPUT ./figures/Q_reduced_projection.png
+INPUT ./figures/Q_reduced_projection.png
+INPUT ./figures/Q_reduced_projection.png
+INPUT ./figures/Q_reduced_projection.png
+INPUT ./figures/Q_reduced_projection.png
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
 INPUT ./main.bbl
@@ -257,7 +267,6 @@ INPUT ./figures/free_energy_reduced_histo.png
 INPUT ./figures/free_energy_reduced_histo.png
 INPUT ./figures/free_energy_reduced_histo.png
 INPUT ./figures/free_energy_reduced_histo.png
-INPUT ./figures/Q_reduced_projection.png
 INPUT ./figures/Q_reduced_projection.png
 INPUT ./figures/Q_reduced_projection.png
 INPUT ./figures/Q_reduced_projection.png
