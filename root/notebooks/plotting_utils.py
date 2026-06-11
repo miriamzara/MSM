@@ -105,3 +105,43 @@ def add_1d_free_energy_axis(
     ax_fe.grid(False)
 
     return ax_fe
+
+
+
+
+def make_violin_plot(ax, macro_traj, observable_traj, n_macro, macro_color_sequence):
+
+
+    # Collect observable values for each macrostate
+    data = [
+        observable_traj[macro_traj == i]
+        for i in range(n_macro)
+    ]
+    populations = np.bincount(macro_traj) / len(macro_traj)
+
+    vp = ax.violinplot(
+        data,
+        positions=np.arange(n_macro),
+        widths=0.2 + populations / populations.max(),
+        showmeans=True,
+        showmedians=True,
+        showextrema=False,
+    )
+
+    # Color violins
+    for body, color in zip(vp['bodies'], macro_color_sequence[:n_macro]):
+        body.set_facecolor(color)
+        body.set_edgecolor('black')
+        body.set_alpha(0.7)
+
+    # Style mean/median lines
+    vp['cmeans'].set_color('black')
+    vp['cmedians'].set_color('white')
+    vp['cmedians'].set_linewidth(2)
+
+    ax.set_xticks(np.arange(n_macro))
+    ax.set_xticklabels([f"S{i}" for i in range(n_macro)])
+    ax.set_xlabel("Macrostate")
+    
+
+    return ax, vp
