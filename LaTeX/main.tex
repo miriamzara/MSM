@@ -641,11 +641,19 @@ To insert.
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/free_energy_reduced_histo.png}
+    
     \vspace{3em}
+
     \includegraphics[width=\linewidth]{figures/Q_reduced_projection.png}
+    
     \vspace{3em}
+
     \includegraphics[width=\linewidth]{figures/RMSD_reduced_projection.png}
-    \caption{\textbf{The folded and unfolded configurations as they appear on the reduced space, together with the free energy} {\color{red} WRITE CAPTION.}}
+    
+    \vspace{3em}
+    \caption{\textbf{Free-energy landscapes and structural observables in reduced coordinate spaces.} \textbf{Top row}: free-energy surfaces $\Delta F$ projected onto the first two PCA or tICA components, calculated as $F(x,y)=-\ln p(x,y),$ $\Delta F(x,y) = F(x,y) - F_{min}$. \textbf{Middle row}: projections coloured by the fraction of native contacts Q.
+     \textbf{Bottom row}: projections coloured by the RMSD to the crystal structure (normalized). Each column corresponds to a different combination of feature set (distances or dihedral angles)
+    and dimensionality reduction method (PCA or tICA). The colouring reveals the extent to which the reduced coordinates correlate with physically meaningful progress variables of folding, namely native-contact formation and structural similarity to the crystal structure.}
     \label{supp_fig:reduced-space-projections}
 \end{figure*}
 
