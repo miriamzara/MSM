@@ -183,7 +183,9 @@ Sections describing different aspects of your analysis (~3a-3d). All sections sh
 \textit{Dimensionality reduction: } The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) were qualitatively similar, suggesting that the method is robust within this range (Supplementary Figures \ref{supp_fig:tica_dihedrals_lagtime} and \ref{supp_fig:tica_distances_lagtime}].
 Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
 only for approximately the first three components.  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
-Based on this analysis, a tICA lag time of 1000 frames (200 ns) was selected for subsequent modelling. The final dimensionality-reduction parameters were: five tICs for the dihedral feature set, five tICs for the distance feature set, seven principal components for the dihedral feature set, and five principal components for the distance feature set.
+Based on this analysis, a tICA lag time of 1000 frames (200 ns) was selected for subsequent modelling. The final dimensionality-reduction parameters were: five tICs for the dihedral feature set, five tICs for the distance feature set,
+seven principal components for the dihedral feature set, and five principal components for the distance feature set. Next, I inspected the free energy projections of the data on the reduced coordinates and I also checked how the fraction of native contacts Q and the root mean square deviation (RMSD) to the crystal
+structure are distributed in the reduced space (Supplementary Figure \ref{supp_fig:reduced-space-projections}).
 \newline \textit{Clustering and selection of MSM lagtime: } 
 
 \begin{figure*}[ht]
@@ -634,6 +636,19 @@ To insert.
     low-dimensional projection than the contact-distance features. For subsequent MSM construction I retain the first $7$ components for the dihedrals set and the first $5$ for the contact-distance set.}
     \label{supp_fig:pca_retained_components}
 \end{figure*}
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/free_energy_reduced_histo.png}
+    \vspace{3em}
+    \includegraphics[width=\linewidth]{figures/Q_reduced_projection.png}
+    \vspace{3em}
+    \includegraphics[width=\linewidth]{figures/RMSD_reduced_projection.png}
+    \caption{\textbf{The folded and unfolded configurations as they appear on the reduced space, together with the free energy} {\color{red} WRITE CAPTION.}}
+    \label{supp_fig:reduced-space-projections}
+\end{figure*}
+
 
 
 \end{document}

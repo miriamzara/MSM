@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1781112305.71966 "main.aux" "main.bbl" "main" 1781112308.22035 0
-  "./mainNotes.bib" 1781112307.97034 103 48ad29797468f16e2853d8797278d7af ""
+["bibtex main"] 1781174207.22343 "main.aux" "main.bbl" "main" 1781174210.04029 0
+  "./mainNotes.bib" 1781174209.80513 103 48ad29797468f16e2853d8797278d7af ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/revtex4-1/apsrev4-1.bst" 1602107945 71515 e333383ed72bf24aa6de7e8cabb55f84 ""
-  "main.aux" 1781112307.96892 16810 38262a0aedbe775191028713e1944ae1 "pdflatex"
+  "main.aux" 1781174209.80354 17305 183650afcd94cb54d2ce523388877ad7 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1781112305.81023 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1781112308.22058 0
-  "/Users/miriamzara/MSM/LaTeX/main.tex" 1781112302.63143 39540 14a3c239c1ffdeb838b585b75f876f96 ""
+["pdflatex"] 1781174207.31098 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1781174210.04045 0
+  "/Users/miriamzara/MSM/LaTeX/main.tex" 1781174204.23781 40368 22538a08f4639b0f51cee4fd3bf669e1 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -139,17 +139,20 @@
   "/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1729844460.7567 5467645 128b85b7cde5f5edc5cb7f1dd7ff8736 ""
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1729844435 8221430 a04bf4689fa4be2174b5dfe2d7bff089 ""
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
+  "figures/Q_reduced_projection.png" 1781173828.07989 609700 970cf1321425af07fe193cd7ff574395 ""
+  "figures/RMSD_reduced_projection.png" 1781173834.39456 568968 ffc1514d2e3712214d7288f99fab2763 ""
   "figures/draft_flowchart.png" 1780911170.77148 262221 d28fc8b800d10c4989a9fb75fdd0c045 ""
+  "figures/free_energy_reduced_histo.png" 1781173840.15384 384700 0aa923061b5d5e759a51c25d0a2d4f7c ""
   "figures/implied_timescales.png" 1781016304.83863 113629 31bf5b15a39cb308e89edeb8f98962be ""
   "figures/mosaic_clusters.png" 1780496729.87084 163423 b3fd035b9c0481c09a6898ca0077e7ac ""
   "figures/pca_retained_components.png" 1780907398.93587 306235 46fec4f893fd33f9c332d779a7fa62c2 ""
   "figures/sample_fig1.png" 1780496200.02042 261811 cd21e180ddb8901a9c87f31d9d51d68f ""
   "figures/tica_dihedrals_lagtime.png" 1780856823.65463 810790 6dd306da3d177510a6df05cffa47dcb5 ""
   "figures/tica_distances_lagtime.png" 1780856831.7309 759952 10aa87c082a753bf7124426810e5a449 ""
-  "main.aux" 1781112307.96892 16810 38262a0aedbe775191028713e1944ae1 "pdflatex"
-  "main.bbl" 1781112305.80799 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
-  "main.out" 1781112307.97015 4638 82e76c932f13550262d8a66cc867816f "pdflatex"
-  "main.tex" 1781112302.63143 39540 14a3c239c1ffdeb838b585b75f876f96 ""
+  "main.aux" 1781174209.80354 17305 183650afcd94cb54d2ce523388877ad7 "pdflatex"
+  "main.bbl" 1781174207.30883 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
+  "main.out" 1781174209.80479 4638 82e76c932f13550262d8a66cc867816f "pdflatex"
+  "main.tex" 1781174204.23781 40368 22538a08f4639b0f51cee4fd3bf669e1 ""
   (generated)
   "main.aux"
   "main.log"
