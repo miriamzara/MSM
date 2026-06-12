@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex main"] 1781256806.94359 "main.aux" "main.bbl" "main" 1781256814.25703 0
-  "./mainNotes.bib" 1781256814.00341 103 48ad29797468f16e2853d8797278d7af ""
+["bibtex main"] 1781273622.69408 "main.aux" "main.bbl" "main" 1781273648.75755 0
+  "./mainNotes.bib" 1781273648.45483 103 48ad29797468f16e2853d8797278d7af ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/revtex4-1/apsrev4-1.bst" 1602107945 71515 e333383ed72bf24aa6de7e8cabb55f84 ""
-  "main.aux" 1781256814.00178 20909 75a5be33501643d464cc31223ac6c093 "pdflatex"
+  "main.aux" 1781273648.4518 21771 22d397730b0b2ff42552ef75294293a3 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1781256811.42954 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1781256814.25724 0
-  "/Users/miriamzara/MSM/LaTeX/main.tex" 1781256811.21647 44480 e956f745e60cca4af1cff46a0044114b ""
+["pdflatex"] 1781273645.90383 "/Users/miriamzara/MSM/LaTeX/main.tex" "main.pdf" "main" 1781273648.75775 0
+  "/Users/miriamzara/MSM/LaTeX/main.tex" 1781273644.55196 49448 d747d467f3a59a52a4bc2c4f2d5fecac ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -169,10 +169,10 @@
   "figures/pca_retained_components.png" 1780907398.93587 306235 46fec4f893fd33f9c332d779a7fa62c2 ""
   "figures/tica_dihedrals_lagtime.png" 1780856823.65463 810790 6dd306da3d177510a6df05cffa47dcb5 ""
   "figures/tica_distances_lagtime.png" 1780856831.7309 759952 10aa87c082a753bf7124426810e5a449 ""
-  "main.aux" 1781256814.00178 20909 75a5be33501643d464cc31223ac6c093 "pdflatex"
-  "main.bbl" 1781256807.02949 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
-  "main.out" 1781256814.00308 4691 7084423bff2925fd76ab5c381ef1996f "pdflatex"
-  "main.tex" 1781256811.21647 44480 e956f745e60cca4af1cff46a0044114b ""
+  "main.aux" 1781273648.4518 21771 22d397730b0b2ff42552ef75294293a3 "pdflatex"
+  "main.bbl" 1781273622.7834 1981 2371da0eeaa9c49fd2eddf057334b8bb "bibtex main"
+  "main.out" 1781273648.45318 4303 4dea09bbbf55406a0bc6d1a1ef5138f2 "pdflatex"
+  "main.tex" 1781273644.55196 49448 d747d467f3a59a52a4bc2c4f2d5fecac ""
   (generated)
   "main.aux"
   "main.log"
