@@ -12,3 +12,12 @@ __pycache__/
 pymol_io/out/
 root/.DS_Store
 
+
+# LaTeX
+LaTeX/*.aux
+LaTeX/*.fdb_latexmk
+LaTeX/*.fls
+LaTeX/*.log
+LaTeX/*.out
+LaTeX/*.synctex.gz
+LaTeX/*.pdf
