@@ -8,7 +8,9 @@
 \usepackage{braket}
 \usepackage{mdframed}
 \usepackage{ragged2e}
+\usepackage{caption}
 \usepackage{subcaption}
+\usepackage{placeins} % for \FloatBarrier, to force figures in place
 
 \definecolor{linkcolor}{rgb}{0,0,0.65}
 
@@ -42,13 +44,9 @@
 \renewcommand{\thesubsection}%{\thesection.\Alph{subsection}}
 {\Alph{subsection}}
 
-
-
 \begin{document}
-\title{Markov State Modelling for the folding of HP35 villin headpiece}
-
+\title{{\color{blue}DRAFT} Markov State Modelling for the folding of HP35 villin headpiece}
 \author{Miriam Zara}
-
 \date{\today}
 
 \begin{abstract}
@@ -58,51 +56,49 @@
 \maketitle
 
 \section{Introduction}
-
+%
 \subsection{Brief description of the biological problem, knowns and unknowns}
 \noindent Markov State Models (MSMs) have become a standard framework for extracting long-timescale kinetics from molecular dynamics simulations and for constructing coarse-grained descriptions of biomolecular conformational landscapes \cite{thebible}. Building an MSM typically involves several stages, including feature selection, dimensionality reduction, clustering, transition matrix estimation, validation and coarse-graining. 
 In recent years, MSM methodology has evolved rapidly, with advances in state construction, uncertainty quantification, and the incorporation of machine learning for identifying collective variables and building models at scale, such as VAMPnets \cite{vampnets} and time-lagged autoencoders \cite{time_lagged_autoencoders}.
 Beyond methodological developments, MSMs are increasingly integrated with experimental observables and applied to larger and more complex systems. Together, these efforts reflect a field that continues to evolve in both rigor and scope \cite{2026_special_issue}.
-
+%
 \subsection{Defining the question}
 \noindent The purpose of this university project is to move the first steps into the world of Markov state modeling. The goal is to review and benchmark the classical MSM construction pipeline, with particular emphasis on feature selection and dimensionality reduction stages. Establishing a clear baseline based on conventional methods is a necessary step before evaluating more sophisticated machine-learning approaches in future studies.
-
+%
 \subsection{Defining the plan: translating the question on the language of the computer (brief)}
-\noindent As a case study, I consider the villin headpiece subdomain HP35, a small fast-folding protein for which extensive molecular dynamics trajectories are available. I compare two commonly used feature representations, native-contact distances and backbone dihedral angles, combined with two dimensionality-reduction methods, principal component analysis (PCA) and time-lagged independent component analysis (tICA). The resulting four MSMs are evaluated in terms of (i) their ability to reproduce the folding kinetics of the system and (ii) their ability to provide an interpretable characterization of the metastable conformational states.
-
-
+\noindent As a case study, I consider the villin headpiece subdomain HP35 Lys24-Nle/Lys29-Nle mutant (see Fig. \ref{fig:hp35_structure}), a small fast-folding protein for which extensive molecular dynamics trajectories are available. I compare two commonly used feature representations, native-contact distances and backbone dihedral angles, combined with two dimensionality-reduction methods, principal component analysis (PCA) and time-lagged independent component analysis (tICA). The resulting four MSMs are evaluated in terms of (i) their ability to reproduce the folding kinetics of the system and (ii) their ability to provide an interpretable characterization of the metastable conformational states.
+%%%%%%%%%%%%%%%%%%%
+%
+%
+%%%%%%%%%%%%%%%%%%%
 \section{Methods}
-
-{\color{blue}Rule of thumb: methods describe the procedure before seeing the outcome.}
-
+%
 \subsection{Dataset assembly}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/aromatic_structure.png}
+    \caption{\small \textbf{Crystal structure of HP35} (PDB: 2F4K). Folded structure consists of three alpha-helices (residues 3-10, 14-19 and 22-32) that are connected by two loops. Aromatic and histidine residues are highlighted in orange:
+    Phe6, Phe10, Phe17, Trp23, His27, and Phe35. Interactions among Phe6, Phe10, and Phe17 are central to the formation of the hydrophobic core.
+    The two engineered mutations Lys24$\rightarrow$Nle and Lys29$\rightarrow$Nle are highlighted in black; these substitutions are known to accelerate the folding kinetics of the protein. Visualization was made with PyMol \cite{pymol}.}
+    \label{fig:hp35_structure}
+\end{figure}
 All analyses presented in this work are based on a single $300\,\mu\mathrm{s}$ molecular dynamics trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
 \noindent HP35 is a prototypical ultrafast-folding protein with an experimentally measured folding time of approximately $0.7,\mu\mathrm{s}$ at this temperature and has become a standard benchmark system for Markov state model construction and validation \cite{jain_stock_2014,selecting_features,towards_a_benchmark}.
 The trajectory was originally generated by D. E. Shaw Research on the Anton supercomputer and reported by Piana \textit{et al.} \cite{Shaw2012}. Their simulations predicted a folding time of approximately $1.5,\mu\mathrm{s}$, reasonably close to the experimental estimate of $0.73,\mu\mathrm{s}$ for the same mutant, although still larger by a factor of about $\times 2.5$.
 At the time of this work, the original trajectory generated by D. E. Shaw Research was temporarily unavailable due to maintenance of the data repository. I therefore used a preprocessed version distributed by Nagel \textit{et al.} through their GitHub repository, which has been adopted in recent benchmark studies of Markov state modeling \cite{selecting_features,towards_a_benchmark}.
 The timeseries consists of approximately $1.5\times10^6$ samples, with a sampling interval of $\simeq 200\, ps$.
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.9\linewidth]{figures/sample_fig1.png}
-    \includegraphics[width=0.9\linewidth]{figures/mosaic_clusters.png}
-    \caption{\small \textit{Folding of villin headpiece (HP35). (a) Molecular structure, consisting of three $\alpha$-helices (residues $3-10$, $14-19$ and $22-32$) that are connected by two loops. 
-    (b) Contact map showing the $42$ native contacts of HP35. (c) Time evolution of the RMSD, compared to $1 - Q$ (with $Q$ being the fraction of native contacts) and $\Phi$ representing the sum over the backbone dihedral angles $\phi_i$ of the three $\alpha$-helices. 
-    The right side shows the corresponding free energy curves (in units of $k_B\,T$) along these coordinates.}}
-    \label{fig:pipeline}
-\end{figure}
-
+%
 \subsection{Methods used for MSM construction {\color{blue} used for analysis (in case you developed a method, it goes into Results)}}
-Markov state models Ire built using the Deeptime library \cite{deeptime}.
+Markov state models were built using the Deeptime library \cite{deeptime}.
 Since MSM construction is a multi-step process \ref{supp_fig:msm_flowchart}, it is especially important to understand clearly the choices made at each step and validate them before moving on to the next one. The principle "garbage in, garbage out" applies here, and a mistake at an early stage can propagate and affect the final results. For this reason, in this
-section I describe synthetically the motivation for each step and define the methods that Ire investigated and compared in this work.
+section I describe synthetically the motivation for each step and define the methods that were investigated and compared in this work.
 %
 %
 %
 \vspace{0.5em}\newline
 \noindent \textbf{Feature definition and filtering}
-The feature representations employed in this work Ire adopted from the preprocessing pipeline of Nagel \textit{et al.} \cite{selecting_features}, to which I refer the reader for a detailed description. Two feature sets Ire considered: native-contact distances and backbone dihedral angles. Native contacts Ire defined from folded conformations observed in the simulation and filtered using distance and frequency criteria, yielding 42 contact-distance features. 
-Backbone conformations Ire represented by ($\phi$) and ($\psi$) dihedral angles using the angular transformation proposed by Sittel \textit{et al.} \cite{Sittel2017} to account for periodicity. To remove Iakly correlated motions unlikely to contribute to the folding dynamics, 
+The feature representations employed in this work were adopted from the preprocessing pipeline of Nagel \textit{et al.} \cite{selecting_features}, to which I refer the reader for a detailed description. Two feature sets were considered: native-contact distances and backbone dihedral angles. Native contacts were defined from folded conformations observed in the simulation and filtered using distance and frequency criteria, yielding 42 contact-distance features. 
+Backbone conformations were represented by ($\phi$) and ($\psi$) dihedral angles using the angular transformation proposed by Sittel \textit{et al.} \cite{Sittel2017} to account for periodicity. To remove weakly correlated motions unlikely to contribute to the folding dynamics, 
 the MoSAIC filtering procedure of Nagel \textit{et al.} \cite{selecting_features} was applied. The final dihedral feature set consisted of 62 coordinates, with ($\psi_1$), ($\psi_2$), ($\psi_{34}$), ($\phi_2$), ($\phi_{34}$), and ($\phi_{35}$) excluded.
 %
 %
@@ -152,23 +148,66 @@ The lagtime is selected as the minimum value in the region of convergence, as th
 %
 %
 \subsection{Statistical analysis}
-\textbf{MSM validation and coarse graining}
-The models selected Ire validated with a Chapman-Kolmogorov test [\ref{sec:SI_validation}].
+\textbf{MSM validation}
+After selecting the MSM lag time based on the implied timescale convergence analysis, model quality was further assessed using an autocorrelation function test. 
+
+
+While a direct Chapman-Kolmogorov (CK) test provides a stringent validation of Markovianity, its application at the microstate level becomes impractical for models containing hundreds of states, 
+as it requires comparing $T(k\tau)$ and $[T(\tau)]^k$ entry-wise, and summary statistics are needed which could be difficult to interpret. 
+
+
+Instead, following the approach suggested by [Chap. 2.4.2]\cite{thebible}, model predictions were evaluated through the autocorrelation function of a physically meaningful observable.
+As an observable, the root-mean-square deviation (RMSD) from the crystal structure was chosen. For each microstate, a representative observable value was obtained by averaging the RMSD over all trajectory
+frames assigned to that microstate. The MSM prediction for the autocorrelation function was then computed from the spectral decomposition of the transition matrix,
+
+\begin{align}
+c(n)
+&=
+\frac{
+\sum_{i=1}^{N}
+\lambda_i^{n}\,
+\langle \theta,\mathbf{r}_i\rangle_\pi\,
+\langle \theta,\mathbf{l}_i\rangle
+}
+{
+\sum_{i=1}^{N}
+\langle \theta,\mathbf{r}_i\rangle_\pi\,
+\langle \theta,\mathbf{l}_i\rangle
+}
+\notag \\
+&\equiv
+\frac{
+\sum_{i=1}^{N}
+\lambda_i^{n}\,
+\langle \theta,\mathbf{l}_i\rangle^2
+}
+{\sum_{i=1}^{N}\, \langle \theta,\mathbf{l}_i\rangle^2} \notag
+\end{align}
+
+where $\lambda_i$ and $(\mathbf{l}_i, \mathbf{r}_i)$ denote the eigenvalues and (left, right) eigenvectors of the transition matrix (in row-stochastic notation), $\pi$ the stationary distribution,
+and ($\boldsymbol{\theta}$) is the vector of microstate-averaged RMSD values. Equivalence between the two reported formula hold because of the detailed balance assumption.
+The predicted autocorrelation function was compared to the autocorrelation function computed directly from the molecular dynamics trajectory. 
 %
 %
 %
 \vspace{0.5em}\newline
-\textbf{Transition Path Theory (TPT) analysis}
+\textbf{Spectral analysis}
+The dynamical processes captured by each MSM were characterized through the spectral decomposition of the transition matrix (see Supplementary Information \ref{si:spectral} for details). 
+The eigenvalues were converted into relaxation timescales, while the corresponding eigenvectors were used to identify the states participating in each relaxation process. 
+States with eigenvector components of opposite sign exchange probability on the associated timescale, whereas the magnitude of each component reflects the degree of participation
+of that state in the process. For reversible models satisfying detailed balance, left and right eigenvectors contain equivalent kinetic information
+and are related through the equilibrium distribution.
+\vspace{0.5em}\newline
+\textbf{Coarse-graining {\color{orange} TODO}}
+\vspace{0.5em}\newline
+\textbf{Transition Path Theory (TPT) analysis {\color{orange} maybe? maybe not?}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
-{\color{blue} Rule of thumb: results report what happened when you applied the things you described in methods.
-
-This is the real talk, the biological talk! Comparative analysis of the results of the various MSM constructed.
-\bigskip \newline \noindent
+{\color{blue} 
 Sections describing different aspects of your analysis (~3a-3d). All sections should be organised as follows, the text is continuous, broken only to a few paragraphs in each section:
 \begin{itemize}
 \item Question studied in the section and the goal of this calculation.
@@ -180,35 +219,86 @@ Sections describing different aspects of your analysis (~3a-3d). All sections sh
 \item End each section with a conclusion sentence for example, 'Taken together the results consistently show that X is larger than Y, indicating that X was an ancestor of Y'.
 \end{itemize}
 }
-\textit{Dimensionality reduction: } The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) were qualitatively similar, suggesting that the method is robust within this range (Supplementary Figures \ref{supp_fig:tica_dihedrals_lagtime} and \ref{supp_fig:tica_distances_lagtime}].
+%
+%
+\textbf{Dimensionality reduction:} The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) were qualitatively similar, suggesting that the method is robust within this range (Supplementary Figures \ref{supp_fig:tica_dihedrals_lagtime} and \ref{supp_fig:tica_distances_lagtime}].
 Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
 only for approximately the first three components.  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
 Based on this analysis, a tICA lag time of 1000 frames (200 ns) was selected for subsequent modelling. The final dimensionality-reduction parameters were: five tICs for the dihedral feature set, five tICs for the distance feature set,
 seven principal components for the dihedral feature set, and five principal components for the distance feature set. Next, I inspected the free energy projections of the data on the reduced coordinates and I also checked how the fraction of native contacts Q and the root mean square deviation (RMSD) to the crystal
 structure are distributed in the reduced space (Supplementary Figure \ref{supp_fig:reduced-space-projections}).
-\newline \textit{Clustering and selection of MSM lagtime: } 
-
 \begin{figure*}[ht]
     \centering
-    \includegraphics[width=\linewidth]{figures/implied_timescales.png}
-    \caption{\small \textbf{Implied timescales convergence test.} First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
-    The shaded region corresponds to $t_i \leq \tau$, where $t_i$ is the implied timescale and $\tau$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
-    as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step.}
-    \label{fig:implied_timescales}
+    \includegraphics[width = 0.9\linewidth]{figures/free_energy_projection_report.pdf}
+    \caption{\footnotesize \textbf{Free energy projections on the reduced coordinates.}}
 \end{figure*}
-
+\vspace{0.5em}\newline
+\textbf{Clustering and selection of MSM lagtime: } 
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/implied_timescales.png}
+    \caption{
+        \footnotesize \textbf{Implied timescales convergence test.} First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
+        The shaded region corresponds to $t_i \leq \tau$, where $t_i$ is the implied timescale and $\tau$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
+        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step. 
+        {\color{orange} TODO: make fig more readable, maybe split into rows}
+        {\color{orange} TODO: add uncertainties using bootstrapping}
+    }
+    \label{fig:implied_timescales}
+\end{figure}
 The implied timescale test indicates approximate convergence of the slowest dynamical processes
 for MSM lagtimes in the range of $20$-$50,\mathrm{ns}$ as shown in Fig.\ref{fig:implied_timescales}.
 The estimated timescales depend much more strongly on the choice of feature set and dimensionality reduction method than on the number of microstates
 used in the discretization (here, tried as $100, 200$ and $500$). For all four feature-reduction pipelines considered, the slowest implied timescale is in reasonable agreement ($\simeq 1-2\, \mu s$), 
 whereas larger discrepancies are observed for the higher-order timescales. The pipeline dihedrals-tICA consistenltly yelds the largest timescales, followed by distances-tICA, indicating more accurate approximation
-of the underlying continuous dynamics.
-\newline \textit{Coarse graining and spectral analysis} Next I inspected the leading eigenvectors, to understand the modes of probability exchange associated to the timescales. I build a macrostate model applying PCCA++ [Ch. 2.5.1 and 2.5.2]\cite{thebible}.
+of the underlying continuous dynamics. 
+\vspace{0.5em}\newline
+\textbf{Validation}
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/autocorrelation_rmsd.png}
+    \caption{\footnotesize \textbf{Results of the autocorrelation test:} {
+        Autocorrelation function of the root mean square deviation (RMSD) from the crystal structure, as obtained 
+        from the molecular dynamics trajectory (blue) and predicted by the four MSMs (orange, green, red and purple).
+        \color{orange} TODO: add uncertainties using bootstrapping}
+        }
+    \label{fig:autocorrelation}
+\end{figure}
+Validation was performed as described in Methods comparing the autocorrelation function of the RMSD to the crystal structure computed from the trajectory and predicted by the MSMs (see Fig.\ref{fig:autocorrelation}).
+The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar results, while the pca-dihedrals performs substantially {\color{orange} ? - need uncertainties} worse.
+\vspace{0.5em}\newline
+\textbf{Spectral analysis}
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/first_eigvec.png}
+
+    \vspace{1em}
+
+    \includegraphics[width=\linewidth]{figures/Q_reduced_projection.png}
+    \caption{\footnotesize \textbf{Comparison between the slowest MSM relaxation mode and a structural folding descriptor.} 
+    Top row: values of the first non-trivial eigenvector projected onto the first two components of the reduced coordinate space.
+    Positive and negative components identify regions that exchange probability on the slowest resolved timescale of the Markov model. 
+    Bottom row: projection of the fraction of native contacts, Q, onto the same coordinates. 
+    The close correspondence between the eigenvector sign pattern and the distribution of $Q$ indicates that the slowest kinetic process 
+    captured by the MSM is associated with the folding-unfolding transition.}
+    \label{fig:eigenvectors}
+\end{figure}
+Next, I inspected the leading {\color{orange} left or right? check again for a row-stochastic T} eigenvectors to characterize the slow relaxation modes encoded by the Markov model. 
+The first non-trivial eigenvector exhibits a clear separation between regions associated with low and high values of the fraction of native contacts Q, 
+as shown by comparison with the projection of Q onto the first two tICs (Fig.~\ref{fig:eigenvectors}). This indicates that the slowest dynamical process captured by the MSM corresponds
+to the folding-unfolding transition. The qualitative structure of the first eigenvector is remarkably consistent across all four model constructions, suggesting that the dominant kinetic process is robust with respect
+ to the choice of molecular representation and dimensionality reduction method. In contrast, the higher-order eigenvectors display more method-dependent patterns, and their physical interpretation is less straightforward. 
+\vspace{0.5em}\newline
+\textbf{Coarse-graining {\color{orange} TODO}}
+I build a macrostate model applying PCCA++ [Ch. 2.5.1 and 2.5.2]\cite{thebible}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\FloatBarrier
+
 \section{Discussion}
 {\color{blue}
 Here you try to put your results into a broader context and present your scientific view/model based on that. This is a continuous text, broken into paragraphs. 
@@ -343,20 +433,24 @@ DOI: 10.1088/2632-2153/ac3de0.
     J. Chem. Theory Comput. 2013, 9, 4, 2000-2009
     DOI: 10.1021/ct300878a.
 
+
+\bibitem{pymol}
+    \textit{PyMOL}
+    The PyMOL Molecular Graphics System, Version 3.0 Schrödinger, LLC.
 \end{thebibliography}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
+\vspace{5em}
 \appendix
-\section*{Supporting Information}
+\section{Supporting Information}
 
 \renewcommand{\thesubsection}{S\arabic{subsection}}
 \setcounter{subsection}{0}
 
-\subsection{Dimensionality reduction and clustering}
+\subsection{Derivation of PCA and tICA}
 \label{sec:SI_dimred}
 The presentation of tICA in this section follows closely that of \cite{my_tica_ref}.
 
@@ -571,40 +665,83 @@ With this normalization, Euclidean distances approximate commute distances, i.e.
 
 
 
-\subsection{Estimation and validationof Markov state models}
-\label{sec:SI_validation}
+\subsection{Spectral decomposition of the transition matrix of a Markov chain \textcolor{orange}{TO COMPLETE}}
+\label{si:spectral}
+\noindent The dynamics encoded by a Markov state model can be understood through the eigendecomposition of its transition matrix $\mathbf{T}$.
+For consistency with the notation used in the Python package deeptime, let us consider the transition matrix $\mathbf{T}$ as a row-stochastic matrix, i.e. $T_{ij}$ is the probability of transitioning from state $i$ to state $j$ in one lag step:
+\begin{equation*}
+    \sum_j T_{ij} = 1, \qquad T_{ij} \geq 0.
+\end{equation*}
+Probability distributions are represented as row vectors, and evolve as:
+\begin{equation*}
+\mathbf{p}(n) = \mathbf{p}(0)\mathbf{T}^n,
+\end{equation*}
+where $\mathbf{p}(0)$ is the initial distribution and $\mathbf{p}(n)$ is the distribution after $n$ lag steps.
+The transition matrix admits a spectral decomposition of the kind:
+\begin{equation*}
+\mathbf{T} = \sum_i \lambda_i \mathbf{r}_i \mathbf{l}_i^{\mathrm T},
+\end{equation*}
+where $\lambda_i$ are the eigenvalues, and $\mathbf{r}_i$ and $\mathbf{l}_i$ are the corresponding right and left eigenvectors, satisfying:
+\begin{equation*}
+\mathbf{T}\mathbf{r}_i=\lambda_i\mathbf{r}_i,
+\qquad
+\mathbf{l}_i^{\mathrm T}\mathbf{T}=\lambda_i\mathbf{l}_i^{\mathrm T}.
+\end{equation*}
 
-\textbf{CK test} \newline \noindent
-To insert.
 
-\subsection{VAMP scores}
-\label{sec:SI_vamp}
+The probability distribution after $n$ lag times can therefore be written as
 
-\subsection{Transition path theory}
-\label{sec:SI_tpt}
+\begin{equation*}
+\mathbf{p}(n)=
+\mathbf{p}(0)\mathbf{T}^{,n}=
+\sum_i
+c_i\, \cdot \lambda_i^n \cdot \mathbf{l}_i,
+\end{equation*}
 
-\subsection{PCCA and MSM coarse-graining}
-\label{sec:SI_pcca}
+where the coefficients $c_i = \mathbf{p}(0)\mathbf{r}_i$ depend on the initial condition. The dominant eigenvalue is $\lambda_1=1$ and corresponds to the equilibrium distribution. All other modes decay exponentially with characteristic relaxation times
+
+\begin{equation*}
+t_i
+-\frac{\tau}{\ln \lambda_i},
+\end{equation*}
+
+where $\tau$ is the MSM lag time.
+
+The left eigenvectors therefore describe the spatial structure of the relaxation processes occurring on the corresponding timescales. States with eigenvector components of opposite sign exchange probability during the relaxation process, while the magnitude of each component quantifies the degree to which that state participates in the process. The instantaneous probability flux associated with a mode can be visualized from the change in the probability distribution after one lag step,
+
+\begin{equation*}
+\Delta\mathbf{p} = 
+\mathbf{p}\mathbf{T} - \mathbf{p} = {\color{orange} TODO: complete}
+\end{equation*}
+
+For reversible Markov models obeying detailed balance, left and right eigenvectors contain equivalent information and are related through the equilibrium population matrix $\boldsymbol{\Pi}$,
+
+\begin{equation*}
+\mathbf{l}_i
+\boldsymbol{\Pi},\mathbf{r}_i .
+\end{equation*}
+
+Consequently, the right eigenvectors may be interpreted as equilibrium-population-weighted versions of the relaxation modes.
 
 
-\newpage 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Supplementary Figures}
+\clearpage
+\onecolumngrid
+\section{Supplementary Figures}
 \setcounter{figure}{0}
 \renewcommand{\thefigure}{SF\arabic{figure}}
 
-\begin{figure*}[t]
-    \centering
+\begin{center}
     \includegraphics[width=\linewidth]{figures/draft_flowchart.png}
-    \caption{\small \textbf{Flowchart of the MSM construction pipeline used in this work}.}
+    \captionof{figure}{\small \textbf{Flowchart of the MSM construction pipeline used in this work}.}
     \label{supp_fig:msm_flowchart}
-\end{figure*}
+\end{center}
 
-\begin{figure*}[t]
+\begin{figure}[t!]
     \centering
     \includegraphics[width=\linewidth]{figures/tica_dihedrals_lagtime.png}
     \caption{\small \textbf{tICA projections obtained from the dihedral-angle feature set using kinetic-map scaling}. Columns correspond to different tICA lag times spanning four
@@ -614,31 +751,31 @@ To insert.
     A useful tICA projection should separate slowly interconverting conformations into distinct regions of configuration space and produce components exhibiting metastable, jump-like dynamics. 
     Very short lag times lead to projections dominated by fast fluctuations, whereas excessively large lag times wash out the dynamical structure and yield nearly unimodal projections. 
     Intermediate lag times ($\tau\sim 1{-}2\,\mu s$) provide the clearest separation of metastable states and the most pronounced residence/jump behaviour in the leading components.
-    Based on this analysis, a lag time of approximately $2\,\mu s$ and the first five tICs Ire retained for subsequent MSM construction.}
+    Based on this analysis, a lag time of approximately $2\,\mu s$ and the first five tICs were retained for subsequent MSM construction.}
     \label{supp_fig:tica_dihedrals_lagtime}
-\end{figure*}
+\end{figure}
 
-\begin{figure*}[t]
+\begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/tica_distances_lagtime.png}
     \caption{\small \textbf{tICA projections obtained from the contact-distance feature set using kinetic-map scaling}. Compared to the dihedral-angle representation, the contact-distance features yield tICA coordinates with less clearly separated
      free-energy minima and less pronounced metastable, jump-like dynamics. This suggests a Iaker separation of slow conformational processes in the resulting low-dimensional projection. A lag time of $\tau = 10^3 frames (\approx 0.2\,\mu s)$ was selected to maintain consistency with the analysis performed on the dihedral feature set. 
     At this lag time, the free-energy profiles become largely unimodal beyond the first few tICs, indicating that most of the slow dynamical information is concentrated in the leading components. 
-    Although the first three tICs appear to capture the dominant slow processes, as a more conservative choice the first five components Ire retained for subsequent MSM construction.}
+    Although the first three tICs appear to capture the dominant slow processes, as a more conservative choice the first five components were retained for subsequent MSM construction.}
     \label{supp_fig:tica_distances_lagtime}
-\end{figure*}
+\end{figure}
 
-\begin{figure*}[t]
+\begin{figure}[t]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/pca_retained_components.png}
     \caption{\small \textbf{Comparison of PCA projections obtained from the contact-distance feature set and from the dihedrals feature set.}. In contrast to tICA, the PCA projections provide a less clear separation of metastable conformational states. 
     Free-energy profiles exhibit Iaker clustering, the one-dimensional free-energy profiles are predominantly unimodal, and the principal-component time series do not display a pronounced residence/jump behavior, with exception of the first PC. Consistent with the tICA results, the dihedral-angle representation yields a more structured 
     low-dimensional projection than the contact-distance features. For subsequent MSM construction I retain the first $7$ components for the dihedrals set and the first $5$ for the contact-distance set.}
     \label{supp_fig:pca_retained_components}
-\end{figure*}
+\end{figure}
 
 
-\begin{figure*}[t]
+\begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/free_energy_reduced_histo.png}
     
@@ -655,8 +792,8 @@ To insert.
      \textbf{Bottom row}: projections coloured by the RMSD to the crystal structure (normalized). Each column corresponds to a different combination of feature set (distances or dihedral angles)
     and dimensionality reduction method (PCA or tICA). The colouring reveals the extent to which the reduced coordinates correlate with physically meaningful progress variables of folding, namely native-contact formation and structural similarity to the crystal structure.}
     \label{supp_fig:reduced-space-projections}
-\end{figure*}
+\end{figure}
 
-
+\FloatBarrier
 
 \end{document}

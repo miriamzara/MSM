@@ -1,8 +1,14 @@
 # ignore the timeseries data (too big)
-data/
+root/data/
+root/intermediate_outputs/
+root/backbone_reconstructions/
+# cache
+__pycache__/
+# other potentially big files
 *.npz
 *.npy
 *.csv
-.DS_Store
-__pycache__/
-backbone_reconstructions/
+# ignore output trajectories from pymol
+pymol_io/out/
+root/.DS_Store
+

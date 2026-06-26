@@ -5,10 +5,11 @@ Reconstruct an approximate protein backbone from phi/psi torsion angles.
 Example
 -------
 python reconstruct_backbone.py \
-    --data-folder ./data \
+    --data-folder ../data \
     --frames 0 1000 2000 3000 \
     --out-prefix selected_backbone \
-    --out-folder ./data/selected_frames
+    --out-folder ./data/selected_frames \
+    --stride 1000
 
 By default, frame indices refer to rows of the full dihedral file before any
 subsampling. If --frames is omitted, the script uses every --stride-th row.
