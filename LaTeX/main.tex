@@ -7,6 +7,7 @@
 \usepackage{dsfont}
 \usepackage{braket}
 \usepackage{mdframed}
+\usepackage{booktabs} %tables
 \usepackage{ragged2e}
 \usepackage{caption}
 \usepackage{subcaption}
@@ -191,17 +192,23 @@ The predicted autocorrelation function was compared to the autocorrelation funct
 %
 %
 \vspace{0.5em}\newline
-\textbf{Spectral analysis}
+\textbf{Spectral analysis and Coarse-graining}
 The dynamical processes captured by each MSM were characterized through the spectral decomposition of the transition matrix (see Supplementary Information \ref{si:spectral} for details). 
 The eigenvalues were converted into relaxation timescales, while the corresponding eigenvectors were used to identify the states participating in each relaxation process. 
 States with eigenvector components of opposite sign exchange probability on the associated timescale, whereas the magnitude of each component reflects the degree of participation
 of that state in the process. For reversible models satisfying detailed balance, left and right eigenvectors contain equivalent kinetic information
 and are related through the equilibrium distribution.
+The signs of eigenvectors components provide a criterion for defining partitions in the microstate model. This is systematically done through the algorithm PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible}. I use this method to connect
+the slowest exchange modes in the markov chain to the thermodynamics of the protein, although the two are not strictly the same thing. 
 \vspace{0.5em}\newline
-\textbf{Coarse-graining {\color{orange} TODO}}
-\vspace{0.5em}\newline
-\textbf{Transition Path Theory (TPT) analysis {\color{orange} maybe? maybe not?}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%
+%
+%
+%
 %
 %
 %
@@ -267,7 +274,14 @@ of the underlying continuous dynamics.
 Validation was performed as described in Methods comparing the autocorrelation function of the RMSD to the crystal structure computed from the trajectory and predicted by the MSMs (see Fig.\ref{fig:autocorrelation}).
 The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar results, while the pca-dihedrals performs substantially {\color{orange} ? - need uncertainties} worse.
 \vspace{0.5em}\newline
-\textbf{Spectral analysis}
+\textbf{Spectral analysis and Coarse-graining}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = 0.8\linewidth]{figures/msm_timescale_spectra_report.pdf}
+    \caption{The timescales spectra for the four markov models}
+    \label{fig:timescales_spectra}
+\end{figure}
+
 \begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/first_eigvec.png}
@@ -287,13 +301,107 @@ Next, I inspected the leading {\color{orange} left or right? check again for a r
 The first non-trivial eigenvector exhibits a clear separation between regions associated with low and high values of the fraction of native contacts Q, 
 as shown by comparison with the projection of Q onto the first two tICs (Fig.~\ref{fig:eigenvectors}). This indicates that the slowest dynamical process captured by the MSM corresponds
 to the folding-unfolding transition. The qualitative structure of the first eigenvector is remarkably consistent across all four model constructions, suggesting that the dominant kinetic process is robust with respect
- to the choice of molecular representation and dimensionality reduction method. In contrast, the higher-order eigenvectors display more method-dependent patterns, and their physical interpretation is less straightforward. 
-\vspace{0.5em}\newline
-\textbf{Coarse-graining {\color{orange} TODO}}
-I build a macrostate model applying PCCA++ [Ch. 2.5.1 and 2.5.2]\cite{thebible}.
+to the choice of molecular representation and dimensionality reduction method. In contrast, the higher-order eigenvectors display more method-dependent patterns, and their physical interpretation is less straightforward. 
+
+
+Looking at the pattern of timescales, \ref{fig:timescales_spectra}, the four markov models appear different. The gap between the 
+first and second slowest timescale is model dependent. Three models agree reasonably on the first timescale ($\sim 0.8-0.9\, \mu s$)- 
+these are pca-distances, tica-distances and tica-dihedrals. But they do not agree on the following timescales, and they resolve a different
+number of timescales above the unresolved region threshold. 
+
+First of all, I apply PCCA++ with $n=2$ macrostates to all models. I want to investigate if the partitioning identified by PCCA is 
+robust across models. Intuitively, and from the qualitative inspection of the leading eigenvector,  I expect that the slowest process 
+refers to the exchange between the native basin (N) and the denatured basin (B). This is the connection leap from PCCA to the termodynamics of the system.
+
+So the analysis to be made now is aims to answer the following questions:
+\begin{itemize}
+    \item Do the two-state partitions identified by the different models overlap significantly?
+    \item Are populations of the two macrostates consistent across models?
+    \item If macrostates are consistent, are they structurally well caracterized ?
+\end{itemize}
+Then, as an optional next step, provided that the models are coherent at this coarse level, and that
+it is indeed possible to identify the partitions as corresponding to the N and D basins, it would
+be interesting to further split the partitions for the models at higher resolutions and see if these partitions
+highlight processes that occur within the native basin, or within the denatured basin, or between the two.  
+But for now lets just keep at the two-state level, and see if the models are consistent.
+
+So first of all I compute fuzzy membership probabilities of the microstates to the macrostates, and also fuzzy membership of the trajectory timeseries. I also compute hard
+assignments of the microstates to the macrostates, and hard assignments of the trajectory timeseries. 
+Macrostate index ($0$ or $1$) is not necessarily the same across the models, so I check which macrostate in a model overlaps the most with what other macrostate and I
+reindex the macrostates consistently, so that macrostate $0$ means more or less the same in each model.
+
+A first simple measure is correlation. I compute both Pearson and Spearman correlation coefficients for the timeseries of the probability of being in macrostate $0$ across the four models.
+I find very high correlation coefficients, both Pearson and Spearman, for all pairs of models \ref{supptab:two_state_model_correlation}. Next I check visually
+the distribution of the fuzzy membership probabilities of frames across models \ref{suppfig:fuzzy_memberships_models}. The models based on distances agree very well, the other a little less.
+In particular, the tica-dihedral models places a lot of its samples in the boundary region, but this is reasonable because the model didnt have a clear eigenvalue gap between
+the first and second timescale, so we are forcing it into a two state model while the markov chain is not really two-state. However, notably  tica-dihedrals appear to cross boundaries
+only for macrostate $0$ (spoiler: this is the denatured basin). Instead, when another model assigns the frame to macrostate $1$ (spoiler: this is the native basin), tica-dihedrals also assigns it to macrostate $1$. So the fuzzy memberships of tica-dihedrals are more uncertain for the denatured basin, but not for the native basin. This is consistent with the fact that the denatured basin is more heterogeneous and less well defined than the native basin, which is a single well-defined structure.
+Probably the tica-dihedrals model would resolve the denatured basin in finer detail if we used more than two macrostates.
+
+Next I compute the populations of the two macrostates, for each model separately \ref{tab:pcca_two_state_populations}. 
+Here we find, notably, that once averaged by the fuzzy probability, the populations of the macrostates identified by tica-dihedrals agree
+very well with the populations of tica-distances and pca-distances. The pca-dihedrals model is the only one that disagrees, and it is the one that performed worst in the implied timescale test and in the autocorrelation test.
+So dihedrals-tica is not a bad model, it is just that the two-state level is not enough to resolve the denatured basin, and it is forced to assign a lot of samples to the boundary region. But if we average over the fuzzy memberships, the populations of the two macrostates are consistent with the other models.
+
+$$
+P(frame \in A) = \sum_{\text{micro}} p(frame \in \text{micro}) \cdot p(\text{micro} \in A)
+$$
+
+
+\begin{table}[h!]
+\caption{Coarse-grained stationary populations of the two PCCA macrostates for each MSM at the common two-state resolution. Relative free energies were computed as $\Delta G_{1-0} = -k_B T \ln[P(S_1)/P(S_0)]$ with $T=360$ K.}
+\label{tab:pcca_two_state_populations}
+\begin{tabular}{lccc}
+\hline
+Model & $P(S_0)$ & $P(S_1)$ & $\Delta G_{1-0}$ (kJ mol$^{-1}$) \\
+\hline
+tica\_distances & 0.247 & 0.753 & -3.342 \\
+pca\_distances & 0.307 & 0.693 & -2.435 \\
+tica\_dihedrals & 0.205 & 0.795 & -4.064 \\
+pca\_dihedrals & 0.439 & 0.561 & -0.735 \\
+\hline
+\end{tabular}
+\end{table}
+
+Given this, pca-dihedrals will be discarded from now on. I now proceed to identify the robust cores: those frames that are assigned to the same macrostate by all three remaining models.
+First I inspect the probability distribution of the fuzzy memberships of the frames, for each model, to understand
+how well they are separated and define meaningful thresholds for defining "core" frames.
+I use: $p<0.4$ for macrostate $0$ and $p>0.8$ for macrostate $1$. I compute the jaccard index 
+$$J = \frac{|A \cap B|}{|A \cup B |}$$
+as a simple measure of overlap. 
+
+\begin{table}[h!]
+\caption{Pairwise Jaccard overlaps between high-confidence PCCA regions defined from fuzzy membership probabilities. Core regions were defined as $P(S_1)<0.2$ for basin $S_0$ and $P(S_1)>0.8$ for basin $S_1$, while ambiguous frames were defined by $0.4<P(S_1)<0.6$.}
+\label{tab:pcca_core_overlap}
+\begin{tabular}{lccc}
+\hline
+Model pair & $J_0$ & $J_1$ & $J_{\text{ambiguous}}$ \\
+\hline
+tICA distances - PCA distances & 0.911 & 0.989 & 0.196 \\
+tICA distances - tICA dihedrals & 0.273 & 0.981 & 0.121 \\
+PCA distances - tICA dihedrals & 0.251 & 0.977 & 0.031 \\
+\hline
+\end{tabular}
+\end{table}
+
+results in table \ref{tab:pcca_core_overlap} indicate that the native basin is very consistent across the models. Additionally, pca-distances and tica-distances also agree on the
+definition of the denatured basin. 
+Now I proceed to structurally caracterize the native basin. I dont do this for the unfolded basin, because it is known to be heterogeneous and structurally diverse, and I dont expect to find something very meaningful. 
+It would be interesting to see if the tica-dihedrals model resolves the denatured basin in more detail, but this is beyond the scope of this work right now.
+
+I take only the frames that are assigned to the native basin by all three models. First, 
+I want to understand what distinguishes them from the rest in terms of contacts.
+I load the timeseries of the distance from the crystal structure.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
+%
+%
+%
+%
+%
+%
+
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -735,11 +843,7 @@ Consequently, the right eigenvectors may be interpreted as equilibrium-populatio
 \setcounter{figure}{0}
 \renewcommand{\thefigure}{SF\arabic{figure}}
 
-\begin{center}
-    \includegraphics[width=\linewidth]{figures/draft_flowchart.png}
-    \captionof{figure}{\small \textbf{Flowchart of the MSM construction pipeline used in this work}.}
-    \label{supp_fig:msm_flowchart}
-\end{center}
+
 
 \begin{figure}[t!]
     \centering
@@ -793,6 +897,32 @@ Consequently, the right eigenvectors may be interpreted as equilibrium-populatio
     and dimensionality reduction method (PCA or tICA). The colouring reveals the extent to which the reduced coordinates correlate with physically meaningful progress variables of folding, namely native-contact formation and structural similarity to the crystal structure.}
     \label{supp_fig:reduced-space-projections}
 \end{figure}
+
+\FloatBarrier
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/pairwise_pcca_membership_scatter_quadrants_report.pdf}
+    \caption{\small \textbf{Fuzzy membership probabilities of the trajectory frames to the two macrostates across models.} Each panel shows the fuzzy membership probability of each frame in the trajectory to macrostate $0$ (denatured basin) and macrostate $1$ (native basin) for a different model. The models based on distances (tica-distances and pca-distances) show very similar distributions, while the tica-dihedrals model exhibits a broader distribution, particularly for frames assigned to the denatured basin. This indicates that the tica-dihedrals model has more uncertainty in assigning frames to the denatured basin.}
+    \label{suppfig:fuzzy_memberships_models}
+\end{figure}
+
+\begin{table}[h!]
+\caption{Pairwise correlations between frame-wise PCCA membership probabilities for the folded basin. Pearson correlations quantify linear agreement, whereas Spearman correlations quantify agreement in the rank ordering of frames along the folded-basin membership coordinate.}
+\label{supptab:two_state_model_correlation}
+\begin{tabular}{lcc}
+\hline
+Model pair & Pearson & Spearman \\
+\hline
+tICA distances -- PCA distances & 0.990 & 0.911 \\
+tICA distances -- tICA dihedrals & 0.923 & 0.826 \\
+tICA distances -- PCA dihedrals & 0.876 & 0.831 \\
+PCA distances -- tICA dihedrals & 0.910 & 0.821 \\
+PCA distances -- PCA dihedrals & 0.876 & 0.847 \\
+tICA dihedrals -- PCA dihedrals & 0.885 & 0.930 \\
+\hline
+\end{tabular}
+\end{table}
 
 \FloatBarrier
 
