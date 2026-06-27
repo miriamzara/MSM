@@ -391,7 +391,57 @@ It would be interesting to see if the tica-dihedrals model resolves the denature
 
 I take only the frames that are assigned to the native basin by all three models. First, 
 I want to understand what distinguishes them from the rest in terms of contacts.
-I load the timeseries of the distance from the crystal structure.
+I load the timeseries of the distance from the crystal structure and I split the frames in the folded basin from the rest. 
+I define a score that tells how important the contact is for differentiating. My score is: 
+
+
+$$
+d^{\mathrm{robust}}_{ij}
+=
+\frac{
+\mathrm{median}(r_{ij}^{\mathrm{other}})
+-
+\mathrm{median}(r_{ij}^{\mathrm{folded}})
+}{
+\mathrm{IQR}_{\mathrm{pooled}}
+}
+$$
+
+In words, So, in words we say that a contact is important if its distance distribution is substantially shifted toward shorter distances in the folded basin and substantially more narrow in the folded basin.
+
+The $10$ most important contacts are reported in \ref{tab:top10_folded_contacts}.
+
+
+\begin{table}
+\caption{Top ten residue contacts ranked by the cutoff-free robust folded-contact score. Distances are reported in nm. The robust effect size $d_\mathrm{robust}$ compares the median contact distance outside and inside the folded basin, normalized by the pooled interquartile range. Contact probabilities were computed using a 0.8 nm cutoff and are reported only as auxiliary descriptors.}
+\label{tab:top10_folded_contacts}
+\begin{tabular}{lccccccc}
+\hline
+Contact & $\tilde r_\mathrm{folded}$ & $\tilde r_\mathrm{other}$ & $\mathrm{IQR}_\mathrm{folded}$ & $d_\mathrm{robust}$ & $P_\mathrm{folded}$ & $P_\mathrm{other}$ & $\Delta P$ \\
+\hline
+7--12 & 0.370 & 1.036 & 0.047 & 2.510 & 0.995 & 0.115 & 0.881 \\
+9--32 & 0.359 & 1.635 & 0.131 & 2.399 & 0.865 & 0.047 & 0.817 \\
+6--17 & 0.422 & 1.381 & 0.101 & 2.219 & 0.973 & 0.092 & 0.881 \\
+7--13 & 0.487 & 1.158 & 0.089 & 2.190 & 0.866 & 0.073 & 0.793 \\
+6--14 & 0.488 & 1.211 & 0.120 & 2.084 & 0.917 & 0.073 & 0.845 \\
+10--32 & 0.529 & 1.602 & 0.209 & 1.825 & 0.665 & 0.059 & 0.606 \\
+10--34 & 0.453 & 1.528 & 0.184 & 1.821 & 0.768 & 0.088 & 0.680 \\
+10--29 & 0.529 & 1.431 & 0.164 & 1.780 & 0.698 & 0.079 & 0.619 \\
+7--11 & 0.317 & 0.712 & 0.053 & 1.776 & 0.996 & 0.349 & 0.647 \\
+6--13 & 0.590 & 1.241 & 0.202 & 1.702 & 0.532 & 0.053 & 0.478 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+Also it is even clearer from the contact map \ref{fig:contact_map_folded_vs_other}. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = 0.8\linewidth]{figures/folded_basin_contact_map_report.pdf}
+    \caption{Most important contacts for discrimination of the folded basin. Z values are the shift in the median.}
+    \label{fig:contact_map_folded_vs_other}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
