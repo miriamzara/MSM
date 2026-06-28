@@ -10,7 +10,9 @@ __pycache__/
 *.csv
 # ignore output trajectories from pymol
 pymol_io/out/
-root/.DS_Store
+
+# MacOS files
+.DS_Store
 
 # ignore all trajectory files
 *.dcd
