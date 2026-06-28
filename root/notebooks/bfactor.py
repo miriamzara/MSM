@@ -5,6 +5,8 @@ import os
 # Input files
 # -----------------------------
 
+#crystal_pdb = "../root/data/pdb2f4k_cut.ent" # write b factor on the crystal structure
+#crystal_residue_offset = 41
 topology_pdb = "../movies/folded_core_consensus_frames_stride_100/first_frame.pdb"
 trajectory_dcd = "../movies/folded_core_consensus_frames_stride_100/traj.dcd"
 #native_indices_file = "native_basin_frame_indices.txt"

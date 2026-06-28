@@ -7,7 +7,7 @@ sort
 hide everything, all
 show cartoon, pdb2f4k
 color gray80, pdb2f4k
-
+1
 bg_color white
 set cartoon_fancy_helices, 1
 set cartoon_helix_radius, 0.5
