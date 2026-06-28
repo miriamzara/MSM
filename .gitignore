@@ -12,7 +12,13 @@ __pycache__/
 pymol_io/out/
 root/.DS_Store
 
+# ignore all trajectory files
+*.dcd
+*.pdb
 
+# ignore figures that are not in Latex
+
+root/outputs_figures/
 # LaTeX
 LaTeX/*.aux
 LaTeX/*.fdb_latexmk

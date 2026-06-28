@@ -365,7 +365,7 @@ pca\_dihedrals & 0.439 & 0.561 & -0.735 \\
 
 Given this, pca-dihedrals will be discarded from now on. I now proceed to identify the robust cores: those frames that are assigned to the same macrostate by all three remaining models.
 First I inspect the probability distribution of the fuzzy memberships of the frames, for each model, to understand
-how well they are separated and define meaningful thresholds for defining "core" frames.
+how well they are separated and define meaningful thresholds for defining "core" frames \ref{suppfig:pcca_frames_prob_density}.
 I use: $p<0.4$ for macrostate $0$ and $p>0.8$ for macrostate $1$. I compute the jaccard index 
 $$J = \frac{|A \cap B|}{|A \cup B |}$$
 as a simple measure of overlap. 
@@ -973,6 +973,15 @@ tICA dihedrals -- PCA dihedrals & 0.885 & 0.930 \\
 \hline
 \end{tabular}
 \end{table}
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.4\linewidth]{figures/pcca_membership_probability_distributions.pdf}
+    \caption{\small the distributions of fuzzy membership probabilities assigned to frames, for basin $1$ across the four models. }
+    \label{suppfig:pcca_frames_prob_density}
+\end{figure}
+
 
 \FloatBarrier
 

@@ -1,17 +1,45 @@
+# Expected usage:
+# pymol trajectory_script.pml movie_name
+#
+# More robust usage:
+# pymol -cq trajectory_script.pml -- movie_name
+
+
+
+
 reinitialize
 
-# topology first
-load ./out/single_event/single_event.pdb, recon
+# ---------- Start Python for parsing filename argument ----------
+python
+import os
+import sys
+from pymol import cmd
 
-# load the trajectory into the existsing recon
-load_traj ./out/single_event/single_event.dcd, recon
+if len(sys.argv) < 2:
+    raise SystemExit("ERROR: missing movie folder argument, e.g. stride_100")
+
+# Take the last command-line argument as the movie folder name
+movie_name = sys.argv[-1]
+
+base_path = os.path.join("..", "root", "movies", movie_name)
+
+topology_path = os.path.join(base_path, "first_frame.pdb")
+trajectory_path = os.path.join(base_path, "traj.dcd")
+
+cmd.load(topology_path, "recon")
+cmd.load_traj(trajectory_path, "recon")
+python end
+
+# ---------- End Python for parsing filename argument ----------
+
 
 hide everything, all
 bg_color white
 
-
 # Reference frame
 show cartoon, recon
+
+
 set cartoon_fancy_helices, 1
 set cartoon_helix_radius, 0.5
 set cartoon_transparency, 0.1
