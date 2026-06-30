@@ -166,11 +166,16 @@ PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible} is a systematic algorithm to identif
 \begin{figure*}[ht]
     \centering
     \includegraphics[width = 0.9\linewidth]{figures/free_energy_projection_report.pdf}
-    \includegraphics[width=0.5\linewidth]{figures/implied_timescales.png}
+    \includegraphics[width = 0.9\linewidth]{figures/RMSD_reduced_projection.png}
+    
+    \par\vspace{3em}
+
+    \includegraphics[width=0.7\linewidth]{figures/implied_timescales.png}
     \includegraphics[width=0.2\linewidth]{figures/autocorrelation_rmsd.png}
-    \caption{\footnotesize \textbf{Top.} First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
+    \caption{\footnotesize Results of the MSM construction pipeline. \textbf{Top.} projected free-energy surfaces onto the first two reduced coordinates for the four feature-reduction pipelines considered. \textbf{Middle left.}
+     First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
         The shaded region corresponds to $t_i \leq \tau$, where $t_i$ is the implied timescale and $\tau$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
-        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step. Autocorrelation function of the root mean square deviation (RMSD) from the crystal structure, as obtained 
+        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step. \textbf{Middle right:} Autocorrelation function of the root mean square deviation (RMSD) from the crystal structure, as obtained 
         from the molecular dynamics trajectory (blue) and predicted by the four MSMs.}
     \label{fig:msm_results}
 \end{figure*}
