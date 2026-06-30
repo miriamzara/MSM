@@ -70,7 +70,8 @@ which contains dozens of folding-unfolding transitions. Because of this extensiv
 Previous analysis also reported a free-energy profile in which the system is approximately described by two main states, folded and unfolded, with a low-population intermediate \cite{Piana2012}.
 The aim of this project is to test whether different MSM construction pipelines lead to a consistent thermodynamic and structural description of this folding system. 
 
-Operationally, I build four MSMs starting from two internal-coordinate representations, contacts and dihedral angles, and two dimensionality reduction methods, PCA and tICA. I then apply PCCA++ to identify metastable macrostates in each model. The resulting models are compared by asking whether the identified macrostates are consistent across pipelines, whether they have a clear structural interpretation in terms of folded, unfolded, and possibly intermediate conformations, and whether their equilibrium populations agree.
+Operationally, I build four MSMs starting from two internal-coordinate representations, contacts and dihedral angles, and two dimensionality reduction methods, PCA and tICA. I then apply PCCA++ to identify macrostates in each model. The resulting models are compared by asking whether the identified macrostates are consistent across pipelines, whether they 
+can be interpreted as metastable states, whether they have a clear structural interpretation in terms of folded, unfolded, and possibly intermediate conformations, and whether their equilibrium populations agree.
 Finally, I estimate the folding time and the free-energy gap between macrostates from the MSMs and compare them both across models and with the reference estimates reported in \cite{Piana2012}. 
 
 Overall, this project aims to review the MSM construction pipeline, assess its robustness with respect to modelling choices, and clarify its strengths and limitations for the quantitative analysis of MD simulation data.
@@ -92,105 +93,54 @@ The original trajectory is reported by Lindorff-Larsen \textit{et al.} \cite{Lin
 The dataset contains time series of approximately $1.5\times10^6$ samples, with a sampling interval of about $200,\mathrm{ps}$. Authors provide timeseries of two internal-coordinate representations which they selected and filtered specifically for employment in MSM construction, as they describe in detail \cite{selecting_features}.
 These are residue-residue contact distances ( \texttt{hp35.mindists2} - $42$ features) and backbone dihedral angles (\texttt{hp35.dihs.shifted} - $62$ features). Authors also provide timeseries of residue-residue distances for a separate set of contacts identified from the crystal structure PDB 2F4K, (\texttt{hp35.crystaldists} - \textcolor{blue}{X} features).
 
-\subsection{Methods}
+\subsection{Methods for MSM construction}
 All code is written in Python and employs the library Deeptime \cite{deeptime} for MSMs construction, validation and analysis.
-For MSM I use \texttt{hp35.mindists2} and \texttt{hp35.dihs.shifted}. The following steps
+The steps involved in MSM construction are, briefly:
+\begin{enumerate}
+    \setlength{\itemsep}{0.01em}
+\item Feature selection,
+\item Dimensionality reduction,
+\item Clustering of the reduced coordinates into discrete states,
+\item Estimation of the transition matrix, selection of lag time and validation of markovianity,
+\item Validation of the final model against the data.
+\end{enumerate}
 
-\noindent\textbf{Dimensionality reduction}
-The purpose of dimensionality reduction in the MSM workflow is not only to compress the information contained in the molecular descriptors, 
-but also to \textit{encode kinetic information into the geometry} of the reduced space. This aspect is particularly important because the reduced
-coordinates are subsequently clustered into discrete states (so-called \textit{microstates}) that form the state set of the Markov chain.
-Since commonly used clustering algorithms such as k-means rely on Euclidean distance, conformations that interconvert rapidly should ideally be mapped
-to nearby points in the reduced space. Otherwise, conformations separated by substantial kinetic barriers may be assigned to the same cluster and the markov property will be violated.
-Constructing low-dimensional representations that preserve kinetic information remains an active area of research. In this work, however, we restrict the analysis to the two classical linear approaches,
-principal component analysis (PCA) and time-lagged independent component analysis (tICA), which remain standard baselines in the MSM literature. PCA identifies directions of maximal variance in the data, 
-whereas tICA identifies directions of maximal autocorrelation and is therefore explicitly designed to emphasize slow dynamical processes. 
-A detailed mathematical description of both methods is provided in the Supplementary Information [\ref{sec:SI_dimred}].
-\newline
-Both PCA and tICA require selecting the number of retained components, while tICA additionally requires specifying a lag time. To guide this choice, 
-the reduced coordinates were evaluated through i) their free-energy profiles and ii) projected time series. The free energy associated with a coordinate $z$ was estimated as
-\begin{equation}
-F(z)=-\ln p(z),
-\end{equation}
-where $p(z)$ denotes the marginal probability density of the coordinate. The rationale behind this analysis is that coordinates relevant to the folding process should separate distinct metastable regions
-and therefore display multimodal free-energy profiles. Furthermore, if a coordinate captures transitions between metastable states, its time series should exhibit relatively long-lived plateaus separated by rapid transitions.
-For tICA, lag times between $100$ and $1000$ frames (approximately $20-200$ ns) were considered. Since HP$35$ is known to fold a microsecond timescale, 
-the autocorrelation -  which tICA maximizes - should be inspected at times shorter than this timescale.
-%
-%
-%
+In the following I describe briefly the scope and implementation of each step, focusing the most on the two steps that were varied this work, which are 
+feature selection and dimensionality reduction. I report more details of the pipeline in the Supplementary Methods \ref{sec:SI_methods}.
+
+MSMs construction at its core necessitates to convert the trajectory frames of the MD simulation into a finite, discrete set of states. 
+Ideally, this procedure should preserve the kinetic information of the original continuous dynamics, but with the advantage of being 
+much simpler to analyze. The first two steps of the pipeline, feature selection and dimensionality reduction, 
+are used to compress the raw MD data in a space that is much lower dimensional, so that a clustering of samples into a finite number of states 
+is computationally feasible. Clustering algorithms such as k-means rely on Euclidean distance, so it is important that the reduced coordinates are constructed in such a way that conformations that interconvert rapidly are mapped to nearby points in the reduced space. Otherwise, conformations separated by substantial kinetic barriers may be assigned to the same cluster and the markov property will be violated.
+These requirements make the choice of features and dimensionality reduction method a crucial step in the MSM pipeline, and their optimization
+is not trivial and has traditionally mostly relied on heuristics. 
+
+I experiment with two different feature sets, which are \texttt{hp35.mindists2} and \texttt{hp35.dihs.shifted} as previously described. As for the dimensionality reduction step, I compared two classical approaches: principal component analysis (PCA) and nd time-lagged independent component analysis (tICA),
+for which I provide a detailed derivation in the Supplementary Methods \ref{subsec:SI_dimred}. In short, both methods find linear combinations of the original provided features but with a different optimization objective.
+PCA identifies directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation. tICA is explicitly designed to better encode the slow dynamics of the system: while PCA
+identifies the degrees of freedom that vary the most, tICA looks for those that vary the most slowly. Therefore, the tICA coordinates are expected to 
+encode the slowest degrees of freedom of the system and the notion of euclidean distance in reduced space  defined by tICA is should ideally to be related to a notion of "kinetic distance", with conformations that interconvert rapidly being mapped to nearby points in the reduced space.
+tICA is usually found to ouperform PCA in this task, but if this is the case for our system is a question I am going to address. Overall, I build $4$ MSMs, combining the two feature sets and the two dimensionality reduction methods: tica-distances, tica-dihedrals, pca-distances and pca-dihedrals.
 \vspace{0.5em}\newline
-\noindent\textbf{Clustering and selection of MSM lagtime}
+\textit{Clustering:}
 The reduced coordinates were clustered using k-means with $100$, $200$, and $500$ clusters.
 Cluster centres were initialized uniformly and the algorithm was run for a maximum of $100$ iterations. Transition matrices were estimated using a maximum-likelihood 
 MSM estimator at lag times $\tau$ ranging from $10$ to $1000$ frames ($\sim 2-200\,ns$). The counting scheme used was the "sliding window" scheme, which counts transitions at every time step, as opposed to the "discrete" scheme, which counts transitions only at multiples of $\tau$ \cite[Chap. 4.1]{thebible}.
-Detailed balance was enforced during the estimation of the transition matrix \cite[Chap. 4.6]{thebible}.
-The range of lagtimes investigated was chosen to remain substantially shorter than the characteristic folding timescale ($\sim2 \,\mu s$), ensuring that the process of interest
-remained temporally resolved. \newline
-Markovianity assessment and optimal lagtime choice was performed through the implied-timescale convergence test. The i-th implied timescale estimated at lag $\tau$,  $t_i(\tau)$ is given by the relation:
-\begin{equation}
-t_i(\tau) = -\frac{\tau}{\ln \lambda_i(\tau)}
-\end{equation}
-where $\lambda_i(\tau)$ is the $i$-th eigenvalue ($i \geq 2$) of the transition matrix estimated at lag time $\tau$.
-It is known that the true timescales of the underlying continuous-state Markov process, $t_i^{*}$, are approximated from below ($t_i(\tau) \leq t_i^{*}$) and the relative error decreases as
-i) the discretization error decreases or ii) the lagtime $\tau$ increases. With this consideration, the implied timescale test consists in plotting $t_i(\tau)$ as a function of $\tau$ and looking for a region of approximate convergence, where the estimated timescales are approximately constant.
-The lagtime is selected as the minimum value in the region of convergence, as this choice minimizes the loss of temporal resolution while ensuring that the process of interest is approximately Markovian \cite[Ch. 4.7]{thebible}. 
+Detailed balance was enforced during the estimation of the transition matrix and the largest connected component was taken as the state space of the MSM.
+The range of lagtimes investigated was chosen to remain substantially shorter than the characteristic folding timescale ($\sim 1-3 \,\mu s$), ensuring that the process of interest
+remained temporally resolved.
+\newline \textit{Lagtime choice:}
+Estimation of the transition matrix requires specification of the lag time $\tau$ ($= 1, 2, 3\cdots$ in number of frames) at which to count transitions between states. Choice of lag time is done through the
+timescale convergence test. Briefly (see \ref{suppsec:markov_theory}), the transition matrix $T(\tau)$  is estimated at different lag times and its eigenvalues are used to compute the implied timescales $t_i(\tau)$, which are then plotted as a function of $\tau$. 
+If the Markovian assumption is valid, the implied timescales should be approximately constant for sufficiently large $\tau$. The lag time is then selected as the minimum value in the region of convergence, as this choice minimizes the loss of temporal resolution while ensuring that the process of interest is approximately Markovian\cite[Ch. 4.7]{thebible}.
+\newline \textit{MSM validation:} to validate the model against the original trajectory, I compare the autocorrelation function of the root mean square deviation (RMSD) to the crystal structure computed from the trajectory (\texttt{hp35.crystaldist}) and predicted by the MSMs (see \ref{suppsec:markov_theory}).
 %
 %
 %
-\subsection{Statistical analysis}
-\textbf{MSM validation}
-After selecting the MSM lag time based on the implied timescale convergence analysis, model quality was further assessed using an autocorrelation function test. 
-
-
-While a direct Chapman-Kolmogorov (CK) test provides a stringent validation of Markovianity, its application at the microstate level becomes impractical for models containing hundreds of states, 
-as it requires comparing $T(k\tau)$ and $[T(\tau)]^k$ entry-wise, and summary statistics are needed which could be difficult to interpret. 
-
-
-Instead, following the approach suggested by [Chap. 2.4.2]\cite{thebible}, model predictions were evaluated through the autocorrelation function of a physically meaningful observable.
-As an observable, the root-mean-square deviation (RMSD) from the crystal structure was chosen. For each microstate, a representative observable value was obtained by averaging the RMSD over all trajectory
-frames assigned to that microstate. The MSM prediction for the autocorrelation function was then computed from the spectral decomposition of the transition matrix,
-
-\begin{align}
-c(n)
-&=
-\frac{
-\sum_{i=1}^{N}
-\lambda_i^{n}\,
-\langle \theta,\mathbf{r}_i\rangle_\pi\,
-\langle \theta,\mathbf{l}_i\rangle
-}
-{
-\sum_{i=1}^{N}
-\langle \theta,\mathbf{r}_i\rangle_\pi\,
-\langle \theta,\mathbf{l}_i\rangle
-}
-\notag \\
-&\equiv
-\frac{
-\sum_{i=1}^{N}
-\lambda_i^{n}\,
-\langle \theta,\mathbf{l}_i\rangle^2
-}
-{\sum_{i=1}^{N}\, \langle \theta,\mathbf{l}_i\rangle^2} \notag
-\end{align}
-
-where $\lambda_i$ and $(\mathbf{l}_i, \mathbf{r}_i)$ denote the eigenvalues and (left, right) eigenvectors of the transition matrix (in row-stochastic notation), $\pi$ the stationary distribution,
-and ($\boldsymbol{\theta}$) is the vector of microstate-averaged RMSD values. Equivalence between the two reported formula hold because of the detailed balance assumption.
-The predicted autocorrelation function was compared to the autocorrelation function computed directly from the molecular dynamics trajectory. 
-%
-%
-%
-\vspace{0.5em}\newline
-\textbf{Spectral analysis and Coarse-graining}
-The dynamical processes captured by each MSM were characterized through the spectral decomposition of the transition matrix (see Supplementary Information \ref{si:spectral} for details). 
-The eigenvalues were converted into relaxation timescales, while the corresponding eigenvectors were used to identify the states participating in each relaxation process. 
-States with eigenvector components of opposite sign exchange probability on the associated timescale, whereas the magnitude of each component reflects the degree of participation
-of that state in the process. For reversible models satisfying detailed balance, left and right eigenvectors contain equivalent kinetic information
-and are related through the equilibrium distribution.
-The signs of eigenvectors components provide a criterion for defining partitions in the microstate model. This is systematically done through the algorithm PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible}. I use this method to connect
-the slowest exchange modes in the markov chain to the thermodynamics of the protein, although the two are not strictly the same thing. 
-\vspace{0.5em}\newline
+\subsection{Methods for MSM analysis}
+The spectral analysis of the transition matrix provides a natural framework to characterize the dynamical processes captured by the MSM in terms of eigenvalues and eigenvectors. Eigenvalues are related to the relaxation timescales of the system, while eigenvectors encode the states participating in each relaxation process (see \ref{suppsec:markov_theory}).
+PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible} is a systematic algorithm to identify metastable states in the MSM by partitioning the microstates based on the signs of the eigenvector components associated with the slowest relaxation processes. \textcolor{blue}{Add other things you use}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -212,88 +162,39 @@ the slowest exchange modes in the markov chain to the thermodynamics of the prot
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
-{\color{blue} 
-Sections describing different aspects of your analysis (~3a-3d). All sections should be organised as follows, the text is continuous, broken only to a few paragraphs in each section:
-\begin{itemize}
-\item Question studied in the section and the goal of this calculation.
-\item Few sentences on how it was done, mostly referring to datasets and approaches in the Methods.
-\item Actual results and observations, each supported by either a i) table or ii) figure or iii) number in the text.
-\item You need to interpret the observation. For example, do not only write X > Y, but also the meaning of this relationship with respect to your question.
-\item When presenting the results, refer to the respective Figure and Table, where it was shown.
-\item You can add more sentences for the interpretation. Please use precise phrases for the level of evidence, if the results 'suggest', 'indicate', 'show','demonstrate', 'support', 'corroborate'. Do not put too much 'hypothesis', and 'propose' these are synthetic phrases.
-\item End each section with a conclusion sentence for example, 'Taken together the results consistently show that X is larger than Y, indicating that X was an ancestor of Y'.
-\end{itemize}
-}
-%
-%
-\textbf{Dimensionality reduction:} The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) were qualitatively similar, suggesting that the method is robust within this range (Supplementary Figures \ref{supp_fig:tica_dihedrals_lagtime} and \ref{supp_fig:tica_distances_lagtime}].
-Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
-only for approximately the first three components.  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
-Based on this analysis, a tICA lag time of 1000 frames (200 ns) was selected for subsequent modelling. The final dimensionality-reduction parameters were: five tICs for the dihedral feature set, five tICs for the distance feature set,
-seven principal components for the dihedral feature set, and five principal components for the distance feature set. Next, I inspected the free energy projections of the data on the reduced coordinates and I also checked how the fraction of native contacts Q and the root mean square deviation (RMSD) to the crystal
-structure are distributed in the reduced space (Supplementary Figure \ref{supp_fig:reduced-space-projections}).
+\subsection{Construction of the MSMs} 
 \begin{figure*}[ht]
     \centering
     \includegraphics[width = 0.9\linewidth]{figures/free_energy_projection_report.pdf}
-    \caption{\footnotesize \textbf{Free energy projections on the reduced coordinates.}}
-\end{figure*}
-\vspace{0.5em}\newline
-\textbf{Clustering and selection of MSM lagtime: } 
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/implied_timescales.png}
-    \caption{
-        \footnotesize \textbf{Implied timescales convergence test.} First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
+    \includegraphics[width=0.5\linewidth]{figures/implied_timescales.png}
+    \includegraphics[width=0.2\linewidth]{figures/autocorrelation_rmsd.png}
+    \caption{\footnotesize \textbf{Top.} First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
         The shaded region corresponds to $t_i \leq \tau$, where $t_i$ is the implied timescale and $\tau$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
-        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step. 
-        {\color{orange} TODO: make fig more readable, maybe split into rows}
-        {\color{orange} TODO: add uncertainties using bootstrapping}
-    }
-    \label{fig:implied_timescales}
-\end{figure}
-The implied timescale test indicates approximate convergence of the slowest dynamical processes
-for MSM lagtimes in the range of $20$-$50,\mathrm{ns}$ as shown in Fig.\ref{fig:implied_timescales}.
+        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step. Autocorrelation function of the root mean square deviation (RMSD) from the crystal structure, as obtained 
+        from the molecular dynamics trajectory (blue) and predicted by the four MSMs.}
+    \label{fig:msm_results}
+\end{figure*}
+Both PCA and tICA require selecting the number of retained components, while tICA additionally requires specifying a lag time. To guide this choice, I use this heuristic criteria:
+the reduced coordinates were evaluated through i) their free-energy profiles and ii) projected time series. The rationale behind this analysis is that coordinates relevant to the folding process should separate distinct metastable regions
+and therefore display multimodal free-energy profiles. Furthermore, if a coordinate captures transitions between metastable states, its time series should exhibit relatively long-lived plateaus separated by rapid transitions.
+For tICA, lag times between $100$ and $1000$ frames (approximately $20-200$ ns) were considered, since HP$35$ is known to fold a microsecond timescale, 
+the autocorrelation  be inspected at times shorter than this timescale. The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) looked qualitatively similar. I selected a tICA lag time of $1000$ frames ($200$ ns).
+Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
+only for approximately the first three components.  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
+I use the following number of components: $7$ for tica-dihedrals, $5$ for the others. From a projection onto the first $2D$ components made just for visualization, it appears that all four reduced representations are able to separate the folded and unfolded configurations, at varying degree (see Fig.\ref{fig:msm_results}).
+The implied timescale test indicates approximate convergence of the slowest dynamical processesfor MSM lagtimes in the range of $20$-$50,\mathrm{ns}$ as shown in Fig.\ref{fig:msm_results}.
 The estimated timescales depend much more strongly on the choice of feature set and dimensionality reduction method than on the number of microstates
 used in the discretization (here, tried as $100, 200$ and $500$). For all four feature-reduction pipelines considered, the slowest implied timescale is in reasonable agreement ($\simeq 1-2\, \mu s$), 
 whereas larger discrepancies are observed for the higher-order timescales. The pipeline dihedrals-tICA consistenltly yelds the largest timescales, followed by distances-tICA, indicating more accurate approximation
-of the underlying continuous dynamics. 
-\vspace{0.5em}\newline
-\textbf{Validation}
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=0.5\linewidth]{figures/autocorrelation_rmsd.png}
-    \caption{\footnotesize \textbf{Results of the autocorrelation test:} {
-        Autocorrelation function of the root mean square deviation (RMSD) from the crystal structure, as obtained 
-        from the molecular dynamics trajectory (blue) and predicted by the four MSMs (orange, green, red and purple).
-        \color{orange} TODO: add uncertainties using bootstrapping}
-        }
-    \label{fig:autocorrelation}
-\end{figure}
-Validation was performed as described in Methods comparing the autocorrelation function of the RMSD to the crystal structure computed from the trajectory and predicted by the MSMs (see Fig.\ref{fig:autocorrelation}).
+of the underlying continuous dynamics. Validation was performed as described in Methods comparing the autocorrelation function of the RMSD to the crystal structure computed from the trajectory and predicted by the MSMs (see Fig.\ref{fig:autocorrelation}).
 The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar results, while the pca-dihedrals performs substantially {\color{orange} ? - need uncertainties} worse.
-\vspace{0.5em}\newline
-\textbf{Spectral analysis and Coarse-graining}
+
+\subsection{Analysis of the MSMs} 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width = 0.8\linewidth]{figures/msm_timescale_spectra_report.pdf}
+    \includegraphics[width = 0.7\linewidth]{figures/msm_timescale_spectra_report.pdf}
     \caption{The timescales spectra for the four markov models}
     \label{fig:timescales_spectra}
-\end{figure}
-
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/first_eigvec.png}
-
-    \vspace{1em}
-
-    \includegraphics[width=\linewidth]{figures/Q_reduced_projection.png}
-    \caption{\footnotesize \textbf{Comparison between the slowest MSM relaxation mode and a structural folding descriptor.} 
-    Top row: values of the first non-trivial eigenvector projected onto the first two components of the reduced coordinate space.
-    Positive and negative components identify regions that exchange probability on the slowest resolved timescale of the Markov model. 
-    Bottom row: projection of the fraction of native contacts, Q, onto the same coordinates. 
-    The close correspondence between the eigenvector sign pattern and the distribution of $Q$ indicates that the slowest kinetic process 
-    captured by the MSM is associated with the folding-unfolding transition.}
-    \label{fig:eigenvectors}
 \end{figure}
 Next, I inspected the leading {\color{orange} left or right? check again for a row-stochastic T} eigenvectors to characterize the slow relaxation modes encoded by the Markov model. 
 The first non-trivial eigenvector exhibits a clear separation between regions associated with low and high values of the fraction of native contacts Q, 
@@ -602,388 +503,7 @@ DOI: 10.1088/2632-2153/ac3de0.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\vspace{5em}
-\appendix
-\section{Supporting Information}
 
-\renewcommand{\thesubsection}{S\arabic{subsection}}
-\setcounter{subsection}{0}
-
-\subsection{Derivation of PCA and tICA}
-\label{sec:SI_dimred}
-The presentation of tICA in this section follows closely that of \cite{my_tica_ref}.
-
-
-PCA and tICA are both linear dimensionality reduction techniques, i.e. they project the data onto a linear subspace of the original feature space. 
-Let $\{\mathbf{x}(t)\}_{t=0}^{T-1}$ be a multidimensional, discrete time-series, where each snapshot is a column vector, 
-of dimension $D$, corresponding to an arbitrary, vectorized representation of a protein conformation (e.g. a set of dihedral angles). 
-Suppose the data has been sampled from a \textit{stationary} and \textit{time-reversible} stochastic process. 
-Without loss of generality, I assume that the data have been centered, $\mathbb E[\mathbf{x}] = 0 $. Using the braket notation $\bra{x} := \mathbf{x}^T, \ket{x} := \mathbf{x} $, I define the covariance matrix:
-
-
-\begin{equation}
-\mathbf{C}_0 := \mathbb{E}\!\left[\ket{x}\bra{x}\right]
-\end{equation}
-
-and the time-lagged covariance matrix:
-\begin{align}
-    \mathbf{C}_{0,\tau}:&= \mathbb{E}\left[\ket{x(t)}\bra{x(t + \tau)}\right].
-\end{align}
-
-For a stationary reversible process,
-\begin{equation*}
-\mathbf C_{0,\tau} = \mathbf C_{\tau,0}^{T} = \mathbf C_{\tau,0},
-\end{equation*}
-so that the lagged covariance matrix may be denoted simply by \(\mathbf C_\tau\).
-
-If $\ket{\hat{u}}\bra{\hat{u}}$ is a projection operator (i.e. $\ket{\hat{u}}$ is a unit vector), then:
-
-\begin{equation}
-    \bra{\hat{u}}\mathbf{C}_0\ket{\hat{u}} = \mathbb{E}[\braket{\hat{u}|x}\braket{x|\hat{u}}] = \mathbb{E}[\braket{\hat{u}|x}^2]
-\end{equation}
-is the variance of the projection of the data along $\ket{\hat{u}}$, and
-
-\begin{align}
-    \label{eq:autocorrelation}
-    \textrm{ACF}_{\hat{u}}(\tau) &=\frac{\bra{\hat{u}}\mathbf{C}_{\tau}\ket{\hat{u}}}{\bra{\hat{u}}\mathbf{C}_{0}\ket{\hat{u}}} \notag \\
-    \\ &= \frac{\mathbb{E}[\braket{\hat{u}|x(t)}\braket{\hat{u}|x(t+\tau)}]}{\mathbb{E}[\braket{\hat{u}|x}^2]} \notag 
-\end{align}
-
-its autocorrelation at lag time $\tau$.
-
-\vspace{0.5em}
-
-\noindent \textbf{PCA} seeks the direction of maximal variance. The first principal component is defined as
-\begin{align}
-\ket{\hat{u}_1} =& \arg\max \bra{\hat{u}}\mathbf{C}_0\ket{\hat{u}}  \notag \\
-&\text{subject to}\,\,\|\hat{u}\|=1
-\end{align}
-
-this optimization problem can be solved introducing a Lagrange multiplier $\lambda$, and the stationarity condition yields
-
-\begin{equation}
-\mathbf{C}_0 \ket{\hat{u}_i} =\lambda_i \ket{\hat{u}_i},
-\end{equation}
-
-i.e. the projection versor is an eigenvector of the covariance matrix. The corresponding eigenvalue equals the variance of the data projected onto the principal component:
-
-\begin{equation*}
-\bra{\hat{u}_i}\mathbf{C}_0\ket{\hat{u}_i} = \lambda_i \cdot \braket{\hat{u}_i|\hat{u}_i} = \lambda_i.
-\end{equation*}
-
-Then the second principal component is defined as the direction of maximal variance orthogonal to the first, giving the 
-optimization problem:
-\begin{align}
-\ket{\hat{u}_2} = &\text{argmax}\bra{u}\mathbf{C}_0\ket{u} \notag \\
-&\text{subject to}  \,\, \braket{u|u} = 1 \notag \\
-&\text{and}   \,\, \braket{u|\hat{u}_1} = 0
-\end{align}
-
-which again can be solved with Lagrange multipliers. Iterating, this implies that the principal components form an orthonormal basis of eigenvectors of the covariance matrix, i.e. they diagonalize the covariance matrix.
-Dimensionality reduction ($d < D$) is achieved by taking the components along the first $d$ 
-principal components $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.
-
-
-\begin{equation}
-z_i = \braket{\hat{u}_i|x}, \qquad \mathbf z = U^T \mathbf x.
-\end{equation}
-
-This is a linear projection onto an ortonormal basis:
-
-\begin{equation*}
-    \ket{x} \rightarrow \ket{z} := \sum_{i = 1}^{d}\, \braket{x | \hat{u}_i}\, \ket{\hat{u}_i} 
-\end{equation*}
-
-By construction, in the reduced space components are uncorrelated and ordered by decreasing variance:
-
-\begin{equation}
- \mathbb{E}\!\left[\ket{z}\bra{z}\right] = \text{diag}(\lambda_1,\, \cdots \lambda_d)
-\end{equation}
-\vspace{1em}
-
-\noindent \textbf{tICA} Unlike PCA, tICA \cite{my_tica_ref} seeks directions $\ket{u}$ that maximize the autocorrelation Eq.\eqref{eq:autocorrelation} at a fixed lag time $\tau$. The lagtime $\tau$ is a free parameter.
-The autocorrelation is invariant under scaling of the projection vector $\ket{u}$. Differently from PCA, the normalization constraint is usually implemented as $\bra{u}\mathbf{C}_{0}\ket{u}=1$, as this choice simplifies the optimization problem.
-Formally, tICA solves the optimization problem:
-
-\begin{align}
-    \label{eq:generalized_eigenvalue_problem}
-\ket{\hat{u}_1} =& \text{argmax}\bra{u}\mathbf{C}_{\tau}\ket{u} \notag \\
-&\text{subject to}  \,\, \bra{u}\mathbf{C}_{0}\ket{u} = 1
-\end{align}
-
-using the same procedure as for PCA, I can solve this with Lagrange multipliers, and show that
-
-
-\begin{equation}
-\mathbf{C}_{\tau}\ket{\hat{u}_1}
-=
-\lambda_1
-\mathbf{C}_{0}\ket{\hat{u}_1},
-\end{equation}.
-
-The generalized eigenvalue $\lambda_i$ is equal to the autocorrelation of the projected coordinate $\braket{\hat{u}_i|x(t)}$ at lag time $\tau$. Assuming that this coordinate approximates a single relaxation mode of the dynamics, its autocorrelation decays exponentially, yielding
-
-\begin{equation}
-    \label{eq:eigvals_and_timescales}
-    \lambda_i \approx e^{-\tau/t_i},
-\end{equation}
-
-where $t_i$ is the corresponding relaxation timescale. In practice, the relation is approximate because a tIC may contain contributions from multiple dynamical modes.
-
-Similarly as done with PCA, I can iterate this procedure and define the second tIC as the direction of maximal autocorrelation at lag time $\tau$ that is \textit{uncorrelated} with the first:
-
-
-\begin{align}
-\ket{\hat{u}_2} = &\text{argmax} \bra{u}\mathbf{C}_{\tau}\ket{u} \notag \\
-&\text{subject to}  \,\, \bra{u}\mathbf{C}_{0}\ket{u} = 1 \notag \\
-&\text{and}   \,\, \bra{u}\mathbf{C}_{0}\ket{\hat{u}_1} = 0
-\end{align}
-
-the solution $\ket{\hat{u}_1}$ is again a solution of the same generalized eigenvalue problem as in Eq.\eqref{eq:generalized_eigenvalue_problem}.
-generalized eigenvalue problem.
-Dimensionality reduction ($d < D$) is achieved by taking the components of the data $\mathbf{x}(t)$ along the first $d$ tICs $\{\ket{\hat{u}_1}, \ldots, \ket{\hat{u}_d}\}$.
-
-\begin{equation}
-    \mathbf{z}(t) = (\braket{x(t) | \hat{u}_i}, \cdots, \braket{x(t) | \hat{u}_d})
-\end{equation}
-
-By construction, in the reduced space components $z_i$ have unit variance, are uncorrelated at zero lag,  and are ordered by decreasing autocorrelation at lag time $\tau$.
-
-\begin{equation}
-    \label{eq:original_tica}
- \mathbb{E}\!\left[\ket{z}\bra{z}\right] = \mathbb{I}
-\end{equation}
-
-\vspace{1em}
-
-
-\noindent \textbf{tICA as a diagonalization in the whitened coordinate space}
-It is worth noting that unlike in PCA, the tIC vectors are generally not orthogonal under the standard Euclidean inner product. Instead, as I said, they satisfy the generalized orthogonality relation
-$$
-\bra{u_i}\mathbf C_0\ket{u_j}=\delta_{ij}.
-$$
-i.e. they corresponding components $z_i$ and $z_j$ are \textit{uncorrelated} at zero lag. Nevertheless, the tICA procedure can be reformulated as a standard eigenvalue problem in a transformed coordinate system. The key idea is to first apply a whitening transformation, which rescales and rotates the original data so that all directions have unit variance and are mutually uncorrelated. Define the ZCA whitening transformation
-
-\begin{equation*}
-\ket{y} = \mathbf C_0^{-1/2} \ket{x}
-\end{equation*}
-
-where $C_0^{-1/2}$ is symmetric and positive definite. By construction, the covariance matrix in the transformed space is the identity:
-
-\begin{equation*}
-\mathbb E\left[\ket{y}\bra{y}\right] = \mathbf{C}_0^{-1/2} \mathbf{C}_0 \mathbf{C}_0^{-1/2} = \mathbf I.
-\end{equation*}
-
-and time-lagged covariance matrix in the whitened space is
-
-\begin{equation*}
-\hat{\mathbf{C}}_\tau = \mathbf C_0^{-1/2} \mathbf C_\tau \mathbf C_0^{-1/2}
-\end{equation*}
-
-$\hat{\mathbf{C}}_\tau$ is symmetric and can thus be diagonalized:,
-
-\begin{equation*}
-\hat{\mathbf{C}}_\tau \ket{v_i} = \lambda_i \ket{v_i}, \qquad
-\braket{v_i|v_j} = \delta_{ij}.
-\end{equation*}
-
-If $\ket{u_i}$ solves the tICA problem \eqref{eq:generalized_eigenvalue_problem}, then $\ket{v_i} = \mathbf C_0^{1/2} \ket{u_i}$ is an eigenvector of $\hat{\mathbf{C}}_\tau$ with the same eigenvalue.
-
-Indeed, multiplying the generalized eigenvalue problem \eqref{eq:generalized_eigenvalue_problem} from the left by $\mathbf C_0^{-1/2}$ and defining
-$\ket{v_i} = \mathbf C_0^{1/2}\ket{u_i}$ yields
-
-\begin{equation*}
-\hat{\mathbf C}_\tau \ket{v_i} = \lambda_i \ket{v_i}.
-\end{equation*}
-
-Consequently, the tICA components $z_i$ correspond to the ortogonal projection of the whitened data $\mathbf{y}$ onto the ortonormal basis defined by $\{\ket{v_i}\}$:
-
-\begin{equation*}
-z_i(t) = \braket{x(t)|u_i} = \braket{x(t) | C_0^{-1/2} v_i}  = \braket{y(t) | v_i}.
-\end{equation*}
-
-
-\vspace{1em}
-\noindent \textbf{Alternative generalized eigenvector normalizations for tICA}\newline 
-The construction presented above corresponds to the original formulation of tICA, in which the covariance matrix of the transformed data is the identity \eqref{eq:original_tica}.
-HoIver, alternative rescaling of the transformed coordinates have been used in the literature and are usually implemented in softwares to endow Euclidean distances in the reduced space with a more direct kinetic interpretation. These can 
-be particularly useful when the tICA coordinates are subsequently clustered to construct a Markov state model, as I do in this work.
-
-The most commonly used choice is the \textit{kinetic map} in which each tIC component $z_i$ is multiplied by its corresponding eigenvalue,
-
-\begin{equation}
-\tilde z_i(t) = \lambda_i z_i(t).
-\end{equation}
-
-With this normalization, the coordinates representing the sloIst processes "Iight more", and a unit step in those directions in the reduced space is assigned a larger distance.
-An alternative is the \textit{commute map}, where each coordinate is rescaled according to its implied timescale,
-\begin{equation}
-\tilde z_i(t) = \sqrt{\frac{t_i}{2}} z_i(t), \qquad t_i = -\frac{\tau}{\ln \lambda_i}.
-\end{equation}
-With this normalization, Euclidean distances approximate commute distances, i.e. the expected time required to travel from one configuration to another and back. This is a variation on the same idea behind the kinetic map, being eigenvalues and timescales connected by \eqref{eq:eigvals_and_timescales}.
-
-
-
-\subsection{Spectral decomposition of the transition matrix of a Markov chain \textcolor{orange}{TO COMPLETE}}
-\label{si:spectral}
-\noindent The dynamics encoded by a Markov state model can be understood through the eigendecomposition of its transition matrix $\mathbf{T}$.
-For consistency with the notation used in the Python package deeptime, let us consider the transition matrix $\mathbf{T}$ as a row-stochastic matrix, i.e. $T_{ij}$ is the probability of transitioning from state $i$ to state $j$ in one lag step:
-\begin{equation*}
-    \sum_j T_{ij} = 1, \qquad T_{ij} \geq 0.
-\end{equation*}
-Probability distributions are represented as row vectors, and evolve as:
-\begin{equation*}
-\mathbf{p}(n) = \mathbf{p}(0)\mathbf{T}^n,
-\end{equation*}
-where $\mathbf{p}(0)$ is the initial distribution and $\mathbf{p}(n)$ is the distribution after $n$ lag steps.
-The transition matrix admits a spectral decomposition of the kind:
-\begin{equation*}
-\mathbf{T} = \sum_i \lambda_i \mathbf{r}_i \mathbf{l}_i^{\mathrm T},
-\end{equation*}
-where $\lambda_i$ are the eigenvalues, and $\mathbf{r}_i$ and $\mathbf{l}_i$ are the corresponding right and left eigenvectors, satisfying:
-\begin{equation*}
-\mathbf{T}\mathbf{r}_i=\lambda_i\mathbf{r}_i,
-\qquad
-\mathbf{l}_i^{\mathrm T}\mathbf{T}=\lambda_i\mathbf{l}_i^{\mathrm T}.
-\end{equation*}
-
-
-The probability distribution after $n$ lag times can therefore be written as
-
-\begin{equation*}
-\mathbf{p}(n)=
-\mathbf{p}(0)\mathbf{T}^{,n}=
-\sum_i
-c_i\, \cdot \lambda_i^n \cdot \mathbf{l}_i,
-\end{equation*}
-
-where the coefficients $c_i = \mathbf{p}(0)\mathbf{r}_i$ depend on the initial condition. The dominant eigenvalue is $\lambda_1=1$ and corresponds to the equilibrium distribution. All other modes decay exponentially with characteristic relaxation times
-
-\begin{equation*}
-t_i
--\frac{\tau}{\ln \lambda_i},
-\end{equation*}
-
-where $\tau$ is the MSM lag time.
-
-The left eigenvectors therefore describe the spatial structure of the relaxation processes occurring on the corresponding timescales. States with eigenvector components of opposite sign exchange probability during the relaxation process, while the magnitude of each component quantifies the degree to which that state participates in the process. The instantaneous probability flux associated with a mode can be visualized from the change in the probability distribution after one lag step,
-
-\begin{equation*}
-\Delta\mathbf{p} = 
-\mathbf{p}\mathbf{T} - \mathbf{p} = {\color{orange} TODO: complete}
-\end{equation*}
-
-For reversible Markov models obeying detailed balance, left and right eigenvectors contain equivalent information and are related through the equilibrium population matrix $\boldsymbol{\Pi}$,
-
-\begin{equation*}
-\mathbf{l}_i
-\boldsymbol{\Pi},\mathbf{r}_i .
-\end{equation*}
-
-Consequently, the right eigenvectors may be interpreted as equilibrium-population-weighted versions of the relaxation modes.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\clearpage
-\onecolumngrid
-\section{Supplementary Figures}
-\setcounter{figure}{0}
-\renewcommand{\thefigure}{SF\arabic{figure}}
-
-
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=\linewidth]{figures/tica_dihedrals_lagtime.png}
-    \caption{\small \textbf{tICA projections obtained from the dihedral-angle feature set using kinetic-map scaling}. Columns correspond to different tICA lag times spanning four
-    orders of magnitude ($10,10^2,10^3,10^5$ frames; values in $\mu s$ are reported above each panel).
-    The top row shows the free-energy landscape projected onto the first two tICs, while the loIr panels report the
-    first seven tIC time series (left) and their one-dimensional free-energy profiles (right) for the first $40\,\mu s$ of simulation.
-    A useful tICA projection should separate slowly interconverting conformations into distinct regions of configuration space and produce components exhibiting metastable, jump-like dynamics. 
-    Very short lag times lead to projections dominated by fast fluctuations, whereas excessively large lag times wash out the dynamical structure and yield nearly unimodal projections. 
-    Intermediate lag times ($\tau\sim 1{-}2\,\mu s$) provide the clearest separation of metastable states and the most pronounced residence/jump behaviour in the leading components.
-    Based on this analysis, a lag time of approximately $2\,\mu s$ and the first five tICs were retained for subsequent MSM construction.}
-    \label{supp_fig:tica_dihedrals_lagtime}
-\end{figure}
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/tica_distances_lagtime.png}
-    \caption{\small \textbf{tICA projections obtained from the contact-distance feature set using kinetic-map scaling}. Compared to the dihedral-angle representation, the contact-distance features yield tICA coordinates with less clearly separated
-     free-energy minima and less pronounced metastable, jump-like dynamics. This suggests a Iaker separation of slow conformational processes in the resulting low-dimensional projection. A lag time of $\tau = 10^3 frames (\approx 0.2\,\mu s)$ was selected to maintain consistency with the analysis performed on the dihedral feature set. 
-    At this lag time, the free-energy profiles become largely unimodal beyond the first few tICs, indicating that most of the slow dynamical information is concentrated in the leading components. 
-    Although the first three tICs appear to capture the dominant slow processes, as a more conservative choice the first five components were retained for subsequent MSM construction.}
-    \label{supp_fig:tica_distances_lagtime}
-\end{figure}
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.7\linewidth]{figures/pca_retained_components.png}
-    \caption{\small \textbf{Comparison of PCA projections obtained from the contact-distance feature set and from the dihedrals feature set.}. In contrast to tICA, the PCA projections provide a less clear separation of metastable conformational states. 
-    Free-energy profiles exhibit Iaker clustering, the one-dimensional free-energy profiles are predominantly unimodal, and the principal-component time series do not display a pronounced residence/jump behavior, with exception of the first PC. Consistent with the tICA results, the dihedral-angle representation yields a more structured 
-    low-dimensional projection than the contact-distance features. For subsequent MSM construction I retain the first $7$ components for the dihedrals set and the first $5$ for the contact-distance set.}
-    \label{supp_fig:pca_retained_components}
-\end{figure}
-
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/free_energy_reduced_histo.png}
-    
-    \vspace{3em}
-
-    \includegraphics[width=\linewidth]{figures/Q_reduced_projection.png}
-    
-    \vspace{3em}
-
-    \includegraphics[width=\linewidth]{figures/RMSD_reduced_projection.png}
-    
-    \vspace{3em}
-    \caption{\textbf{Free-energy landscapes and structural observables in reduced coordinate spaces.} \textbf{Top row}: free-energy surfaces $\Delta F$ projected onto the first two PCA or tICA components, calculated as $F(x,y)=-\ln p(x,y),$ $\Delta F(x,y) = F(x,y) - F_{min}$. \textbf{Middle row}: projections coloured by the fraction of native contacts Q.
-     \textbf{Bottom row}: projections coloured by the RMSD to the crystal structure (normalized). Each column corresponds to a different combination of feature set (distances or dihedral angles)
-    and dimensionality reduction method (PCA or tICA). The colouring reveals the extent to which the reduced coordinates correlate with physically meaningful progress variables of folding, namely native-contact formation and structural similarity to the crystal structure.}
-    \label{supp_fig:reduced-space-projections}
-\end{figure}
-
-\FloatBarrier
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=\linewidth]{figures/pairwise_pcca_membership_scatter_quadrants_report.pdf}
-    \caption{\small \textbf{Fuzzy membership probabilities of the trajectory frames to the two macrostates across models.} Each panel shows the fuzzy membership probability of each frame in the trajectory to macrostate $0$ (denatured basin) and macrostate $1$ (native basin) for a different model. The models based on distances (tica-distances and pca-distances) show very similar distributions, while the tica-dihedrals model exhibits a broader distribution, particularly for frames assigned to the denatured basin. This indicates that the tica-dihedrals model has more uncertainty in assigning frames to the denatured basin.}
-    \label{suppfig:fuzzy_memberships_models}
-\end{figure}
-
-\begin{table}[h!]
-\caption{Pairwise correlations between frame-wise PCCA membership probabilities for the folded basin. Pearson correlations quantify linear agreement, whereas Spearman correlations quantify agreement in the rank ordering of frames along the folded-basin membership coordinate.}
-\label{supptab:two_state_model_correlation}
-\begin{tabular}{lcc}
-\hline
-Model pair & Pearson & Spearman \\
-\hline
-tICA distances -- PCA distances & 0.990 & 0.911 \\
-tICA distances -- tICA dihedrals & 0.923 & 0.826 \\
-tICA distances -- PCA dihedrals & 0.876 & 0.831 \\
-PCA distances -- tICA dihedrals & 0.910 & 0.821 \\
-PCA distances -- PCA dihedrals & 0.876 & 0.847 \\
-tICA dihedrals -- PCA dihedrals & 0.885 & 0.930 \\
-\hline
-\end{tabular}
-\end{table}
-
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.4\linewidth]{figures/pcca_membership_probability_distributions.pdf}
-    \caption{\small the distributions of fuzzy membership probabilities assigned to frames, for basin $1$ across the four models. }
-    \label{suppfig:pcca_frames_prob_density}
-\end{figure}
-
-
-\FloatBarrier
+\include{appendix}
 
 \end{document}
