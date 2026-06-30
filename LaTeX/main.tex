@@ -5,6 +5,7 @@
 \usepackage{latexsym,amsmath,amsfonts}
 \usepackage{verbatim}
 \usepackage{dsfont}
+\usepackage{comment}
 \usepackage{braket}
 \usepackage{mdframed}
 \usepackage{booktabs} %tables
@@ -57,17 +58,22 @@
 \maketitle
 
 \section{Introduction}
-%
-\subsection{Brief description of the biological problem, knowns and unknowns}
-\noindent Markov State Models (MSMs) have become a standard framework for extracting long-timescale kinetics from molecular dynamics simulations and for constructing coarse-grained descriptions of biomolecular conformational landscapes \cite{thebible}. Building an MSM typically involves several stages, including feature selection, dimensionality reduction, clustering, transition matrix estimation, validation and coarse-graining. 
-In recent years, MSM methodology has evolved rapidly, with advances in state construction, uncertainty quantification, and the incorporation of machine learning for identifying collective variables and building models at scale, such as VAMPnets \cite{vampnets} and time-lagged autoencoders \cite{time_lagged_autoencoders}.
-Beyond methodological developments, MSMs are increasingly integrated with experimental observables and applied to larger and more complex systems. Together, these efforts reflect a field that continues to evolve in both rigor and scope \cite{2026_special_issue}.
-%
-\subsection{Defining the question}
-\noindent The purpose of this university project is to move the first steps into the world of Markov state modeling. The goal is to review and benchmark the classical MSM construction pipeline, with particular emphasis on feature selection and dimensionality reduction stages. Establishing a clear baseline based on conventional methods is a necessary step before evaluating more sophisticated machine-learning approaches in future studies.
-%
-\subsection{Defining the plan: translating the question on the language of the computer (brief)}
-\noindent As a case study, I consider the villin headpiece subdomain HP35 Lys24-Nle/Lys29-Nle mutant (see Fig. \ref{fig:hp35_structure}), a small fast-folding protein for which extensive molecular dynamics trajectories are available. I compare two commonly used feature representations, native-contact distances and backbone dihedral angles, combined with two dimensionality-reduction methods, principal component analysis (PCA) and time-lagged independent component analysis (tICA). The resulting four MSMs are evaluated in terms of (i) their ability to reproduce the folding kinetics of the system and (ii) their ability to provide an interpretable characterization of the metastable conformational states.
+Biomolecules are dynamical systems that explore complex ensembles of conformations at finite temperature. Molecular dynamics (MD) simulations can provide atomic-level trajectories of these processes, but the resulting data are often too high dimensional to interpret directly. Coarse-grained models are therefore routinely used to facilitate interpretation of simulation data.
+In a Markov State Model (MSM), the continuous conformational dynamics is approximated by a Markov chain, which is a stochastic process describing discrete transitions between a finite number of discrete states.  This makes it possible to leverage a well developed mathematical formalism 
+to gain insight on both thermodynamics properties (e.g. free energy basins) and kinetic properties (e.g. transition rates and transition pathways) \cite{thebible}.
+However, coarse-graining always involves a trade-off between interpretability and information loss. In the case of MSMs, the modelling pipeline includes several steps, such as feature selection, dimensionality reduction, clustering,  and a general optimization criterion is not always available. Different pipelines may result in different models, which raises
+the question about which conclusions are physically meaningful and which are to be considered as artefacts.
+
+In this project, I investigate this question through a benchmark study on a simple protein system: the villin headpiece subdomain HP35 Lys24-Nle/Lys29-Nle mutant (Fig.\ref{fig:hp35_structure}). 
+HP35 is a short, fast-folding protein that has been extensively used as a model system for protein folding. Long, unbiased, all-atom MD simulations of this system were already available in the early 2010s. In particular, I analyze a 305$\mu$s simulation from \cite{Lindorff-Larsen2011}, 
+which contains dozens of folding-unfolding transitions. Because of this extensive sampling, key kinetic quantities such as the folding time and the average transition time have been estimated directly from the trajectory \cite{Piana2012}. 
+Previous analysis also reported a free-energy profile in which the system is approximately described by two main states, folded and unfolded, with a low-population intermediate \cite{Piana2012}.
+The aim of this project is to test whether different MSM construction pipelines lead to a consistent thermodynamic and structural description of this folding system. 
+
+Operationally, I build four MSMs starting from two internal-coordinate representations, contacts and dihedral angles, and two dimensionality reduction methods, PCA and tICA. I then apply PCCA++ to identify metastable macrostates in each model. The resulting models are compared by asking whether the identified macrostates are consistent across pipelines, whether they have a clear structural interpretation in terms of folded, unfolded, and possibly intermediate conformations, and whether their equilibrium populations agree.
+Finally, I estimate the folding time and the free-energy gap between macrostates from the MSMs and compare them both across models and with the reference estimates reported in \cite{Piana2012}. 
+
+Overall, this project aims to review the MSM construction pipeline, assess its robustness with respect to modelling choices, and clarify its strengths and limitations for the quantitative analysis of MD simulation data.
 %%%%%%%%%%%%%%%%%%%
 %
 %
@@ -77,41 +83,25 @@ Beyond methodological developments, MSMs are increasingly integrated with experi
 \subsection{Dataset assembly}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/aromatic_structure.png}
-    \caption{\small \textbf{Crystal structure of HP35} (PDB: 2F4K). Folded structure consists of three alpha-helices (residues 3-10, 14-19 and 22-32) that are connected by two loops. Aromatic and histidine residues are highlighted in orange:
-    Phe6, Phe10, Phe17, Trp23, His27, and Phe35. Interactions among Phe6, Phe10, and Phe17 are central to the formation of the hydrophobic core.
-    The two engineered mutations Lys24$\rightarrow$Nle and Lys29$\rightarrow$Nle are highlighted in black; these substitutions are known to accelerate the folding kinetics of the protein. Visualization was made with PyMol \cite{pymol}.}
+    \includegraphics[width=0.5\linewidth]{figures/aromatic_structure.png}
+\caption{\small \textbf{Crystal structure of HP35} (PDB: 2F4K \cite{PDB}). The folded structure consists of three $\alpha$-helices, approximately spanning residues 3–10, 14–19, and 22–32, connected by two loops. Aromatic and histidine residues are highlighted in orange: Phe6, Phe10, Phe17, Trp23, His27, and Phe35. Interactions among Phe6, Phe10, and Phe17 contribute to the formation of the hydrophobic core. Visualization was made with PyMOL \cite{pymol}.}
     \label{fig:hp35_structure}
 \end{figure}
-All analyses presented in this work are based on a single $300\,\mu\mathrm{s}$ molecular dynamics trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
-\noindent HP35 is a prototypical ultrafast-folding protein with an experimentally measured folding time of approximately $0.7,\mu\mathrm{s}$ at this temperature and has become a standard benchmark system for Markov state model construction and validation \cite{jain_stock_2014,selecting_features,towards_a_benchmark}.
-The trajectory was originally generated by D. E. Shaw Research on the Anton supercomputer and reported by Piana \textit{et al.} \cite{Shaw2012}. Their simulations predicted a folding time of approximately $1.5,\mu\mathrm{s}$, reasonably close to the experimental estimate of $0.73,\mu\mathrm{s}$ for the same mutant, although still larger by a factor of about $\times 2.5$.
-At the time of this work, the original trajectory generated by D. E. Shaw Research was temporarily unavailable due to maintenance of the data repository. I therefore used a preprocessed version distributed by Nagel \textit{et al.} through their GitHub repository, which has been adopted in recent benchmark studies of Markov state modeling \cite{selecting_features,towards_a_benchmark}.
-The timeseries consists of approximately $1.5\times10^6$ samples, with a sampling interval of $\simeq 200\, ps$.
-%
-\subsection{Methods used for MSM construction {\color{blue} used for analysis (in case you developed a method, it goes into Results)}}
-Markov state models were built using the Deeptime library \cite{deeptime}.
-Since MSM construction is a multi-step process \ref{supp_fig:msm_flowchart}, it is especially important to understand clearly the choices made at each step and validate them before moving on to the next one. The principle "garbage in, garbage out" applies here, and a mistake at an early stage can propagate and affect the final results. For this reason, in this
-section I describe synthetically the motivation for each step and define the methods that were investigated and compared in this work.
-%
-%
-%
-\vspace{0.5em}\newline
-\noindent \textbf{Feature definition and filtering}
-The feature representations employed in this work were adopted from the preprocessing pipeline of Nagel \textit{et al.} \cite{selecting_features}, to which I refer the reader for a detailed description. Two feature sets were considered: native-contact distances and backbone dihedral angles. Native contacts were defined from folded conformations observed in the simulation and filtered using distance and frequency criteria, yielding 42 contact-distance features. 
-Backbone conformations were represented by ($\phi$) and ($\psi$) dihedral angles using the angular transformation proposed by Sittel \textit{et al.} \cite{Sittel2017} to account for periodicity. To remove weakly correlated motions unlikely to contribute to the folding dynamics, 
-the MoSAIC filtering procedure of Nagel \textit{et al.} \cite{selecting_features} was applied. The final dihedral feature set consisted of 62 coordinates, with ($\psi_1$), ($\psi_2$), ($\psi_{34}$), ($\phi_2$), ($\phi_{34}$), and ($\phi_{35}$) excluded.
-%
-%
-%
-\vspace{0.5em}\newline
+This work is based on a single $305\,\mu\mathrm{s}$ MD trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
+The original trajectory is reported by Lindorff-Larsen \textit{et al.} \cite{Lindorff-Larsen2011}, while in this project I employ a preprocessed version of that trajectory publicly distributed by Nagel \textit{et al.} \cite{selecting_features}. 
+The dataset contains time series of approximately $1.5\times10^6$ samples, with a sampling interval of about $200,\mathrm{ps}$. Authors provide timeseries of two internal-coordinate representations which they selected and filtered specifically for employment in MSM construction, as they describe in detail \cite{selecting_features}.
+These are residue-residue contact distances ( \texttt{hp35.mindists2} - $42$ features) and backbone dihedral angles (\texttt{hp35.dihs.shifted} - $62$ features). Authors also provide timeseries of residue-residue distances for a separate set of contacts identified from the crystal structure PDB 2F4K, (\texttt{hp35.crystaldists} - \textcolor{blue}{X} features).
+
+\subsection{Methods}
+All code is written in Python and employs the library Deeptime \cite{deeptime} for MSMs construction, validation and analysis.
+For MSM I use \texttt{hp35.mindists2} and \texttt{hp35.dihs.shifted}. The following steps
+
 \noindent\textbf{Dimensionality reduction}
 The purpose of dimensionality reduction in the MSM workflow is not only to compress the information contained in the molecular descriptors, 
 but also to \textit{encode kinetic information into the geometry} of the reduced space. This aspect is particularly important because the reduced
 coordinates are subsequently clustered into discrete states (so-called \textit{microstates}) that form the state set of the Markov chain.
 Since commonly used clustering algorithms such as k-means rely on Euclidean distance, conformations that interconvert rapidly should ideally be mapped
-to nearby points in the reduced space. Otherwise, conformations separated by substantial kinetic barriers may be assigned to the same cluster, resulting 
-in visible memory effects and inaccurate MSMs.
+to nearby points in the reduced space. Otherwise, conformations separated by substantial kinetic barriers may be assigned to the same cluster and the markov property will be violated.
 Constructing low-dimensional representations that preserve kinetic information remains an active area of research. In this work, however, we restrict the analysis to the two classical linear approaches,
 principal component analysis (PCA) and time-lagged independent component analysis (tICA), which remain standard baselines in the MSM literature. PCA identifies directions of maximal variance in the data, 
 whereas tICA identifies directions of maximal autocorrelation and is therefore explicitly designed to emphasize slow dynamical processes. 
@@ -202,6 +192,14 @@ The signs of eigenvectors components provide a criterion for defining partitions
 the slowest exchange modes in the markov chain to the thermodynamics of the protein, although the two are not strictly the same thing. 
 \vspace{0.5em}\newline
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%
+%
+%
+%
+%
 %
 %
 %
@@ -438,7 +436,9 @@ Also it is even clearer from the contact map \ref{fig:contact_map_folded_vs_othe
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width = 0.8\linewidth]{figures/folded_basin_contact_map_report.pdf}
+    \includegraphics[width = \linewidth]{figures/folded_basin_contact_map_report.pdf}
+
+    \includegraphics[width = \linewidth]{figures/native_basin_ensemble_overlay_ray.png}
     \caption{Most important contacts for discrimination of the folded basin. Z values are the shift in the median.}
     \label{fig:contact_map_folded_vs_other}
 \end{figure}
@@ -494,22 +494,23 @@ All code necessary to replicate the analysis shoId in this work is available on 
 \begin{thebibliography}{99}
 \setlength{\itemsep}{3pt}  % adjust to taste
 
-\bibitem{2026_special_issue}
-    Bowman, Gregory R. and Clementi, Cecilia and Huang, Xuhui,  
-    \textit{Introduction to Markov State Modeling of Conformational Dynamics}, 
-    Journal of Chemical Theory and Computation, year 2026 volume 22.
-    DOI: 10.1021/acs.jctc.6c00351.
-
-
 % --------------------------------------------------------
 % -------- HP35 specific references ----------------------
-\bibitem{Shaw2012}
+
+\bibitem{Lindorff-Larsen2011}
+    K. Lindorff-Larsen, S. Piana, R.O. Dror and D.E. Shaw,  
+    \textit{How fast-folding proteins fold}, 
+    Science 334 (6055) 517-520 (2011), 
+    DOI: 10.1126/science.1208351.
+
+
+\bibitem{Piana2012}
     S. Piana, K. Lindorff-Larsen and D.E. Shaw,  
     \textit{Protein folding kinetics and thermodynamics from atomistic simulation}, 
     Proc. Natl. Acad. Sci. U.S.A. 109 (44) 17845-17850 (2012), 
     DOI: 10.1073/pnas.1201811109.
 
-\bibitem{experimental_folding_time}
+\bibitem{PDB}
     J. Kubelka, T.K. Chiu, D.R. Davies et al.,
     \textit{Sub-microsecond protein folding},
     J. Mol. Biol. 2006, 359, 546-553.
@@ -528,11 +529,11 @@ All code necessary to replicate the analysis shoId in this work is available on 
     The Journal of Physical Chemistry Letters 2023 14 (31), 6956-6967
     DOI:  10.1021/acs.jpclett.3c01561 .
     
-\bibitem{jain_stock_2014}
-    A. Jain and G. Stock,
-    \textit{Hierarchical Folding Free Energy Landscape of HP35 Revealed by Most Probable Path Clustering}
-    J. Phys. Chem. B, 118, 28, 7750-7760 (2014).
-    DOI: 10.1021/jp410398a.
+%\bibitem{jain_stock_2014}
+%    A. Jain and G. Stock,
+%    \textit{Hierarchical Folding Free Energy Landscape of HP35 Revealed by Most Probable Path Clustering}
+%    J. Phys. Chem. B, 118, 28, 7750-7760 (2014).
+%    DOI: 10.1021/jp410398a.
 
 
 \bibitem{thebible}
@@ -549,16 +550,16 @@ All code necessary to replicate the analysis shoId in this work is available on 
 DOI: 10.1088/2632-2153/ac3de0.
 
 
-\bibitem{vampnets}
-  A. Mardt, L. Pasquali, H. Wu and F. No\'e,
-  \textit{VAMPnets for deep learning of molecular kinetics},
-  Nature Communications 9(1):1-11, 2018. 
+%\bibitem{vampnets}
+%  A. Mardt, L. Pasquali, H. Wu and F. No\'e,
+%  \textit{VAMPnets for deep learning of molecular kinetics},
+%  Nature Communications 9(1):1-11, 2018. 
 
-\bibitem{time_lagged_autoencoders}
-    C. Ihmeyer and F. No\'e. 
-    \textit{Time-lagged autoencoders: deep learning of slow collective variables for molecular kinetics}. 
-    J. Chem. Phys., 148(24):241703, 2018. 
-    DOI: 10.1063/1.5011399.
+%\bibitem{time_lagged_autoencoders}
+%    C. Ihmeyer and F. No\'e. 
+%    \textit{Time-lagged autoencoders: deep learning of slow collective variables for molecular kinetics}. 
+%    J. Chem. Phys., 148(24):241703, 2018. 
+%    DOI: 10.1063/1.5011399.
 
 %\bibitem{vamp_2013}
 %    F. No\'e and F. Nüske,
@@ -572,18 +573,18 @@ DOI: 10.1088/2632-2153/ac3de0.
 %    Journal of Nonlinear Science 30(1):23-66, 2020.
 %    DOI: 10.1007/s00332-019-09576-8.
 
-\bibitem{Sittel2017}
-    F. Sittel, T. Filk and G. Stock,
-    \textit{Principal component analysis on a torus: Theory and application to protein dynamics}
-    J Chem Phys. 147(24):244101, 2017.  
-    DOI: 10.1063/1.4998259.
+%\bibitem{Sittel2017}
+%    F. Sittel, T. Filk and G. Stock,
+%    \textit{Principal component analysis on a torus: Theory and application to protein dynamics}
+%    J Chem Phys. 147(24):244101, 2017.  
+%    DOI: 10.1063/1.4998259.
 
 
-\bibitem{MoSAIC}
-   G. Diez, D. Nagel and G. Stock,
-   \textit{Correlation-based feature selection to identify functional dynamics in proteins.} 
-   J. Chem. Theory Comput. 2022, 18, 5079-5088.
-   DOI: 10.1021/acs.jctc.2c00337.
+%\bibitem{MoSAIC}
+%   G. Diez, D. Nagel and G. Stock,
+%   \textit{Correlation-based feature selection to identify functional dynamics in proteins.} 
+%   J. Chem. Theory Comput. 2022, 18, 5079-5088.
+%   DOI: 10.1021/acs.jctc.2c00337.
 
 \bibitem{my_tica_ref}
     C.R. Schwantes and V.S. Pande,
