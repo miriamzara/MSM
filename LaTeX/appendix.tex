@@ -359,58 +359,17 @@ the slowest exchange modes in the markov chain to the thermodynamics of the prot
 \renewcommand{\thefigure}{SF\arabic{figure}}
 
 
-
-\begin{figure}[t!]
-    \centering
-    \includegraphics[width=\linewidth]{figures/tica_dihedrals_lagtime.png}
-    \caption{\small \textbf{tICA projections obtained from the dihedral-angle feature set using kinetic-map scaling}. Columns correspond to different tICA lag times spanning four
-    orders of magnitude ($10,10^2,10^3,10^5$ frames; values in $\mu s$ are reported above each panel).
-    The top row shows the free-energy landscape projected onto the first two tICs, while the loIr panels report the
-    first seven tIC time series (left) and their one-dimensional free-energy profiles (right) for the first $40\,\mu s$ of simulation.
-    A useful tICA projection should separate slowly interconverting conformations into distinct regions of configuration space and produce components exhibiting metastable, jump-like dynamics. 
-    Very short lag times lead to projections dominated by fast fluctuations, whereas excessively large lag times wash out the dynamical structure and yield nearly unimodal projections. 
-    Intermediate lag times ($\tau\sim 1{-}2\,\mu s$) provide the clearest separation of metastable states and the most pronounced residence/jump behaviour in the leading components.
-    Based on this analysis, a lag time of approximately $2\,\mu s$ and the first five tICs were retained for subsequent MSM construction.}
-    \label{supp_fig:tica_dihedrals_lagtime}
-\end{figure}
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/tica_distances_lagtime.png}
-    \caption{\small \textbf{tICA projections obtained from the contact-distance feature set using kinetic-map scaling}. Compared to the dihedral-angle representation, the contact-distance features yield tICA coordinates with less clearly separated
-     free-energy minima and less pronounced metastable, jump-like dynamics. This suggests a Iaker separation of slow conformational processes in the resulting low-dimensional projection. A lag time of $\tau = 10^3 frames (\approx 0.2\,\mu s)$ was selected to maintain consistency with the analysis performed on the dihedral feature set. 
-    At this lag time, the free-energy profiles become largely unimodal beyond the first few tICs, indicating that most of the slow dynamical information is concentrated in the leading components. 
-    Although the first three tICs appear to capture the dominant slow processes, as a more conservative choice the first five components were retained for subsequent MSM construction.}
-    \label{supp_fig:tica_distances_lagtime}
-\end{figure}
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.7\linewidth]{figures/pca_retained_components.png}
-    \caption{\small \textbf{Comparison of PCA projections obtained from the contact-distance feature set and from the dihedrals feature set.}. In contrast to tICA, the PCA projections provide a less clear separation of metastable conformational states. 
-    Free-energy profiles exhibit Iaker clustering, the one-dimensional free-energy profiles are predominantly unimodal, and the principal-component time series do not display a pronounced residence/jump behavior, with exception of the first PC. Consistent with the tICA results, the dihedral-angle representation yields a more structured 
-    low-dimensional projection than the contact-distance features. For subsequent MSM construction I retain the first $7$ components for the dihedrals set and the first $5$ for the contact-distance set.}
-    \label{supp_fig:pca_retained_components}
-\end{figure}
-
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/free_energy_reduced_histo.png}
-    
-    \vspace{3em}
-
-    \includegraphics[width=\linewidth]{figures/Q_reduced_projection.png}
-    
-    \vspace{3em}
-
-    \includegraphics[width=\linewidth]{figures/RMSD_reduced_projection.png}
-    
-    \vspace{3em}
-    \caption{\textbf{Free-energy landscapes and structural observables in reduced coordinate spaces.} \textbf{Top row}: free-energy surfaces $\Delta F$ projected onto the first two PCA or tICA components, calculated as $F(x,y)=-\ln p(x,y),$ $\Delta F(x,y) = F(x,y) - F_{min}$. \textbf{Middle row}: projections coloured by the fraction of native contacts Q.
-     \textbf{Bottom row}: projections coloured by the RMSD to the crystal structure (normalized). Each column corresponds to a different combination of feature set (distances or dihedral angles)
-    and dimensionality reduction method (PCA or tICA). The colouring reveals the extent to which the reduced coordinates correlate with physically meaningful progress variables of folding, namely native-contact formation and structural similarity to the crystal structure.}
-    \label{supp_fig:reduced-space-projections}
+\begin{figure}[h!]
+    \includegraphics[width=0.7\linewidth]{figures/dimred_figure.png}
+\caption{\small
+Comparison of the compressed trajectory representations obtained from the four feature--dimensionality-reduction pipelines. 
+Rows correspond to PCA dihedrals, PCA contact distances, TICA dihedrals, and TICA contact distances. 
+The left column shows the projection onto the first two reduced coordinates. 
+The right block shows, for each pipeline, the time series of the first three reduced coordinates over the first $40\,\mu\mathrm{s}$, together with the corresponding one-dimensional free-energy profiles computed from the full trajectory. 
+The bottom row reports the RMSD from the crystal structure and its one-dimensional free-energy profile as a reference folding coordinate. 
+The PCA projections show mostly unimodal one-dimensional free-energy profiles and less pronounced residence-and-jump behavior with respect to the tICA representations. 
+}
+    \label{suppfig:dimred_figure}
 \end{figure}
 
 \FloatBarrier
