@@ -64,22 +64,6 @@ The PCA projections show mostly unimodal one-dimensional free-energy profiles an
     \label{suppfig:fuzzy_memberships_models}
 \end{figure}
 
-\begin{table}[h!]
-\caption{Pairwise correlations between frame-wise PCCA membership probabilities for the folded basin. Pearson correlations quantify linear agreement, whereas Spearman correlations quantify agreement in the rank ordering of frames along the folded-basin membership coordinate.}
-\label{supptab:two_state_model_correlation}
-\begin{tabular}{lcc}
-\hline
-Model pair & Pearson & Spearman \\
-\hline
-tICA distances -- PCA distances & 0.990 & 0.911 \\
-tICA distances -- tICA dihedrals & 0.923 & 0.826 \\
-tICA distances -- PCA dihedrals & 0.876 & 0.831 \\
-PCA distances -- tICA dihedrals & 0.910 & 0.821 \\
-PCA distances -- PCA dihedrals & 0.876 & 0.847 \\
-tICA dihedrals -- PCA dihedrals & 0.885 & 0.930 \\
-\hline
-\end{tabular}
-\end{table}
 
 
 \begin{figure}[h!]
@@ -88,6 +72,49 @@ tICA dihedrals -- PCA dihedrals & 0.885 & 0.930 \\
     \caption{\small the distributions of fuzzy membership probabilities assigned to frames, for basin $1$ across the four models. }
     \label{suppfig:pcca_frames_prob_density}
 \end{figure}
+
+
+% ------------ Jaccard index two state model overlap -------------------------
+\begin{table}[h!]
+\caption{Pairwise Jaccard overlaps between high-confidence PCCA regions defined from fuzzy membership probabilities. Core regions were defined as $P(S_1)<0.4$ for basin $S_0$ and $P(S_1)>0.6$ for basin $S_1$, while ambiguous frames were defined by $0.4<P(S_1)<0.6$.}
+\label{tab:pcca_core_overlap}
+\begin{tabular}{lccc}
+\hline
+Model pair & Core overlap $S_0$ & Core overlap $S_1$ & Ambiguous overlap \\
+\midrule
+tICA distances -- PCA distances & 0.836 & 0.990 & 0.181 \\
+tICA distances -- tICA dihedrals & 0.772 & 0.979 & 0.368 \\
+tICA distances -- PCA dihedrals & 0.795 & 0.955 & 0.064 \\
+PCA distances -- tICA dihedrals & 0.729 & 0.977 & 0.090 \\
+PCA distances -- PCA dihedrals & 0.887 & 0.953 & 0.039 \\
+tICA dihedrals -- PCA dihedrals & 0.746 & 0.957 & 0.113 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+% ------ Top ten contacts distinguishing folded basin
+\begin{table}
+\caption{Top ten residue contacts ranked by the cutoff-free robust folded-contact score. Distances are reported in nm. The robust effect size $d_\mathrm{robust}$ compares the median contact distance outside and inside the folded basin, normalized by the pooled interquartile range. Contact probabilities were computed using a 0.8 nm cutoff and are reported only as auxiliary descriptors.}
+\label{tab:top10_folded_contacts}
+\begin{tabular}{lccccccc}
+\hline
+Contact & $\tilde r_\mathrm{folded}$ & $\tilde r_\mathrm{other}$ & $\mathrm{IQR}_\mathrm{folded}$ & $d_\mathrm{robust}$ & $P_\mathrm{folded}$ & $P_\mathrm{other}$ & $\Delta P$ \\
+\hline
+7--12 & 0.370 & 1.036 & 0.047 & 2.510 & 0.995 & 0.115 & 0.881 \\
+9--32 & 0.359 & 1.635 & 0.131 & 2.399 & 0.865 & 0.047 & 0.817 \\
+6--17 & 0.422 & 1.381 & 0.101 & 2.219 & 0.973 & 0.092 & 0.881 \\
+7--13 & 0.487 & 1.158 & 0.089 & 2.190 & 0.866 & 0.073 & 0.793 \\
+6--14 & 0.488 & 1.211 & 0.120 & 2.084 & 0.917 & 0.073 & 0.845 \\
+10--32 & 0.529 & 1.602 & 0.209 & 1.825 & 0.665 & 0.059 & 0.606 \\
+10--34 & 0.453 & 1.528 & 0.184 & 1.821 & 0.768 & 0.088 & 0.680 \\
+10--29 & 0.529 & 1.431 & 0.164 & 1.780 & 0.698 & 0.079 & 0.619 \\
+7--11 & 0.317 & 0.712 & 0.053 & 1.776 & 0.996 & 0.349 & 0.647 \\
+6--13 & 0.590 & 1.241 & 0.202 & 1.702 & 0.532 & 0.053 & 0.478 \\
+\hline
+\end{tabular}
+\end{table}
+
 
 % ------------- Second eigenvector of tica models only -------------------------
 \begin{figure}[!t]
@@ -98,8 +125,3 @@ tICA dihedrals -- PCA dihedrals & 0.885 & 0.930 \\
     \caption{\footnotesize {First two non-trivial eigenvectors of the tICA-based MSMs projected onto the first two tICA coordinates.}}
     \label{fig:tica_second_eigvec}
 \end{figure}
-
-
-
-
-

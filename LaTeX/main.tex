@@ -253,12 +253,12 @@ $$
 \label{tab:pcca_two_state_populations}
 \begin{tabular}{lccc}
 \hline
-Model & $P(S_0)$ & $P(S_1)$ & $\Delta G_{1-0}$ (kJ mol$^{-1}$) \\
+Model & $P(S_0)$ & $P(S_1)$ & $\Delta G_{1-0}$ (kcal mol$^{-1}$) \\
 \hline
-tica\_distances & 0.247 & 0.753 & -3.342 \\
-pca\_distances & 0.307 & 0.693 & -2.435 \\
-tica\_dihedrals & 0.205 & 0.795 & -4.064 \\
-pca\_dihedrals & 0.439 & 0.561 & -0.735 \\
+tica\_distances & 0.215 & 0.785 & -0.928 \\
+pca\_distances & 0.299 & 0.701 & -0.609 \\
+tica\_dihedrals & 0.223 & 0.777 & -0.891 \\
+pca\_dihedrals & 0.332 & 0.668 & -0.500 \\
 \hline
 \end{tabular}
 \end{table}
@@ -270,19 +270,7 @@ I use: $p<0.4$ for macrostate $0$ and $p>0.8$ for macrostate $1$. I compute the 
 $$J = \frac{|A \cap B|}{|A \cup B |}$$
 as a simple measure of overlap. 
 
-\begin{table}[h!]
-\caption{Pairwise Jaccard overlaps between high-confidence PCCA regions defined from fuzzy membership probabilities. Core regions were defined as $P(S_1)<0.2$ for basin $S_0$ and $P(S_1)>0.8$ for basin $S_1$, while ambiguous frames were defined by $0.4<P(S_1)<0.6$.}
-\label{tab:pcca_core_overlap}
-\begin{tabular}{lccc}
-\hline
-Model pair & $J_0$ & $J_1$ & $J_{\text{ambiguous}}$ \\
-\hline
-tICA distances - PCA distances & 0.911 & 0.989 & 0.196 \\
-tICA distances - tICA dihedrals & 0.273 & 0.981 & 0.121 \\
-PCA distances - tICA dihedrals & 0.251 & 0.977 & 0.031 \\
-\hline
-\end{tabular}
-\end{table}
+
 
 results in table \ref{tab:pcca_core_overlap} indicate that the native basin is very consistent across the models. Additionally, pca-distances and tica-distances also agree on the
 definition of the denatured basin. 
@@ -312,26 +300,6 @@ In words, So, in words we say that a contact is important if its distance distri
 The $10$ most important contacts are reported in \ref{tab:top10_folded_contacts}.
 
 
-\begin{table}
-\caption{Top ten residue contacts ranked by the cutoff-free robust folded-contact score. Distances are reported in nm. The robust effect size $d_\mathrm{robust}$ compares the median contact distance outside and inside the folded basin, normalized by the pooled interquartile range. Contact probabilities were computed using a 0.8 nm cutoff and are reported only as auxiliary descriptors.}
-\label{tab:top10_folded_contacts}
-\begin{tabular}{lccccccc}
-\hline
-Contact & $\tilde r_\mathrm{folded}$ & $\tilde r_\mathrm{other}$ & $\mathrm{IQR}_\mathrm{folded}$ & $d_\mathrm{robust}$ & $P_\mathrm{folded}$ & $P_\mathrm{other}$ & $\Delta P$ \\
-\hline
-7--12 & 0.370 & 1.036 & 0.047 & 2.510 & 0.995 & 0.115 & 0.881 \\
-9--32 & 0.359 & 1.635 & 0.131 & 2.399 & 0.865 & 0.047 & 0.817 \\
-6--17 & 0.422 & 1.381 & 0.101 & 2.219 & 0.973 & 0.092 & 0.881 \\
-7--13 & 0.487 & 1.158 & 0.089 & 2.190 & 0.866 & 0.073 & 0.793 \\
-6--14 & 0.488 & 1.211 & 0.120 & 2.084 & 0.917 & 0.073 & 0.845 \\
-10--32 & 0.529 & 1.602 & 0.209 & 1.825 & 0.665 & 0.059 & 0.606 \\
-10--34 & 0.453 & 1.528 & 0.184 & 1.821 & 0.768 & 0.088 & 0.680 \\
-10--29 & 0.529 & 1.431 & 0.164 & 1.780 & 0.698 & 0.079 & 0.619 \\
-7--11 & 0.317 & 0.712 & 0.053 & 1.776 & 0.996 & 0.349 & 0.647 \\
-6--13 & 0.590 & 1.241 & 0.202 & 1.702 & 0.532 & 0.053 & 0.478 \\
-\hline
-\end{tabular}
-\end{table}
 
 
 Also it is even clearer from the contact map \ref{fig:contact_map_folded_vs_other}. 
