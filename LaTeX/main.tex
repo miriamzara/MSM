@@ -47,13 +47,14 @@
 {\Alph{subsection}}
 
 \begin{document}
-\title{Markov State Modelling of folding of HP35 domain}
-\author{Miriam Zara}
+\title{
+Markov State Modelling of Folding for the folding of the HP35 Domain\\
+{\large Final Project for the Course ``Biological Datasets for Computational Physics''}
+}
+\author{Student: Miriam Zara, MSc student in Physics of Data, University of Padova \\
+Course Instructor: Prof.Dr. Monika Fuxreiter, University of Padova \\
+}
 \date{\today}
-
-\begin{abstract}
-    In this work, I compare different feature sets and dimensionality reduction methods for the construction of Markov state models (MSMs) of the folding of the HP35 villin headpiece.
-\end{abstract}
 
 \maketitle
 
@@ -221,7 +222,7 @@ pca\_dihedrals & 0.332 & 0.668 & -0.500 \\
 \end{tabular}
 \end{table}
 
-To assess with certain that macrostate S$1$ is identificable with the folded basin, I proceed to structural caracterization. To avoid biasing the analysis by boundary-like frames, I select only the frames that are assigned to the native basin by all four models. These are $67\%$ of total simulation frames.
+To assess with certainty that macrostate S$1$ is identificable with the folded basin, I proceed to structural caracterization. To avoid biasing the analysis by boundary-like frames, I select only the frames that are assigned to the native basin by all four models. These are $67\%$ of total simulation frames.
 Possibly the easiest caracterization of the native basin is in terms of contacts. I compute statistics  of distances for all contacts in the crystal structure (\texttt{hp.crystaldist}), and I compare the distributions in the native basin with those in the rest of the trajectory.
 I define a simple, heuristic score to quantify the importance of each contact for discrimination of the native basin. The score is based on the shift in the median and the interquartile range (IQR) of the distance distributions in the native basin and in the rest of the trajectory.
 $$
@@ -256,11 +257,52 @@ $$
 \langle t_{\mathrm{folded}} \rangle = \frac{\tau}{T_{01}},
 $$
 
-where $T_{01}$ is the transition probability from macrostate $S_0$ to macrostate $S_1$ and $\tau$ is the lagtime of the MSM. A second rough estimate can be obtained from the trajectory by computing the average waiting time in the folded basin, which is defined as the average time between two consecutive transitions from the unfolded to the folded basin. The results are reported in Table \ref{tab:folding_times}. 
+where $T_{01}$ is the transition probability from macrostate $S_0$ to macrostate $S_1$ and $\tau$ is the lagtime of the MSM. Results are reported in Table \ref{tab:average_waiting_times}.
+
+\begin{table}[h!]
+\caption{MSM-implied average waiting times in the two PCCA macrostates. Waiting times were computed from the coarse-grained transition matrix as $\langle t_i \rangle = \tau/(1-T_{ii})$.}
+\label{tab:average_waiting_times}
+\begin{tabular}{lrrrr}
+\hline
+Model & $T_{00}$ & $T_{11}$ & $\langle t_{S0} \rangle$ [$\mu$s] & $\langle t_{S1} \rangle$ [$\mu$s] \\
+\hline
+tica\_distances & 0.92 & 0.98 & 2.42 & 8.86 \\
+pca\_distances & 0.92 & 0.97 & 2.53 & 5.92 \\
+tica\_dihedrals & 0.92 & 0.98 & 2.46 & 8.55 \\
+pca\_dihedrals & 0.90 & 0.95 & 2.00 & 4.02 \\
+\hline
+\end{tabular}
+\end{table}
+
+A second rough estimate can be obtained from the trajectory by computing the average waiting time in the folded basin, which is defined as the average time between two consecutive transitions from the unfolded to the folded basin. The results are reported in Table \ref{tab:trajectory_folding_times}. 
+
+
+\begin{table}[h!]
+\caption{Empirical unfolded-state residence times computed from the cored macrostate trajectory. $N_{\mathrm{visits}}$ is the number of unfolded visits observed in the trajectory.}
+\label{tab:empirical_unfolded_residence_times}
+\begin{tabular}{lrrr}
+\hline
+Model & $N_{\mathrm{visits}}$ & Mean [$\mu$s] & Median [$\mu$s] \\
+\hline
+tica\_distances & 24 & 3.287 & 2.733 \\
+pca\_distances & 29 & 3.307 & 1.954 \\
+tica\_dihedrals & 21 & 3.856 & 2.540 \\
+pca\_dihedrals & 23 & 3.660 & 2.789 \\
+\hline
+\end{tabular}
+\end{table}
+
 The two estimates are in reasonable agreement, and they are also consistent with the reference value of $3.2\pm 0.6\,\mu s$ reported in \cite{Piana2012}.
+
+
+\subsubsection{Beyond two states: three-state PCCA++ on tICA models}
+The timescale spectra of tICA models \ref{fig:timescales_spectra} suggest existence of a third metastable state, which is not resolved by the PCA models. I therefore apply PCCA++ with $3$ macrostates to the two tICA models to better understand the nature of this hypotetical third state. 
+A visual inspection of the second right eigenvector of the tICA models (see Supp. Figure \ref{suppfig:tica_second_eigvec}) suggests that the process may describe a relaxation within the unfolded basin. As done before, I compute
+populations of the three macrostates and frame overlap.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
+
 %
 %
 %
@@ -339,18 +381,6 @@ All code necessary to replicate the analysis shoId in this work is available on 
     Journal of Chemical Theory and Computation 2023 19 (11), 3391-3405
     DOI:  10.1021/acs.jctc.3c00240.
 
-\bibitem{towards_a_benchmark}
-    D. Nagel, S. Sartore, and G. Stock,
-    \textit{Toward a Benchmark for Markov State Models: The Folding of HP35},
-    The Journal of Physical Chemistry Letters 2023 14 (31), 6956-6967
-    DOI:  10.1021/acs.jpclett.3c01561 .
-    
-%\bibitem{jain_stock_2014}
-%    A. Jain and G. Stock,
-%    \textit{Hierarchical Folding Free Energy Landscape of HP35 Revealed by Most Probable Path Clustering}
-%    J. Phys. Chem. B, 118, 28, 7750-7760 (2014).
-%    DOI: 10.1021/jp410398a.
-
 
 \bibitem{thebible}
     G.R. Bowman, V.S. Pande and F. Noé,
@@ -365,42 +395,6 @@ All code necessary to replicate the analysis shoId in this work is available on 
   Machine Learning: Science and Technology, 2021, IOP Publishing.
 DOI: 10.1088/2632-2153/ac3de0.
 
-
-%\bibitem{vampnets}
-%  A. Mardt, L. Pasquali, H. Wu and F. No\'e,
-%  \textit{VAMPnets for deep learning of molecular kinetics},
-%  Nature Communications 9(1):1-11, 2018. 
-
-%\bibitem{time_lagged_autoencoders}
-%    C. Ihmeyer and F. No\'e. 
-%    \textit{Time-lagged autoencoders: deep learning of slow collective variables for molecular kinetics}. 
-%    J. Chem. Phys., 148(24):241703, 2018. 
-%    DOI: 10.1063/1.5011399.
-
-%\bibitem{vamp_2013}
-%    F. No\'e and F. Nüske,
-%    \textit{A variational approach to modeling slow processes in stochastic dynamical systems},
-%    Multiscale Modeling \& Simulation 11(2):635-655, 2013.
-%    DOI: 10.1137/12089574X.
-
-%\bibitem{vamp_2020}
-%    H. Wu and F. Noé,
-%    \textit{Variational approach for learning markov processes from time series data},
-%    Journal of Nonlinear Science 30(1):23-66, 2020.
-%    DOI: 10.1007/s00332-019-09576-8.
-
-%\bibitem{Sittel2017}
-%    F. Sittel, T. Filk and G. Stock,
-%    \textit{Principal component analysis on a torus: Theory and application to protein dynamics}
-%    J Chem Phys. 147(24):244101, 2017.  
-%    DOI: 10.1063/1.4998259.
-
-
-%\bibitem{MoSAIC}
-%   G. Diez, D. Nagel and G. Stock,
-%   \textit{Correlation-based feature selection to identify functional dynamics in proteins.} 
-%   J. Chem. Theory Comput. 2022, 18, 5079-5088.
-%   DOI: 10.1021/acs.jctc.2c00337.
 
 \bibitem{my_tica_ref}
     C.R. Schwantes and V.S. Pande,
