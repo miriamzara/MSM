@@ -47,7 +47,7 @@
 {\Alph{subsection}}
 
 \begin{document}
-\title{{\color{blue}DRAFT} Markov State Modelling for the folding of HP35 villin headpiece}
+\title{Markov State Modelling of folding of HP35 domain}
 \author{Miriam Zara}
 \date{\today}
 
@@ -74,7 +74,7 @@ Operationally, I build four MSMs starting from two internal-coordinate represent
 can be interpreted as metastable states, whether they have a clear structural interpretation in terms of folded, unfolded, and possibly intermediate conformations, and whether their equilibrium populations agree.
 Finally, I estimate the folding time and the free-energy gap between macrostates from the MSMs and compare them both across models and with the reference estimates reported in \cite{Piana2012}. 
 
-Overall, this project aims to review the MSM construction pipeline, assess its robustness with respect to modelling choices, and clarify its strengths and limitations for the quantitative analysis of MD simulation data.
+Overall, this project mostly aims to review the MSM construction pipeline, assess its robustness with respect to modelling choices, and clarify its strengths and limitations for the quantitative analysis of MD simulation data.
 %%%%%%%%%%%%%%%%%%%
 %
 %
@@ -91,7 +91,7 @@ Overall, this project aims to review the MSM construction pipeline, assess its r
 This work is based on a single $305\,\mu\mathrm{s}$ MD trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
 The original trajectory is reported by Lindorff-Larsen \textit{et al.} \cite{Lindorff-Larsen2011}, while in this project I employ a preprocessed version of that trajectory publicly distributed by Nagel \textit{et al.} \cite{selecting_features}. 
 The dataset contains time series of approximately $1.5\times10^6$ samples, with a sampling interval of about $200,\mathrm{ps}$. Authors provide timeseries of two internal-coordinate representations which they selected and filtered specifically for employment in MSM construction, as they describe in detail \cite{selecting_features}.
-These are residue-residue contact distances ( \texttt{hp35.mindists2} - $42$ features) and backbone dihedral angles (\texttt{hp35.dihs.shifted} - $62$ features). Authors also provide timeseries of residue-residue distances for a separate set of contacts identified from the crystal structure PDB 2F4K, (\texttt{hp35.crystaldists} - \textcolor{blue}{X} features).
+These are residue-residue contact distances ( \texttt{hp35.mindists2} - $42$ features) and backbone dihedral angles (\texttt{hp35.dihs.shifted} - $62$ features). Authors also provide timeseries of residue-residue distances for a separate set of contacts identified from the crystal structure PDB 2F4K, (\texttt{hp35.crystaldists} - $53$ features).
 
 \subsection{Methods for MSM construction}
 All code is written in Python and employs the library Deeptime \cite{deeptime} for MSMs construction, validation and analysis.
@@ -148,31 +148,16 @@ PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible} is a systematic algorithm to identif
 %
 %
 %
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \subsection{Construction of the MSMs} 
 \begin{figure*}[ht]
     \centering
-    \includegraphics[width = 0.9\linewidth]{figures/free_energy_projection_report.pdf}
-    \includegraphics[width = 0.9\linewidth]{figures/RMSD_reduced_projection.png}
     \includegraphics[width=0.7\linewidth]{figures/implied_timescales_report.pdf}
-    \caption{\footnotesize Results of the MSM construction pipeline. \textbf{Top.} projected free-energy surfaces onto the first two reduced coordinates for the four feature-reduction pipelines considered. \textbf{Middle left.}
+    \caption{\footnotesize Results of the MSM construction pipeline. \textbf{Middle left.}
      First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
         The shaded region corresponds to $t_i \leq \tau$, where $t_i$ is the implied timescale and $\tau$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
-        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step. \textbf{Middle right:} Autocorrelation function of the root mean square deviation (RMSD) from the crystal structure, as obtained 
-        from the molecular dynamics trajectory (blue) and predicted by the four MSMs.}
+        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step.}
     \label{fig:msm_results}
 \end{figure*}
 Both PCA and tICA require selecting the number of retained components, while tICA additionally requires specifying a lag time. To guide this choice, I use this heuristic criteria:
@@ -190,6 +175,9 @@ whereas larger discrepancies are observed for the higher-order timescales. The p
 of the underlying continuous dynamics. Validation was performed as described in Methods comparing the autocorrelation function of the RMSD to the crystal structure computed from the trajectory and predicted by the MSMs (see Fig.\ref{fig:autocorrelation}).
 The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar results, while the pca-dihedrals performs substantially {\color{orange} ? - need uncertainties} worse.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\
 \subsection{Analysis of the MSMs} 
 \begin{figure}[h!]
     \centering
@@ -197,56 +185,26 @@ The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar resul
     \caption{The timescales spectra for the four markov models}
     \label{fig:timescales_spectra}
 \end{figure}
-Next, I inspected the leading {\color{orange} left or right? check again for a row-stochastic T} eigenvectors to characterize the slow relaxation modes encoded by the Markov model. 
-The first non-trivial eigenvector exhibits a clear separation between regions associated with low and high values of the fraction of native contacts Q, 
-as shown by comparison with the projection of Q onto the first two tICs (Fig.~\ref{fig:eigenvectors}). This indicates that the slowest dynamical process captured by the MSM corresponds
-to the folding-unfolding transition. The qualitative structure of the first eigenvector is remarkably consistent across all four model constructions, suggesting that the dominant kinetic process is robust with respect
-to the choice of molecular representation and dimensionality reduction method. In contrast, the higher-order eigenvectors display more method-dependent patterns, and their physical interpretation is less straightforward. 
 
+The timescale spectra of the four models Fig. \ref{fig:timescales_spectra} highlight some differences between the four models. The two PCA-based models have a clear gap between the first and second timescale, suggesting that a two-state model is a good approximation of the dynamics. Instead, the two
+tICA-based models display the largest gap between the second and the third timescale, suggesting that a three-state model would be a better approximation. It is possible that the tICA models are able to resolve one of the two basins in more details, while the PCA models cannot, but this hypotesis needs to be checked. 
+\subsubsection{Two-state PCCA++}
+As a starting point, I will consider a two-state model for all four MSMs, and I will check whether the two macrostates identified by PCCA++ are consistent across models and interpretable.
+I expect that the slowest timescale corresponds to the folding-unfolding process, and therefore that the two macrostates correspond to the folded and unfolded basins. A first qualitative
+support of this hypotesis is found by inspecting the sign pattern of the first right eigenvector and comparing it with a structural descriptor of folding, like the fraction of native contacts $Q$ (see Supp. Figure \ref{suppfig:first_right_eigenvector}).
 
-Looking at the pattern of timescales, \ref{fig:timescales_spectra}, the four markov models appear different. The gap between the 
-first and second slowest timescale is model dependent. Three models agree reasonably on the first timescale ($\sim 0.8-0.9\, \mu s$)- 
-these are pca-distances, tica-distances and tica-dihedrals. But they do not agree on the following timescales, and they resolve a different
-number of timescales above the unresolved region threshold. 
+I apply PCCA++ with $2$ macrostates to all four models, and I compute the fuzzy membership probabilities of  i) microstates and ii) single trajectory frames.
 
-First of all, I apply PCCA++ with $n=2$ macrostates to all models. I want to investigate if the partitioning identified by PCCA is 
-robust across models. Intuitively, and from the qualitative inspection of the leading eigenvector,  I expect that the slowest process 
-refers to the exchange between the native basin (N) and the denatured basin (B). This is the connection leap from PCCA to the termodynamics of the system.
-
-So the analysis to be made now is aims to answer the following questions:
-\begin{itemize}
-    \item Do the two-state partitions identified by the different models overlap significantly?
-    \item Are populations of the two macrostates consistent across models?
-    \item If macrostates are consistent, are they structurally well caracterized ?
-\end{itemize}
-Then, as an optional next step, provided that the models are coherent at this coarse level, and that
-it is indeed possible to identify the partitions as corresponding to the N and D basins, it would
-be interesting to further split the partitions for the models at higher resolutions and see if these partitions
-highlight processes that occur within the native basin, or within the denatured basin, or between the two.  
-But for now lets just keep at the two-state level, and see if the models are consistent.
-
-So first of all I compute fuzzy membership probabilities of the microstates to the macrostates, and also fuzzy membership of the trajectory timeseries. I also compute hard
-assignments of the microstates to the macrostates, and hard assignments of the trajectory timeseries. 
-Macrostate index ($0$ or $1$) is not necessarily the same across the models, so I check which macrostate in a model overlaps the most with what other macrostate and I
-reindex the macrostates consistently, so that macrostate $0$ means more or less the same in each model.
-
-A first simple measure is correlation. I compute both Pearson and Spearman correlation coefficients for the timeseries of the probability of being in macrostate $0$ across the four models.
-I find very high correlation coefficients, both Pearson and Spearman, for all pairs of models \ref{supptab:two_state_model_correlation}. Next I check visually
-the distribution of the fuzzy membership probabilities of frames across models \ref{suppfig:fuzzy_memberships_models}. The models based on distances agree very well, the other a little less.
-In particular, the tica-dihedral models places a lot of its samples in the boundary region, but this is reasonable because the model didnt have a clear eigenvalue gap between
-the first and second timescale, so we are forcing it into a two state model while the markov chain is not really two-state. However, notably  tica-dihedrals appear to cross boundaries
-only for macrostate $0$ (spoiler: this is the denatured basin). Instead, when another model assigns the frame to macrostate $1$ (spoiler: this is the native basin), tica-dihedrals also assigns it to macrostate $1$. So the fuzzy memberships of tica-dihedrals are more uncertain for the denatured basin, but not for the native basin. This is consistent with the fact that the denatured basin is more heterogeneous and less well defined than the native basin, which is a single well-defined structure.
-Probably the tica-dihedrals model would resolve the denatured basin in finer detail if we used more than two macrostates.
-
-Next I compute the populations of the two macrostates, for each model separately \ref{tab:pcca_two_state_populations}. 
-Here we find, notably, that once averaged by the fuzzy probability, the populations of the macrostates identified by tica-dihedrals agree
-very well with the populations of tica-distances and pca-distances. The pca-dihedrals model is the only one that disagrees, and it is the one that performed worst in the implied timescale test and in the autocorrelation test.
-So dihedrals-tica is not a bad model, it is just that the two-state level is not enough to resolve the denatured basin, and it is forced to assign a lot of samples to the boundary region. But if we average over the fuzzy memberships, the populations of the two macrostates are consistent with the other models.
-
+I check the distribution of the fuzzy membership probabilities of frames across models (see Fig. \ref{suppfig:fuzzy_memberships_models}). This shows a high model agreement in the assignation of frames to macrostates.
+I also quantify model agreement by computing the overlap between the "core" subsets. I identify as "cores" the sets of frames where the probability of assignation is $p<0.4$ for macrostate $S0$ and $p>0.6$ for macrostate $S1$. I compute the Jaccard index as a simple measure of overlap. Results 
+show very high agreement among the models on the definition of macrostate $S1$, while high but not perfect agreement in the definition of $S0$, which indicates that each model places the boundary between the two macrostates in a slightly different manner (Supp. Table \ref{supptab:jaccard_core_overlap}).
+Next I compute the populations of the two macrostates, considering fuzzy assignments:
 $$
-P(frame \in A) = \sum_{\text{micro}} p(frame \in \text{micro}) \cdot p(\text{micro} \in A)
+P(S_i) = \frac{1}{N} \sum_{j=1}^{N} P(x_j \in S_i) \cdot \pi_j
 $$
-
+where $N$ is the number of microstates, $P(x_j \in S_i)$ is the fuzzy membership probability of microstate $j$ to macrostate $i$, and $\pi_j$ is the stationary probability of microstate $j$.
+The results are reported in Table \ref{tab:pcca_two_state_populations} together with the estimated free energy difference. 
+Estimated populations are in reasonable agreement between the models, and the estimated free energy differences are reasonably consistent with the reference value of $-0.6\pm 0.2$ kcal/mol reported in \textit{Piana et. al.} \cite{Piana2012}. 
 
 \begin{table}[h!]
 \caption{Coarse-grained stationary populations of the two PCCA macrostates for each MSM at the common two-state resolution. Relative free energies were computed as $\Delta G_{1-0} = -k_B T \ln[P(S_1)/P(S_0)]$ with $T=360$ K.}
@@ -263,26 +221,9 @@ pca\_dihedrals & 0.332 & 0.668 & -0.500 \\
 \end{tabular}
 \end{table}
 
-Given this, pca-dihedrals will be discarded from now on. I now proceed to identify the robust cores: those frames that are assigned to the same macrostate by all three remaining models.
-First I inspect the probability distribution of the fuzzy memberships of the frames, for each model, to understand
-how well they are separated and define meaningful thresholds for defining "core" frames \ref{suppfig:pcca_frames_prob_density}.
-I use: $p<0.4$ for macrostate $0$ and $p>0.8$ for macrostate $1$. I compute the jaccard index 
-$$J = \frac{|A \cap B|}{|A \cup B |}$$
-as a simple measure of overlap. 
-
-
-
-results in table \ref{tab:pcca_core_overlap} indicate that the native basin is very consistent across the models. Additionally, pca-distances and tica-distances also agree on the
-definition of the denatured basin. 
-Now I proceed to structurally caracterize the native basin. I dont do this for the unfolded basin, because it is known to be heterogeneous and structurally diverse, and I dont expect to find something very meaningful. 
-It would be interesting to see if the tica-dihedrals model resolves the denatured basin in more detail, but this is beyond the scope of this work right now.
-
-I take only the frames that are assigned to the native basin by all three models. First, 
-I want to understand what distinguishes them from the rest in terms of contacts.
-I load the timeseries of the distance from the crystal structure and I split the frames in the folded basin from the rest. 
-I define a score that tells how important the contact is for differentiating. My score is: 
-
-
+To assess with certain that macrostate S$1$ is identificable with the folded basin, I proceed to structural caracterization. To avoid biasing the analysis by boundary-like frames, I select only the frames that are assigned to the native basin by all four models. These are $67\%$ of total simulation frames.
+Possibly the easiest caracterization of the native basin is in terms of contacts. I compute statistics  of distances for all contacts in the crystal structure (\texttt{hp.crystaldist}), and I compare the distributions in the native basin with those in the rest of the trajectory.
+I define a simple, heuristic score to quantify the importance of each contact for discrimination of the native basin. The score is based on the shift in the median and the interquartile range (IQR) of the distance distributions in the native basin and in the rest of the trajectory.
 $$
 d^{\mathrm{robust}}_{ij}
 =
@@ -295,23 +236,28 @@ d^{\mathrm{robust}}_{ij}
 }
 $$
 
-In words, So, in words we say that a contact is important if its distance distribution is substantially shifted toward shorter distances in the folded basin and substantially more narrow in the folded basin.
-
-The $10$ most important contacts are reported in \ref{tab:top10_folded_contacts}.
-
-
-
-
-Also it is even clearer from the contact map \ref{fig:contact_map_folded_vs_other}. 
-
+This expresses that a contact is important for differentiating the basin if its distance distribution is substantially shifted toward shorter distances in the folded basin and substantially more narrow in the folded basin.
+The $10$ most important contacts according to this score are reported in Supp. Table \ref{tab:top10_folded_contacts}. A visual representation of the most important contacts is shown in Fig. \ref{fig:contact_map_folded_vs_other}, together with the visualization of a representative set of structures.
+It is evident that the most important contacts for discrimination of the folded basin are those that form the hydrophobic core, in particular a set of contacts in the neighbourhood of Phe6 and Phe10. Instead,
+the contacts defining the three helices are the least important, which is consistent with the fact that the helices are formed in both folded and unfolded configurations, while the hydrophobic core is only formed in the folded basin. 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width = \linewidth]{figures/folded_basin_contact_map_report.pdf}
-
+    \includegraphics[width = 0.8\linewidth]{figures/folded_basin_contact_map_report.pdf}
     \includegraphics[width = \linewidth]{figures/native_basin_ensemble_overlay_ray.png}
-    \caption{Most important contacts for discrimination of the folded basin. Z values are the shift in the median.}
+    \caption{Caracterization of consensus frames. Top: contact map of the crystal structure (PDB 2F4K) where the color scale indicates the importance of each contact for discrimination of the folded basin as explained in the text.
+    Bottom: overlay of a random sample of $5$ structures from the consensus folded basin. Visualization was made with PyMOL \cite{pymol}.}
     \label{fig:contact_map_folded_vs_other}
 \end{figure}
+
+To conclude this analysis I will provide an indicative estimate the folding time as the average waiting time in the folded basin. This is only indicative, as for an accurate estimate of the folding time one should consider the full microstate model and use transition path theory, which is not done here.
+A first rough estimate can be obtained from the transition matrix of the coarse-grained PCCA++ model:
+
+$$
+\langle t_{\mathrm{folded}} \rangle = \frac{\tau}{T_{01}},
+$$
+
+where $T_{01}$ is the transition probability from macrostate $S_0$ to macrostate $S_1$ and $\tau$ is the lagtime of the MSM. A second rough estimate can be obtained from the trajectory by computing the average waiting time in the folded basin, which is defined as the average time between two consecutive transitions from the unfolded to the folded basin. The results are reported in Table \ref{tab:folding_times}. 
+The two estimates are in reasonable agreement, and they are also consistent with the reference value of $3.2\pm 0.6\,\mu s$ reported in \cite{Piana2012}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %

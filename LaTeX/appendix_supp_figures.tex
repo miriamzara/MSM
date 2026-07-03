@@ -13,6 +13,14 @@
 
 
 
+% --- Free energy projection onto the first components, compared with RMSD projection
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width = 0.9\linewidth]{figures/free_energy_projection_report.pdf}
+    \includegraphics[width = 0.9\linewidth]{figures/RMSD_reduced_projection.png}
+    \caption{\small Projected free-energy surfaces onto the first two reduced coordinates for the four feature-reduction pipelines considered. }
+\end{figure*}
+
 % --------------- Dim red time series and free energy profiles
 \begin{figure}[h!]
     \includegraphics[width=0.7\linewidth]{figures/dimred_figure.png}
@@ -52,7 +60,7 @@ The PCA projections show mostly unimodal one-dimensional free-energy profiles an
     Bottom row: projection of the fraction of native contacts, Q, onto the same coordinates. 
     The close correspondence between the eigenvector sign pattern and the distribution of $Q$ indicates that the slowest kinetic process 
     captured by the MSM is associated with the folding-unfolding transition.}
-    \label{fig:eigenvectors}
+    \label{suppfig:first_right_eigenvector}
 \end{figure}
 
 
@@ -77,7 +85,7 @@ The PCA projections show mostly unimodal one-dimensional free-energy profiles an
 % ------------ Jaccard index two state model overlap -------------------------
 \begin{table}[h!]
 \caption{Pairwise Jaccard overlaps between high-confidence PCCA regions defined from fuzzy membership probabilities. Core regions were defined as $P(S_1)<0.4$ for basin $S_0$ and $P(S_1)>0.6$ for basin $S_1$, while ambiguous frames were defined by $0.4<P(S_1)<0.6$.}
-\label{tab:pcca_core_overlap}
+\label{supptab:jaccard_core_overlap}
 \begin{tabular}{lccc}
 \hline
 Model pair & Core overlap $S_0$ & Core overlap $S_1$ & Ambiguous overlap \\
