@@ -65,17 +65,16 @@ to gain insight on both thermodynamics properties (e.g. free energy basins) and 
 However, coarse-graining always involves a trade-off between interpretability and information loss. In the case of MSMs, the modelling pipeline includes several steps, such as feature selection, dimensionality reduction, clustering,  and a general optimization criterion is not always available. Different pipelines may result in different models, which raises
 the question about which conclusions are physically meaningful and which are to be considered as artefacts.
 
-In this project, I investigate this question through a benchmark study on a simple protein system: the villin headpiece subdomain HP35 Lys24-Nle/Lys29-Nle mutant (Fig.\ref{fig:hp35_structure}). 
-HP35 is a short, fast-folding protein that has been extensively used as a model system for protein folding. Long, unbiased, all-atom MD simulations of this system were already available in the early 2010s. In particular, I analyze a 305$\mu$s simulation from \cite{Lindorff-Larsen2011}, 
+In this project, this question is addressed through a benchmark study on a simple protein system: the villin headpiece subdomain HP35 Lys24-Nle/Lys29-Nle mutant (Fig.\ref{fig:hp35_structure}). 
+HP35 is a short, fast-folding protein that has been extensively used as a model system for protein folding. Long, unbiased, all-atom MD simulations of this system were already available in the early 2010s. In particular, one 305$\mu$s simulation from \cite{Lindorff-Larsen2011} is analyzed, 
 which contains dozens of folding-unfolding transitions. Because of this extensive sampling, key kinetic quantities such as the folding time and the average transition time have been estimated directly from the trajectory \cite{Piana2012}. 
 Previous analysis also reported a free-energy profile in which the system is approximately described by two main states, folded and unfolded, with a low-population intermediate \cite{Piana2012}.
-The aim of this project is to test whether different MSM construction pipelines lead to a consistent thermodynamic and structural description of this folding system. 
 
-Operationally, I build four MSMs starting from two internal-coordinate representations, contacts and dihedral angles, and two dimensionality reduction methods, PCA and tICA. I then apply PCCA++ to identify macrostates in each model. The resulting models are compared by asking whether the identified macrostates are consistent across pipelines, whether they 
+
+Operationally, four MSMs will be built starting from two internal-coordinate representations, contacts and dihedral angles, and two dimensionality reduction methods, PCA (Principal Component Analysis) and tICA (time-lagged Independent Component Analysis). I then apply PCCA++ to identify macrostates in each model. The resulting models are compared by asking whether the identified macrostates are consistent across pipelines, whether they 
 can be interpreted as metastable states, whether they have a clear structural interpretation in terms of folded, unfolded, and possibly intermediate conformations, and whether their equilibrium populations agree.
-Finally, I estimate the folding time and the free-energy gap between macrostates from the MSMs and compare them both across models and with the reference estimates reported in \cite{Piana2012}. 
-
-Overall, this project mostly aims to review the MSM construction pipeline, assess its robustness with respect to modelling choices, and clarify its strengths and limitations for the quantitative analysis of MD simulation data.
+Finally, the folding time will be estimated and the free-energy gap between macrostates from the MSMs will be calculated and compared both across models and with the reference estimates reported in \cite{Piana2012}. 
+Overall, this project aims to test whether different MSM construction pipelines lead to a consistent thermodynamic and structural description of this folding system. 
 %%%%%%%%%%%%%%%%%%%
 %
 %
@@ -90,7 +89,7 @@ Overall, this project mostly aims to review the MSM construction pipeline, asses
     \label{fig:hp35_structure}
 \end{figure}
 This work is based on a single $305\,\mu\mathrm{s}$ MD trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
-The original trajectory is reported by Lindorff-Larsen \textit{et al.} \cite{Lindorff-Larsen2011}, while in this project I employ a preprocessed version of that trajectory publicly distributed by Nagel \textit{et al.} \cite{selecting_features}. 
+The original trajectory is reported by Lindorff-Larsen \textit{et al.} \cite{Lindorff-Larsen2011}, while in this project a preprocessed version of that trajectory is employed, which is publicly distributed by Nagel \textit{et al.} \cite{selecting_features}. 
 The dataset contains time series of approximately $1.5\times10^6$ samples, with a sampling interval of about $200,\mathrm{ps}$. Authors provide timeseries of two internal-coordinate representations which they selected and filtered specifically for employment in MSM construction, as they describe in detail \cite{selecting_features}.
 These are residue-residue contact distances ( \texttt{hp35.mindists2} - $42$ features) and backbone dihedral angles (\texttt{hp35.dihs.shifted} - $62$ features). Authors also provide timeseries of residue-residue distances for a separate set of contacts identified from the crystal structure PDB 2F4K, (\texttt{hp35.crystaldists} - $53$ features).
 
@@ -106,36 +105,34 @@ The steps involved in MSM construction are, briefly:
 \item Validation of the final model against the data.
 \end{enumerate}
 
-In the following I describe briefly the scope and implementation of each step, focusing the most on the two steps that were varied this work, which are 
-feature selection and dimensionality reduction. I report more details of the pipeline in the Supplementary Methods \ref{sec:SI_methods}.
-
-MSMs construction at its core necessitates to convert the trajectory frames of the MD simulation into a finite, discrete set of states. 
+In the following the scope and implementation of each step is briefly described, focusing the most on the two steps that were varied this work: 
+feature selection and dimensionality reduction. More details about the pipeline are reported in the Supplementary Methods \ref{sec:SI_methods}.
+\newline\textit{Feature selection and dimensionality reduction} MSMs construction at its core necessitates to convert the trajectory frames of the MD simulation into a finite, discrete set of states. 
 Ideally, this procedure should preserve the kinetic information of the original continuous dynamics, but with the advantage of being 
 much simpler to analyze. The first two steps of the pipeline, feature selection and dimensionality reduction, 
 are used to compress the raw MD data in a space that is much lower dimensional, so that a clustering of samples into a finite number of states 
 is computationally feasible. Clustering algorithms such as k-means rely on Euclidean distance, so it is important that the reduced coordinates are constructed in such a way that conformations that interconvert rapidly are mapped to nearby points in the reduced space. Otherwise, conformations separated by substantial kinetic barriers may be assigned to the same cluster and the markov property will be violated.
 These requirements make the choice of features and dimensionality reduction method a crucial step in the MSM pipeline, and their optimization
 is not trivial and has traditionally mostly relied on heuristics. 
-
-I experiment with two different feature sets, which are \texttt{hp35.mindists2} and \texttt{hp35.dihs.shifted} as previously described. As for the dimensionality reduction step, I compared two classical approaches: principal component analysis (PCA) and nd time-lagged independent component analysis (tICA),
+Two different feature sets are considered, which are \texttt{hp35.mindists2} and \texttt{hp35.dihs.shifted} as previously described. As for the dimensionality reduction step, I compared two classical approaches: principal component analysis (PCA) and nd time-lagged independent component analysis (tICA),
 for which I provide a detailed derivation in the Supplementary Methods \ref{subsec:SI_dimred}. In short, both methods find linear combinations of the original provided features but with a different optimization objective.
 PCA identifies directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation. tICA is explicitly designed to better encode the slow dynamics of the system: while PCA
 identifies the degrees of freedom that vary the most, tICA looks for those that vary the most slowly. Therefore, the tICA coordinates are expected to 
-encode the slowest degrees of freedom of the system and the notion of euclidean distance in reduced space  defined by tICA is should ideally to be related to a notion of "kinetic distance", with conformations that interconvert rapidly being mapped to nearby points in the reduced space.
-tICA is usually found to ouperform PCA in this task, but if this is the case for our system is a question I am going to address. Overall, I build $4$ MSMs, combining the two feature sets and the two dimensionality reduction methods: tica-distances, tica-dihedrals, pca-distances and pca-dihedrals.
-\vspace{0.5em}\newline
+encode the slowest degrees of freedom of the system and the notion of euclidean distance in reduced space  defined by tICA is should ideally be related to a notion of "kinetic distance", with conformations that interconvert rapidly being mapped to nearby points in the reduced space.
+tICA is usually found to outperform PCA in this task, but if this is the case for the system is a question I am going to address. Overall, four MSMs are built, combining the two feature sets and the two dimensionality reduction methods: tica-distances, tica-dihedrals, pca-distances and pca-dihedrals.
+\vspace{0.1em}\newline
 \textit{Clustering:}
-The reduced coordinates were clustered using k-means with $100$, $200$, and $500$ clusters.
+The reduced coordinates were clustered using k-means with $10, 30, 50, 100, 150$ clusters.
 Cluster centres were initialized uniformly and the algorithm was run for a maximum of $100$ iterations. Transition matrices were estimated using a maximum-likelihood 
 MSM estimator at lag times $\tau$ ranging from $10$ to $1000$ frames ($\sim 2-200\,ns$). The counting scheme used was the "sliding window" scheme, which counts transitions at every time step, as opposed to the "discrete" scheme, which counts transitions only at multiples of $\tau$ \cite[Chap. 4.1]{thebible}.
 Detailed balance was enforced during the estimation of the transition matrix and the largest connected component was taken as the state space of the MSM.
 The range of lagtimes investigated was chosen to remain substantially shorter than the characteristic folding timescale ($\sim 1-3 \,\mu s$), ensuring that the process of interest
 remained temporally resolved.
-\newline \textit{Lagtime choice:}
+\vspace{0.1em} \newline \textit{Lagtime choice:}
 Estimation of the transition matrix requires specification of the lag time $\tau$ ($= 1, 2, 3\cdots$ in number of frames) at which to count transitions between states. Choice of lag time is done through the
-timescale convergence test. Briefly (see \ref{suppsec:markov_theory}), the transition matrix $T(\tau)$  is estimated at different lag times and its eigenvalues are used to compute the implied timescales $t_i(\tau)$, which are then plotted as a function of $\tau$. 
+timescale convergence test. Briefly (see Supplementary Methods \ref{suppsec:markov_theory} for more details), the transition matrix $T(\tau)$  is estimated at different lag times and its eigenvalues are used to compute the implied timescales $t_i(\tau)$, which are then plotted as a function of $\tau$. 
 If the Markovian assumption is valid, the implied timescales should be approximately constant for sufficiently large $\tau$. The lag time is then selected as the minimum value in the region of convergence, as this choice minimizes the loss of temporal resolution while ensuring that the process of interest is approximately Markovian\cite[Ch. 4.7]{thebible}.
-\newline \textit{MSM validation:} to validate the model against the original trajectory, I compare the autocorrelation function of the root mean square deviation (RMSD) to the crystal structure computed from the trajectory (\texttt{hp35.crystaldist}) and predicted by the MSMs (see \ref{suppsec:markov_theory}).
+\vspace{0.1em} \newline \textit{MSM validation:} to validate the model against the original trajectory, I compare the autocorrelation function of the root mean square deviation (RMSD) to the crystal structure computed from the trajectory (\texttt{hp35.crystaldist}) and predicted by the MSMs (see \ref{suppsec:markov_theory}).
 %
 %
 %
@@ -164,15 +161,15 @@ PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible} is a systematic algorithm to identif
 Both PCA and tICA require selecting the number of retained components, while tICA additionally requires specifying a lag time. To guide this choice, I use this heuristic criteria:
 the reduced coordinates were evaluated through i) their free-energy profiles and ii) projected time series. The rationale behind this analysis is that coordinates relevant to the folding process should separate distinct metastable regions
 and therefore display multimodal free-energy profiles. Furthermore, if a coordinate captures transitions between metastable states, its time series should exhibit relatively long-lived plateaus separated by rapid transitions.
-For tICA, lag times between $100$ and $1000$ frames (approximately $20-200$ ns) were considered, since HP$35$ is known to fold a microsecond timescale, 
+For tICA, lag times between $100$ and $1000$ frames (approximately $20-200$ ns) were considered, since HP$35$ is known to fold at the microsecond timescale, 
 the autocorrelation  be inspected at times shorter than this timescale. The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) looked qualitatively similar. I selected a tICA lag time of $1000$ frames ($200$ ns).
 Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
-only for approximately the first three components.  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
+only for approximately the first three components (see Supp. Figure \ref{suppfig:dimred_figure}).  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
 I use the following number of components: $7$ for tica-dihedrals, $5$ for the others. From a projection onto the first $2D$ components made just for visualization, it appears that all four reduced representations are able to separate the folded and unfolded configurations, at varying degree (see Fig.\ref{fig:msm_results}).
 The implied timescale test indicates approximate convergence of the slowest dynamical processesfor MSM lagtimes in the range of $20$-$50,\mathrm{ns}$ as shown in Fig.\ref{fig:msm_results}.
 The estimated timescales depend much more strongly on the choice of feature set and dimensionality reduction method than on the number of microstates
 used in the discretization (here, tried as $100, 200$ and $500$). For all four feature-reduction pipelines considered, the slowest implied timescale is in reasonable agreement ($\simeq 1-2\, \mu s$), 
-whereas larger discrepancies are observed for the higher-order timescales. The pipeline dihedrals-tICA consistenltly yelds the largest timescales, followed by distances-tICA, indicating more accurate approximation
+whereas larger discrepancies are observed for the higher-order timescales. The pipeline dihedrals-tICA consistently yelds the largest timescales, followed by distances-tICA, indicating more accurate approximation
 of the underlying continuous dynamics. Validation was performed as described in Methods comparing the autocorrelation function of the RMSD to the crystal structure computed from the trajectory and predicted by the MSMs (see Fig.\ref{fig:autocorrelation}).
 The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar results, while the pca-dihedrals performs substantially {\color{orange} ? - need uncertainties} worse.
 
