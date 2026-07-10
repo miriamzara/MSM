@@ -1,8 +1,8 @@
 # -----------------------------
 # Load native-basin ensemble
 # -----------------------------
-load ../root/movies/tica_dihedrals_3state_macro2_frames_stride_1/first_frame.pdb, ensemble
-load_traj ../root/movies/tica_dihedrals_3state_macro2_frames_stride_1/traj.dcd, ensemble
+load ../root/movies/tica_dihedrals_3state_macro0_frames_stride_1/first_frame.pdb, ensemble
+load_traj ../root/movies/tica_dihedrals_3state_macro0_frames_stride_1/traj.dcd, ensemble
 
 # -----------------------------
 # Align all ensemble states internally on the folded core
@@ -69,7 +69,7 @@ orient ens_0002
 zoom ens_0002, 4
 
 # Fast output
-png out/tica_dihedrals_macro2_frames_stride_1_fast.png, width=2200, height=1600, dpi=300, ray=0
+png out/tica_dihedrals_macro0_frames_stride_1_fast.png, width=2200, height=1600, dpi=300, ray=0
 
 # Optional final high-quality render, only after the fast version looks right
-#png out/tica_dihedrals_macro2_frames_stride_1_ray.png, width=2200, height=1600, dpi=300, ray=1
+#png out/tica_dihedrals_macro0_frames_stride_1_ray.png, width=2200, height=1600, dpi=300, ray=1
