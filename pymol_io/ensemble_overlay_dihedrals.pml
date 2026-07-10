@@ -1,10 +1,8 @@
-reinitialize
-
 # -----------------------------
 # Load native-basin ensemble
 # -----------------------------
-load ../root/movies/tica_dihedrals_macro0_frames_stride_1/first_frame.pdb, ensemble
-load_traj ../root/movies/tica_dihedrals_macro0_frames_stride_1/traj.dcd, ensemble
+load ../root/movies/tica_dihedrals_3state_macro2_frames_stride_1/first_frame.pdb, ensemble
+load_traj ../root/movies/tica_dihedrals_3state_macro2_frames_stride_1/traj.dcd, ensemble
 
 # -----------------------------
 # Align all ensemble states internally on the folded core
@@ -29,7 +27,7 @@ hide everything, all
 bg_color white
 
 # Delete some frames if too cluttered
-delete ens_0001 or ens_0002 or ens_0003 or ens_0005 or ens_0006 or ens_0007 #or ens_0008 or ens_0012
+#delete ens_0001 or ens_0002 or ens_0003 or ens_0005 or ens_0006 or ens_0007 #or ens_0008 or ens_0012
 
 # All ensemble frames: thin, transparent cyan traces
 show cartoon, ens_*
@@ -40,12 +38,11 @@ set cartoon_helix_radius, 0.2
 
 # Representative frame: darker and less transparent
 
-show cartoon, ens_0004
-color gray80, ens_0004
-set cartoon_transparency, 0.0, ens_0004
+show cartoon, ens_0002
+color gray80, ens_0002
+set cartoon_transparency, 0.0, ens_0002
 set cartoon_fancy_helices, 1
 set cartoon_helix_radius, 0.2
-
 
 # Color the terminals
 select n_terminus_ref, ens_* and resi 0
@@ -53,15 +50,11 @@ select c_terminus_ref, ens_* and resi 34
 color blue, n_terminus_ref
 color red, c_terminus_ref
 
-
-
 # Highlight key 6--17 residues on representative frame
 # numbered from 0, so i select 5--16
 
 #select key_6_17, ens_* and resi 5+16
 #color yelloworange, key_6_17
-
-
 
 # Visual cleanup
 set antialias, 2
@@ -72,11 +65,11 @@ set shininess, 15
 set orthoscopic, on
 
 # Use a consistent view
-orient ens_0004
-zoom ens_0004, 4
+orient ens_0002
+zoom ens_0002, 4
 
 # Fast output
-png out/tica_dihedrals_macro0_frames_stride_1_fast.png, width=2200, height=1600, dpi=300, ray=0
+png out/tica_dihedrals_macro2_frames_stride_1_fast.png, width=2200, height=1600, dpi=300, ray=0
 
 # Optional final high-quality render, only after the fast version looks right
-#png out/tica_dihedrals_macro0_frames_stride_1_ray.png, width=2200, height=1600, dpi=300, ray=1
+#png out/tica_dihedrals_macro2_frames_stride_1_ray.png, width=2200, height=1600, dpi=300, ray=1

@@ -55,6 +55,34 @@ color orange, aromatics
 set sphere_scale, 0.45, aromatics
 
 
+# Highlight PHI10 dihedral in this 0-based trajectory numbering:
+# residue 10 in 1-based numbering corresponds to resi 9 here.
+# PHI10 = C(8)-N(9)-CA(9)-C(9)
+select phi10_atoms, recon and ((resi 8 and name C) or (resi 9 and name N+CA+C))
+select phi10_backbone, recon and resi 8+9 and name N+CA+C+O
+show sticks, phi10_backbone
+color magenta, phi10_backbone
+set stick_radius, 0.22, phi10_backbone
+show spheres, phi10_atoms
+color magenta, phi10_atoms
+set sphere_scale, 0.38, phi10_atoms
+
+distance phi10_bond_1, recon and resi 8 and name C, recon and resi 9 and name N
+distance phi10_bond_2, recon and resi 9 and name N, recon and resi 9 and name CA
+distance phi10_bond_3, recon and resi 9 and name CA, recon and resi 9 and name C
+hide labels, phi10_bond_*
+color magenta, phi10_bond_*
+set dash_width, 2.5, phi10_bond_*
+set dash_gap, 0.15, phi10_bond_*
+
+dihedral phi10_dihedral, recon and resi 8 and name C, recon and resi 9 and name N, recon and resi 9 and name CA, recon and resi 9 and name C
+color magenta, phi10_dihedral
+set dash_width, 2.5, phi10_dihedral
+hide labels, phi10_dihedral
+
+label recon and resi 9 and name CA, "phi10"
+set label_color, magenta, recon and resi 9 and name CA
+
 
 zoom recon
 orient recon
