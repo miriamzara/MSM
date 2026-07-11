@@ -110,24 +110,27 @@ The pipeline is standard in the field. Specifically, the implied timescale test 
 Therefore, this section will mostly focus on the first two steps, which are the ones that were varied in this work. MSMs construction at its core means to convert a high-dimensional continuous trajectory into a discrete-time, discrete-state one, while preserving the most information.
 The first two steps of the pipeline, feature selection and dimensionality reduction, are used to compress the raw MD data in a space that is much lower dimensional, so that clustering becomes feasible.
 Clustering algorithms most often rely on Euclidean distance, so it is important that conformations that interconvert rapidly are mapped to nearby points in the reduced space, and viceversa. Otherwise Markov property could be violated. These requirements make the choice of features and dimensionality reduction method a crucial step in the MSM pipeline.
+\vspace{0.2em}
 \newline \textit{Feature Selection}
 I employed as features the two sets of internal coordinates provided by Nagel \textit{et al.}  previously described. As suggested by the authors, I applied a gaussian low-pass filter with $\sigma = 2\,ns$ to the time series of each feature. This is expected to improve the MSM construction by removing high frequency recrossings between states.
 \newline \textit{Dimensionality reduction}
 I compared two classical approaches: principal component analysis (PCA) and time-lagged independent component analysis (tICA) (see Supplementary Methods \ref{subsec:SI_dimred} for details).
 Both methods find linear combinations of the original features. However, PCA identifies directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation at a fixed lag time $\tau_{tICA}$ which must be provided as a parameter.  Therefore, the tICA coordinates are expected to 
-outperform PCA in connecting the notion of "kinetic distance" and euclidean distance in reduced space. Overall, four MSMs are built, combining the two feature sets and the two dimensionality reduction methods: tica-distances, tica-dihedrals, pca-distances and pca-dihedrals.
+outperform PCA in connecting the notion of "kinetic distance" and euclidean distance in reduced space. Overall, four MSMs are built, combining the two feature sets and the two dimensionality reduction methods: tica-distances, tica-dihedrals, pca-distances and pca-dihedrals. For tICA, lag times between $100$ and $1000$ frames (approximately $20-200$ ns) were considered, since HP$35$ is known to fold at the microsecond timescale, 
+the autocorrelation  be inspected at times shorter than this timescale.
 \vspace{0.1em}\newline
 \textit{Clustering:}
 The reduced coordinates were clustered using k-means a variable number of clusters ($30, 50, 100$), with kmeans++ initialization and $100$ max iterations. 
+\vspace{0.1em}\newline
 \textit{Estimation of transition matrices:}
-Transition matrices were computed with a maximum-likelihood estimator with a "sliding window" scheme  \cite[Chap. 4.1]{thebible} and enforced detailed balance.
-The largest connected component was taken as the state space of the MSM.
-
+Transition matrices are computed with a maximum-likelihood estimator with a "sliding window" scheme  \cite[Chap. 4.1]{thebible} and enforced detailed balance.
+The largest connected component is taken as the state space of the MSM.
+\vspace{0.1em}\newline
+\textit{CK test:} was quickly performed with the built-in Deeptime method and qualitatively evaluated.
 %
 %
 \subsection{Methods for MSM analysis}
-The spectral analysis of the transition matrix provides a natural framework to characterize the dynamical processes captured by the MSM in terms of eigenvalues and eigenvectors. Eigenvalues are related to the relaxation timescales of the system, while eigenvectors encode the states participating in each relaxation process (see \ref{suppsec:markov_theory}).
-PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible} is a systematic algorithm to identify metastable states in the MSM by partitioning the microstates based on the signs of the eigenvector components associated with the slowest relaxation processes. \textcolor{blue}{Add other things you use}
+\textit{Spectral Analysis:} I inspected the implied timescales of the MSMs and the sign patterns of the corresponding eigenvalues. I employed PCCA++ (Perron-Cluster Cluster Analysis) \cite[Ch. 2.5.1 and 2.5.2]{thebible} to define macrostates, using the maximal timescale gap as a criterion for choosing the number of macrostates.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -138,30 +141,37 @@ PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible} is a systematic algorithm to identif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \subsection{Construction of the MSMs} 
+
 \begin{figure*}[ht]
     \centering
-    \includegraphics[width=0.7\linewidth]{figures/implied_timescales_report.pdf}
+    \includegraphics[width =\linewidth]{figures/free_energy_projection_3d_report.pdf}
+    \caption{\small Add caption. Although free energy projections must be taken with care and can be potentially misleading, it is evident that the four pipelines reconstruct landscapes that look very different. In particular, dihedrals identify two global minima, while distances identify only one. 
+tICA also produces much higher gaps in the free energy between what should represent the folded and unfolded basin and both tica show a basin that has low free energy and is isolated from the main funnel.}
+    \label{fig:free_energy_surfaces}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{figures/implied_timescales_report.pdf}
     \caption{\footnotesize Results of the MSM construction pipeline. \textbf{Middle left.}
      First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
         The shaded region corresponds to $t_i \leq \tau$, where $t_i$ is the implied timescale and $\tau$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
         as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step.}
     \label{fig:msm_results}
 \end{figure*}
-Both PCA and tICA require selecting the number of retained components, while tICA additionally requires specifying a lag time. To guide this choice, I use this heuristic criteria:
-the reduced coordinates were evaluated through i) their free-energy profiles and ii) projected time series. The rationale behind this analysis is that coordinates relevant to the folding process should separate distinct metastable regions
-and therefore display multimodal free-energy profiles. Furthermore, if a coordinate captures transitions between metastable states, its time series should exhibit relatively long-lived plateaus separated by rapid transitions.
-For tICA, lag times between $100$ and $1000$ frames (approximately $20-200$ ns) were considered, since HP$35$ is known to fold at the microsecond timescale, 
-the autocorrelation  be inspected at times shorter than this timescale. The tICA projections obtained using lag times between $100$ and $1000$ frames ($20-200$ ns) looked qualitatively similar. I selected a tICA lag time of $1000$ frames ($200$ ns).
-Overall, dihedral-angle features appear to retain a richer kinetic structure than pairwise-distance features. In the tICA representation, more than seven dihedral components displayed bimodal or multi-modal free-energy profiles and transition-like time series, whereas distance-based features exhibited such behaviour 
-only for approximately the first three components (see Supp. Figure \ref{suppfig:dimred_figure}).  For PCA, the same visual analysis suggests generally worse performance compared to tICA, with fewer components displaying transition-like timeseries and bimodal free energy profiles.
-I use the following number of components: $7$ for tica-dihedrals, $5$ for the others. From a projection onto the first $2D$ components made just for visualization, it appears that all four reduced representations are able to separate the folded and unfolded configurations, at varying degree (see Fig.\ref{fig:msm_results}).
-The implied timescale test indicates approximate convergence of the slowest dynamical processesfor MSM lagtimes in the range of $20$-$50,\mathrm{ns}$ as shown in Fig.\ref{fig:msm_results}.
-The estimated timescales depend much more strongly on the choice of feature set and dimensionality reduction method than on the number of microstates
-used in the discretization (here, tried as $100, 200$ and $500$). For all four feature-reduction pipelines considered, the slowest implied timescale is in reasonable agreement ($\simeq 1-2\, \mu s$), 
-whereas larger discrepancies are observed for the higher-order timescales. The pipeline dihedrals-tICA consistently yelds the largest timescales, followed by distances-tICA, indicating more accurate approximation
-of the underlying continuous dynamics. Validation was performed as described in Methods comparing the autocorrelation function of the RMSD to the crystal structure computed from the trajectory and predicted by the MSMs (see Fig.\ref{fig:autocorrelation}).
-The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar results, while the pca-dihedrals performs substantially {\color{orange} ? - need uncertainties} worse.
-
+\textit{Dimensionality reduction} To guide the choice of the number of components to retain both in tICA and PCA I looked at their free-energy profiles and the projected time series (see Supp. Figure \ref{suppfig:dimred_figure}). The rationale is that coordinates relevant to the folding process should separate distinct metastable regions
+and therefore display multimodal free-energy profiles. Furthermore, if a coordinate captures transitions between metastable states, its time series should exhibit relatively long-lived plateaus separated by rapid transitions. Using this heuristics, I retained $7$ components for the tica-dihedrals pipeline and $5$ for the other three.
+I checked robustness of the first tICA components with respect to the variation of $\tau_{tICA}$ and then I fixed it as $\tau_{tICA} = 20\,ns$.
+I show the free energy surface projected onto the first $2D$ components \ref{fig:free_energy_surfaces}.
+\vspace*{0.1em}\newline
+\textit{Clustering and selection of Markov lagtime}
+I performed the choice of the number of clusters and the choice of MSM lagtime simultaneously because these are strongly interdependent. Here there is a tradeoff: more cluster means more resolution, which
+is expected to improve Markovianity (i.e. make the implied timescales converge at smaller lags), but also it means less statistics per cluster (i.e. less accurate estimation of the transition matrix). Also 
+it must be checked that the resulting microstate network is strongly connected, or at least that the largest connected component contains the vast majority of the trajectory frames. Here if the lagtime is too long, some microstates become disconnected. Also if the number of clusters is too high, some microstates become disconnected.
+I tried with $30, 50, 100$ clusters and lagtimes between $10$ and $100$ ns. I report the results of the implied timescale test in Fig. \ref{fig:msm_results} and the corresponding populations of the largest connected component in Supp. Fig \ref{suppfig:largest_connected_component_vs_lag}. I selected $50$ clusters and a lagtime of $50\,ns$ for all four pipelines, as this seemed the best compromise between resolution, Markovianity and connectivity.
+Importantly, the slowest timescale is approximately converged at this lagtime for all four pipelines and in the correct order of magnitude ($\mu s$), which is consistent with the known folding timescale of HP35. Also it can be noticed that
+the implied timescales depend much more strongly on the pipeline (features+dimensionality reduction) than on the number of clusters, and the PCA-pipelines give lower timescales, which suggests that they are less accurate in approximating the underlying continuous dynamics \textcolor{blue}{add citation about variational principle}.
+A quick validation with the CK test was performed (Fig. \ref{suppfig:ck_test}) which show reasonable behaviour for all four pipelines.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\
@@ -173,8 +183,13 @@ The dihedrals-tICA, distance-tICA and distances-PCA pipeline yield similar resul
     \label{fig:timescales_spectra}
 \end{figure}
 
-The timescale spectra of the four models Fig. \ref{fig:timescales_spectra} highlight some differences between the four models. The two PCA-based models have a clear gap between the first and second timescale, suggesting that a two-state model is a good approximation of the dynamics. Instead, the two
+The timescale spectra of the four models Fig. \ref{fig:timescales_spectra} highlight some differences between the four models. For PCA models the largest gap is between the first and second timescale, while for tICA models the largest gap is between the second and third timescale.
+The two PCA-based models have a clear gap between the first and second timescale, suggesting that a two-state model is a good approximation of the dynamics. Instead, the two
 tICA-based models display the largest gap between the second and the third timescale, suggesting that a three-state model would be a better approximation. It is possible that the tICA models are able to resolve one of the two basins in more details, while the PCA models cannot, but this hypotesis needs to be checked. 
+In the remaining, I will first analyze the two-state PCCA++ models. This will allow to check whether the two partitions are consistent across models, interpretable, and if the folding time estimate is roughly correct. I will compare to the reference simulation and to the reference MSM.
+Then, I will investigate which is the nature of the third state identified by tICA models, and whether it is consistent across the two tICA models and interpretable. Finally, I will compare the folding mechanism suggested by the four models with the one reported in the reference \cite{hierarchical_hp35}.
+
+
 \subsubsection{Two-state PCCA++}
 As a starting point, I will consider a two-state model for all four MSMs, and I will check whether the two macrostates identified by PCCA++ are consistent across models and interpretable.
 I expect that the slowest timescale corresponds to the folding-unfolding process, and therefore that the two macrostates correspond to the folded and unfolded basins. A first qualitative
