@@ -86,7 +86,7 @@ in terms of i) accuracy of the estimated folding timescale, ii) consistency of a
     \centering
     \includegraphics[width=0.4\linewidth]{figures/aromatic_structure.png}
     \includegraphics[width=0.5\linewidth]{figures/pdb_contact_map.png}
-\caption{\small \textbf{Crystal structure and rel. contact map of HP35} (PDB: 2F4K \cite{PDB}). The folded structure consists of three $\alpha$-helices  (3-10), (14-19), and (22-32), connected by two loops. Highlighted in orange are aromatic residues Phe6, Phe10, Phe17, whose interactions contribute to the formation of the hydrophobic core. Visualization with PyMOL \cite{pymol}.}
+\caption{\small \textbf{Crystal structure and relative contact map of HP35} (PDB: 2F4K \cite{PDB}). Left: The folded structure consists of three $\alpha$-helices  (3-10), (14-19), and (22-32), connected by two loops. Highlighted in orange are aromatic residues Phe6, Phe10, Phe17, whose interactions contribute to the formation of the hydrophobic core. Visualization with PyMOL \cite{pymol}. Right: contact map computed with a distance cutoff of $4.5\, A$.}
     \label{fig:hp35_structure}
 \end{figure}
 This work is based on a single $305\,\mu\mathrm{s}$ MD trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
@@ -167,7 +167,9 @@ I show the free energy surface projected onto the first $2D$ components \ref{fig
 \textit{Clustering and selection of Markov lagtime}
 I performed the choice of the number of clusters and the choice of MSM lagtime simultaneously because these are strongly interdependent. Here there is a tradeoff: more cluster means more resolution, which
 is expected to improve Markovianity (i.e. make the implied timescales converge at smaller lags), but also it means less statistics per cluster (i.e. less accurate estimation of the transition matrix). Also 
-it must be checked that the resulting microstate network is strongly connected, or at least that the largest connected component contains the vast majority of the trajectory frames. Here if the lagtime is too long, some microstates become disconnected. Also if the number of clusters is too high, some microstates become disconnected.
+it must be checked that the resulting microstate network is strongly connected, or at least that the largest connected component contains the vast majority of the trajectory frames. Here if the lagtime is too long, some microstates become disconnected. Also if the number of clusters is too high, some microstates become disconnected. Finally, obviously, the lagtime depends on the process of interest: here, it is the folding, and I know from previous work that this happens
+on the microsecond timescale. Therefore I will try to have a lagtime that is significantly shorter than that, otherwise the folding process may be resolved but the details of it will be lost. With all these considerations in mind, 
+the implied timescales test is alone not sufficient to select the lagtime, and if the convergence is enough remains to be decided rather qualitatively.
 I tried with $30, 50, 100$ clusters and lagtimes between $10$ and $100$ ns. I report the results of the implied timescale test in Fig. \ref{fig:msm_results} and the corresponding populations of the largest connected component in Supp. Fig \ref{suppfig:largest_connected_component_vs_lag}. I selected $50$ clusters and a lagtime of $50\,ns$ for all four pipelines, as this seemed the best compromise between resolution, Markovianity and connectivity.
 Importantly, the slowest timescale is approximately converged at this lagtime for all four pipelines and in the correct order of magnitude ($\mu s$), which is consistent with the known folding timescale of HP35. Also it can be noticed that
 the implied timescales depend much more strongly on the pipeline (features+dimensionality reduction) than on the number of clusters, and the PCA-pipelines give lower timescales, which suggests that they are less accurate in approximating the underlying continuous dynamics \textcolor{blue}{add citation about variational principle}.
@@ -184,8 +186,11 @@ A quick validation with the CK test was performed (Fig. \ref{suppfig:ck_test}) w
 \end{figure}
 
 The timescale spectra of the four models Fig. \ref{fig:timescales_spectra} highlight some differences between the four models. For PCA models the largest gap is between the first and second timescale, while for tICA models the largest gap is between the second and third timescale.
-The two PCA-based models have a clear gap between the first and second timescale, suggesting that a two-state model is a good approximation of the dynamics. Instead, the two
-tICA-based models display the largest gap between the second and the third timescale, suggesting that a three-state model would be a better approximation. It is possible that the tICA models are able to resolve one of the two basins in more details, while the PCA models cannot, but this hypotesis needs to be checked. 
+The two PCA-based models have a clear gap between the first and second timescale, suggesting that the Markov chain mainly exchanges probability between two metastable basins, which I suspect can be largely interpreted as the unfolded and folded basin.
+tICA-based models have timescales that are less sharply separated, suggesting that the two state picture is not as good an approximation.
+The picture suggested by the tICA models appears more reasonable because this is an ultra fast folding protein simulated near to its melting temperature, so I dont expect deep wells in the free energy landscape (which would correspond to large gap between the first and remaining timescales, indicating separation of timescales between the folding-unfolding process and all other processes). 
+
+In particular, the tICA models have the largest gap between the second and the third timescale, suggesting that a three-state model would be a better approximation. It is possible that the tICA models are able to resolve one of the two basins in more details, while the PCA models cannot, but this hypotesis needs to be checked. 
 In the remaining, I will first analyze the two-state PCCA++ models. This will allow to check whether the two partitions are consistent across models, interpretable, and if the folding time estimate is roughly correct. I will compare to the reference simulation and to the reference MSM.
 Then, I will investigate which is the nature of the third state identified by tICA models, and whether it is consistent across the two tICA models and interpretable. Finally, I will compare the folding mechanism suggested by the four models with the one reported in the reference \cite{hierarchical_hp35}.
 
@@ -206,19 +211,19 @@ P(S_i) = \frac{1}{N} \sum_{j=1}^{N} P(x_j \in S_i) \cdot \pi_j
 $$
 where $N$ is the number of microstates, $P(x_j \in S_i)$ is the fuzzy membership probability of microstate $j$ to macrostate $i$, and $\pi_j$ is the stationary probability of microstate $j$.
 The results are reported in Table \ref{tab:pcca_two_state_populations} together with the estimated free energy difference. 
-Estimated populations are in reasonable agreement between the models, and the estimated free energy differences are reasonably consistent with the reference value of $-0.6\pm 0.2$ kcal/mol reported in \textit{Piana et. al.} \cite{Piana2012}. 
+Estimated populations are in reasonable agreement between the models, and the estimated free energy differences are roughly consistent with the reference value of $-0.6\pm 0.2$ kcal/mol reported in \textit{Piana et. al.} \cite{Piana2012} (within two standard deviations). 
 
-\begin{table}[h!]
+\begin{table}
 \caption{Coarse-grained stationary populations of the two PCCA macrostates for each MSM at the common two-state resolution. Relative free energies were computed as $\Delta G_{1-0} = -k_B T \ln[P(S_1)/P(S_0)]$ with $T=360$ K.}
 \label{tab:pcca_two_state_populations}
 \begin{tabular}{lccc}
 \hline
 Model & $P(S_0)$ & $P(S_1)$ & $\Delta G_{1-0}$ (kcal mol$^{-1}$) \\
 \hline
-tica\_distances & 0.215 & 0.785 & -0.928 \\
-pca\_distances & 0.299 & 0.701 & -0.609 \\
-tica\_dihedrals & 0.223 & 0.777 & -0.891 \\
-pca\_dihedrals & 0.332 & 0.668 & -0.500 \\
+tica\_distances & 0.230 & 0.770 & -0.863 \\
+pca\_distances & 0.303 & 0.697 & -0.596 \\
+tica\_dihedrals & 0.218 & 0.782 & -0.915 \\
+pca\_dihedrals & 0.358 & 0.642 & -0.417 \\
 \hline
 \end{tabular}
 \end{table}
@@ -226,7 +231,7 @@ pca\_dihedrals & 0.332 & 0.668 & -0.500 \\
 To assess with certainty that macrostate S$1$ is identificable with the folded basin, I proceed to structural caracterization. To avoid biasing the analysis by boundary-like frames, I select only the frames that are assigned to the native basin by all four models. These are $67\%$ of total simulation frames.
 Possibly the easiest caracterization of the native basin is in terms of contacts. I compute statistics  of distances for all contacts in the crystal structure (\texttt{hp.crystaldist}), and I compare the distributions in the native basin with those in the rest of the trajectory.
 I define a simple, heuristic score to quantify the importance of each contact for discrimination of the native basin. The score is based on the shift in the median and the interquartile range (IQR) of the distance distributions in the native basin and in the rest of the trajectory.
-$$
+\begin{equation*}
 d^{\mathrm{robust}}_{ij}
 =
 \frac{
@@ -236,70 +241,68 @@ d^{\mathrm{robust}}_{ij}
 }{
 \mathrm{IQR}_{\mathrm{pooled}}
 }
-$$
+\end{equation*}
 
 This expresses that a contact is important for differentiating the basin if its distance distribution is substantially shifted toward shorter distances in the folded basin and substantially more narrow in the folded basin.
-The $10$ most important contacts according to this score are reported in Supp. Table \ref{tab:top10_folded_contacts}. A visual representation of the most important contacts is shown in Fig. \ref{fig:contact_map_folded_vs_other}, together with the visualization of a representative set of structures.
+The $10$ most important contacts according to this score are reported in Supp. Table \ref{tab:top10_folded_contacts}. A visual representation of the most important contacts is shown in Fig. \ref{suppfig:contact_map_folded_vs_other}, together with the visualization of a representative set of structures.
 It is evident that the most important contacts for discrimination of the folded basin are those that form the hydrophobic core, in particular a set of contacts in the neighbourhood of Phe6 and Phe10. Instead,
 the contacts defining the three helices are the least important, which is consistent with the fact that the helices are formed in both folded and unfolded configurations, while the hydrophobic core is only formed in the folded basin. 
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = 0.8\linewidth]{figures/folded_basin_contact_map_report.pdf}
-    \includegraphics[width = \linewidth]{figures/native_basin_ensemble_overlay_ray.png}
-    \caption{Caracterization of consensus frames. Top: contact map of the crystal structure (PDB 2F4K) where the color scale indicates the importance of each contact for discrimination of the folded basin as explained in the text.
-    Bottom: overlay of a random sample of $5$ structures from the consensus folded basin. Visualization was made with PyMOL \cite{pymol}.}
-    \label{fig:contact_map_folded_vs_other}
-\end{figure}
 
 To conclude this analysis I will provide an indicative estimate the folding time as the average waiting time in the folded basin. This is only indicative, as for an accurate estimate of the folding time one should consider the full microstate model and use transition path theory, which is not done here.
 A first rough estimate can be obtained from the transition matrix of the coarse-grained PCCA++ model:
 
-$$
-\langle t_{\mathrm{folded}} \rangle = \frac{\tau}{T_{01}},
-$$
+\begin{equation*}
+    \langle t_{\mathrm{folded}} \rangle = \frac{\tau}{T_{01}},
+\end{equation*}
 
 where $T_{01}$ is the transition probability from macrostate $S_0$ to macrostate $S_1$ and $\tau$ is the lagtime of the MSM. Results are reported in Table \ref{tab:average_waiting_times}.
 
-\begin{table}[h!]
+\begin{table}
 \caption{MSM-implied average waiting times in the two PCCA macrostates. Waiting times were computed from the coarse-grained transition matrix as $\langle t_i \rangle = \tau/(1-T_{ii})$.}
 \label{tab:average_waiting_times}
 \begin{tabular}{lrrrr}
 \hline
 Model & $T_{00}$ & $T_{11}$ & $\langle t_{S0} \rangle$ [$\mu$s] & $\langle t_{S1} \rangle$ [$\mu$s] \\
 \hline
-tica\_distances & 0.92 & 0.98 & 2.42 & 8.86 \\
-pca\_distances & 0.92 & 0.97 & 2.53 & 5.92 \\
-tica\_dihedrals & 0.92 & 0.98 & 2.46 & 8.55 \\
-pca\_dihedrals & 0.90 & 0.95 & 2.00 & 4.02 \\
+tica\_distances & 0.97 & 0.99 & 1.59 & 5.31 \\
+pca\_distances & 0.97 & 0.99 & 1.93 & 4.44 \\
+tica\_dihedrals & 0.97 & 0.99 & 1.47 & 5.28 \\
+pca\_dihedrals & 0.96 & 0.98 & 1.41 & 2.52 \\
 \hline
 \end{tabular}
-\end{table}
-
-A second rough estimate can be obtained from the trajectory by computing the average waiting time in the folded basin, which is defined as the average time between two consecutive transitions from the unfolded to the folded basin. The results are reported in Table \ref{tab:trajectory_folding_times}. 
-
-
-\begin{table}[h!]
+\vspace*{1em}
 \caption{Empirical unfolded-state residence times computed from the cored macrostate trajectory. $N_{\mathrm{visits}}$ is the number of unfolded visits observed in the trajectory.}
 \label{tab:empirical_unfolded_residence_times}
 \begin{tabular}{lrrr}
 \hline
 Model & $N_{\mathrm{visits}}$ & Mean [$\mu$s] & Median [$\mu$s] \\
 \hline
-tica\_distances & 24 & 3.287 & 2.733 \\
-pca\_distances & 29 & 3.307 & 1.954 \\
-tica\_dihedrals & 21 & 3.856 & 2.540 \\
-pca\_dihedrals & 23 & 3.660 & 2.789 \\
+tica\_distances & 35 & 2.712 & 1.725 \\
+pca\_distances & 37 & 2.665 & 1.703 \\
+tica\_dihedrals & 46 & 1.650 & 1.014 \\
+pca\_dihedrals & 42 & 2.287 & 1.192 \\
 \hline
 \end{tabular}
 \end{table}
-
-The two estimates are in reasonable agreement, and they are also consistent with the reference value of $3.2\pm 0.6\,\mu s$ reported in \cite{Piana2012}.
+A second rough estimate can be obtained from the trajectory by computing the average waiting time in the folded basin, which is defined as the average time between two consecutive transitions from the unfolded to the folded basin. The results are reported in Table \ref{tab:empirical_unfolded_residence_times}. 
+The two estimates are in reasonable agreement, and they are also consistent with the reference value of $3.2\pm 0.6\,\mu s$ reported in \cite{Piana2012}. \textcolor{blue}{FIX: they are much shorter than the reference value. Its because the markov lag is small and the two state approcimation doesnt work well, especially for dihedrals. With a lag of 200 ns I got much more consisten results, but thats ok.}
 
 
 \subsubsection{Beyond two states: three-state PCCA++ on tICA models}
 The timescale spectra of tICA models \ref{fig:timescales_spectra} suggest existence of a third metastable state, which is not resolved by the PCA models. I therefore apply PCCA++ with $3$ macrostates to the two tICA models to better understand the nature of this hypotetical third state. 
 A visual inspection of the second right eigenvector of the tICA models (see Supp. Figure \ref{suppfig:tica_second_eigvec}) suggests that the process may describe a relaxation within the unfolded basin. As done before, I compute
 populations of the three macrostates and frame overlap.
+I wish to understand first what this is and second if it corresponds to something that was found by \cite{hierarchical_hp35}.
+\vspace*{0.1em}\newline
+\textit{tICA-distances:} Comparison of dihedrals and helix contacts shown in  \ref{suppfig:threestate_distances_comparison}.macrostate $S_0$ is a lowly populated ($\sim 1\%$) unfolded state where helix $3$ is formed, while helix $1$ is completely extended (see Figure \ref{fig:threestate_distances_macro0}). Key structural descriptors that distinguish this macrostate from the others are
+the dihedral angles of residues $Phe6, Lys7, Gly15$ which populate the $\beta$-region of the Ramachandran plot in $S0$, while they populate both the $\alpha$ and the $\beta$ region ins $S1$ and only the $\alpha_R$ region in $S2$.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/tica_3state_macro0.png}
+    \caption{\small Representative structure of macrostate $S_0$ of the tICA-distances three-state PCCA++ model. Helix $3$ is formed, while helix $1$ is completely extended.}
+    \label{fig:threestate_distances_macro0}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %

@@ -85,20 +85,31 @@ The PCA projections show mostly unimodal one-dimensional free-energy profiles an
 % ------------ Jaccard index two state model overlap -------------------------
 \begin{table}[h!]
 \caption{Pairwise Jaccard overlaps between high-confidence PCCA regions defined from fuzzy membership probabilities. Core regions were defined as $P(S_1)<0.4$ for basin $S_0$ and $P(S_1)>0.6$ for basin $S_1$, while ambiguous frames were defined by $0.4<P(S_1)<0.6$.}
-\label{supptab:jaccard_core_overlap}
 \begin{tabular}{lccc}
-\hline
+\toprule
 Model pair & Core overlap $S_0$ & Core overlap $S_1$ & Ambiguous overlap \\
 \midrule
-tICA distances -- PCA distances & 0.836 & 0.990 & 0.181 \\
-tICA distances -- tICA dihedrals & 0.772 & 0.979 & 0.368 \\
-tICA distances -- PCA dihedrals & 0.795 & 0.955 & 0.064 \\
-PCA distances -- tICA dihedrals & 0.729 & 0.977 & 0.090 \\
-PCA distances -- PCA dihedrals & 0.887 & 0.953 & 0.039 \\
-tICA dihedrals -- PCA dihedrals & 0.746 & 0.957 & 0.113 \\
-\hline
+tICA distances -- PCA distances & 0.877 & 0.991 & 0.000 \\
+tICA distances -- tICA dihedrals & 0.348 & 0.961 & 0.131 \\
+tICA distances -- PCA dihedrals & 0.852 & 0.965 & 0.020 \\
+PCA distances -- tICA dihedrals & 0.312 & 0.962 & 0.000 \\
+PCA distances -- PCA dihedrals & 0.928 & 0.965 & 0.000 \\
+tICA dihedrals -- PCA dihedrals & 0.319 & 0.952 & 0.016 \\
+\bottomrule
 \end{tabular}
+\label{supptab:jaccard_core_overlap}
 \end{table}
+
+
+% ----- Folded Basin Contact Map and Representative Structures
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = 0.8\linewidth]{figures/folded_basin_contact_map_report.pdf}
+    \includegraphics[width = \linewidth]{figures/native_basin_ensemble_overlay_ray.png}
+    \caption{Caracterization of consensus frames. Top: contact map of the crystal structure (PDB 2F4K) where the color scale indicates the importance of each contact for discrimination of the folded basin as explained in the text.
+    Bottom: overlay of a random sample of $5$ structures from the consensus folded basin. Visualization was made with PyMOL \cite{pymol}.}
+    \label{suppfig:contact_map_folded_vs_other}
+\end{figure}
 
 
 % ------ Top ten contacts distinguishing folded basin
@@ -133,3 +144,13 @@ Contact & $\tilde r_\mathrm{folded}$ & $\tilde r_\mathrm{other}$ & $\mathrm{IQR}
     \caption{\footnotesize {First two non-trivial eigenvectors of the tICA-based MSMs projected onto the first two tICA coordinates.}}
     \label{suppfig:tica_second_eigvec}
 \end{figure}
+
+
+
+
+% ------------- Three state tica-distances -------------------------
+\begin{figure*}[ht]
+    \includegraphics[width=0.7\linewidth]{figures/threestate_tica_helix_differences.pdf}
+    \includegraphics[width=0.2\linewidth]{figures/tica_distances_ramachandran.pdf}
+    \label{suppfig:threestate_distances_comparison}
+\end{figure*}

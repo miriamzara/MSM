@@ -3,8 +3,8 @@ reinitialize
 # -----------------------------
 # Load native-basin ensemble
 # -----------------------------
-load ../root/movies/tica_distances_3state_macro2_frames_stride_1/first_frame.pdb, ensemble
-load_traj ../root/movies/tica_distances_3state_macro2_frames_stride_1/traj.dcd, ensemble
+load ../root/movies/tica_distances_3state_macro0_frames_stride_1/first_frame.pdb, ensemble
+load_traj ../root/movies/tica_distances_3state_macro0_frames_stride_1/traj.dcd, ensemble
 
 # -----------------------------
 # Align all ensemble states internally on the folded core
@@ -29,7 +29,7 @@ hide everything, all
 bg_color white
 
 # Delete some frames if too cluttered
-delete ens_0005 or ens_0006 or ens_0007 or ens_0008 or ens_0009 or ens_0010 or ens_0011 or ens_0012
+#delete ens_0005 or ens_0006 or ens_0007 or ens_0008 or ens_0009 or ens_0010 or ens_0011 or ens_0012
 
 # All ensemble frames: thin, transparent cyan traces
 show cartoon, ens_*
@@ -52,6 +52,13 @@ select c_terminus_ref, ens_* and resi 34
 color blue, n_terminus_ref
 color red, c_terminus_ref
 
+# color the key residues (6,7, 15)
+select res_6, ens_* and resi 5
+select res_7, ens_* and resi 6
+select res_15, ens_* and resi 14
+color yellow, res_6
+color yellow, res_7
+color yellow, res_15
 
 
 # Highlight key 6--17 residues on representative frame
@@ -75,7 +82,7 @@ orient ens_0004
 zoom ens_0004, 4
 
 # Fast output
-png out/tica_distances_macro2_frames_stride_1_fast.png, width=2200, height=1600, dpi=300, ray=0
+png out/tica_distances_macro0_frames_stride_1_fast.png, width=2200, height=1600, dpi=300, ray=0
 
 # Optional final high-quality render, only after the fast version looks right
-#png out/tica_distances_macro2_frames_stride_1_ray.png, width=2200, height=1600, dpi=300, ray=1
+#png out/tica_distances_macro0_frames_stride_1_ray.png, width=2200, height=1600, dpi=300, ray=1
