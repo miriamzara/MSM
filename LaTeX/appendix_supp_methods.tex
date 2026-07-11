@@ -343,3 +343,9 @@ and are related through the equilibrium distribution.
 The signs of eigenvectors components provide a criterion for defining partitions in the microstate model. This is systematically done through the algorithm PCCA++ \cite[Ch. 2.5.1 and 2.5.2]{thebible}. I use this method to connect
 the slowest exchange modes in the markov chain to the thermodynamics of the protein, although the two are not strictly the same thing. 
 }
+\vspace{0.1em} \newline \textit{Lagtime choice:}
+Estimation of the transition matrix requires specification of the lag time $\tau$ ($= 1, 2, 3\cdots$ in number of frames) at which to count transitions between states. Choice of lag time is done through the
+timescale convergence test. Briefly (see Supplementary Methods \ref{suppsec:markov_theory} for more details), the transition matrix $T(\tau)$  is estimated at different lag times and its eigenvalues are used to compute the implied timescales $t_i(\tau)$, which are then plotted as a function of $\tau$. 
+If the Markovian assumption is valid, the implied timescales should be approximately constant for sufficiently large $\tau$. The lag time is then selected as the minimum value in the region of convergence, as this choice minimizes the loss of temporal resolution while ensuring that the process of interest is approximately Markovian\cite[Ch. 4.7]{thebible}.
+\vspace{0.1em} \newline \textit{MSM validation:} to validate the model against the original trajectory, I compare the autocorrelation function of the root mean square deviation (RMSD) to the crystal structure computed from the trajectory (\texttt{hp35.crystaldist}) and predicted by the MSMs (see \ref{suppsec:markov_theory}).
+%

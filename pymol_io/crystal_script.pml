@@ -19,31 +19,31 @@ set label_position, [1.5, 2, 1.5]
 set cartoon_transparency, 0.1
 
 # Highlight aromatic side chains
-select aromatics, pdb2f4k and resn PHE+TYR+TRP+HIS and not name N+C+O+CA
+select aromatics, pdb2f4k and resi 6+10+17 and not name N+C+O+CA
 show sticks, aromatics
 color orange, aromatics
 set stick_radius, 0.28, aromatics
 
 
 # Highlight mutated residues (Lys24Nle, Lys29Nle)
-select norleucine, pdb2f4k and resn NLE and not name N+C+O+CA
-show sticks, norleucine
-color black, norleucine
-set stick_radius, 0.1, norleucine
+#select norleucine, pdb2f4k and resn NLE and not name N+C+O+CA
+#show sticks, norleucine
+#color black, norleucine
+#set stick_radius, 0.1, norleucine
 
 
 
 # Optional: show full aromatic residues slightly, including CA-CB connection
-select aromatic_residues, pdb2f4k and resn PHE+TYR+TRP
+select aromatic_residues, pdb2f4k and resi 6+10+17 and not name N+C+O
 show sticks, aromatic_residues and not name N+C+O
 set stick_radius, 0.22, aromatic_residues and not name N+C+O
 
 
 # Labels for aromatic and NLE residues
-select special_labels, pdb2f4k and name CA and (resn PHE+TYR+TRP+HIS)
-label special_labels, resi
-set label_size, 18
-set label_color, black
+#select special_labels, pdb2f4k and name CA and (resn PHE+TYR+TRP+HIS)
+#label special_labels, resi
+#set label_size, 18
+#set label_color, black
 
 
 select chain_labels, pdb2f4k and name CA and resi 1+35

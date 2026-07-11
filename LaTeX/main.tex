@@ -60,21 +60,21 @@ Course Instructor: Prof.Dr. Monika Fuxreiter, University of Padova \\
 
 \section{Introduction}
 Biomolecules are dynamical systems that explore complex ensembles of conformations at finite temperature. Molecular dynamics (MD) simulations can provide atomic-level trajectories of these processes, but the resulting data are often too high dimensional to interpret directly. Coarse-grained models are therefore routinely used to facilitate interpretation of simulation data.
-In a Markov State Model (MSM), the continuous conformational dynamics is approximated by a Markov chain, which is a stochastic process describing discrete transitions between a finite number of discrete states.  This makes it possible to leverage a well developed mathematical formalism 
-to gain insight on both thermodynamics properties (e.g. free energy basins) and kinetic properties (e.g. transition rates and transition pathways) \cite{thebible}.
+In a Markov State Model (MSM), the continuous conformational dynamics is approximated by a Markov chain. This makes it possible to leverage a well developed mathematical formalism 
+to gain insight on both thermodynamics and kinetic properties of the biomolecule \cite{thebible}.
 However, coarse-graining always involves a trade-off between interpretability and information loss. In the case of MSMs, the modelling pipeline includes several steps, such as feature selection, dimensionality reduction, clustering,  and a general optimization criterion is not always available. Different pipelines may result in different models, which raises
-the question about which conclusions are physically meaningful and which are to be considered as artefacts.
+the question about which conclusions are physically meaningful.
 
-In this project, this question is addressed through a benchmark study on a simple protein system: the villin headpiece subdomain HP35 Lys24-Nle/Lys29-Nle mutant (Fig.\ref{fig:hp35_structure}). 
-HP35 is a short, fast-folding protein that has been extensively used as a model system for protein folding. Long, unbiased, all-atom MD simulations of this system were already available in the early 2010s. In particular, one 305$\mu$s simulation from \cite{Lindorff-Larsen2011} is analyzed, 
-which contains dozens of folding-unfolding transitions. Because of this extensive sampling, key kinetic quantities such as the folding time and the average transition time have been estimated directly from the trajectory \cite{Piana2012}. 
-Previous analysis also reported a free-energy profile in which the system is approximately described by two main states, folded and unfolded, with a low-population intermediate \cite{Piana2012}.
+This project was concieved as a didactical excercise to learn about MSMs and their construction, and to explore the question of model consistency across different pipelines.
+This question is addressed through a benchmark study on a simple protein undergoing folding and unfolding: the villin headpiece subdomain HP35 Lys24-Nle/Lys29-Nle mutant (Fig.\ref{fig:hp35_structure}). 
+HP35 is a short, fast-folding protein that has been extensively used as a model system for protein folding. Long, unbiased, all-atom MD simulations of this system were already available in the early 2010s. In particular, one 305$\mu$s trajectory from \cite{Lindorff-Larsen2011}  at $T = 360$ K is analyzed, 
+which contains dozens of folding-unfolding transitions. Because of this extensive sampling, the folding time could be estimated directly from the trajectory, with a reported estimate of $3.2\pm0.6\,\mu s$ \cite{Piana2012}. 
+Previous MSMs studies on this specific trajectory have been reported in the literature. The main references for this project are the works of Nagel \textit{et al.} \cite{selecting_features} and of Stock \textit{et al.} \cite{hierarchical_hp35}. 
 
 
-Operationally, four MSMs will be built starting from two internal-coordinate representations, contacts and dihedral angles, and two dimensionality reduction methods, PCA (Principal Component Analysis) and tICA (time-lagged Independent Component Analysis). I then apply PCCA++ to identify macrostates in each model. The resulting models are compared by asking whether the identified macrostates are consistent across pipelines, whether they 
-can be interpreted as metastable states, whether they have a clear structural interpretation in terms of folded, unfolded, and possibly intermediate conformations, and whether their equilibrium populations agree.
-Finally, the folding time will be estimated and the free-energy gap between macrostates from the MSMs will be calculated and compared both across models and with the reference estimates reported in \cite{Piana2012}. 
-Overall, this project aims to test whether different MSM construction pipelines lead to a consistent thermodynamic and structural description of this folding system. 
+Operationally, four MSMs will be built starting from two internal-coordinate representations, contacts and dihedral angles, and two dimensionality reduction methods, PCA (Principal Component Analysis) and tICA (time-lagged Independent Component Analysis). A spectral analysis will be performed and coarse graining will be applied with the PCCA++ algorithm.The four resulting models will be compared
+in terms of i) accuracy of the estimated folding timescale, ii) consistency of any identifyed macrostates across models, iii) structural interpretability of any identified macrostates, and iv) agreement of the suggested folding mechanism description with the description reported in the reference \cite{hierarchical_hp35}.
+
 %%%%%%%%%%%%%%%%%%%
 %
 %
@@ -84,56 +84,45 @@ Overall, this project aims to test whether different MSM construction pipelines 
 \subsection{Dataset assembly}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.5\linewidth]{figures/aromatic_structure.png}
-\caption{\small \textbf{Crystal structure of HP35} (PDB: 2F4K \cite{PDB}). The folded structure consists of three $\alpha$-helices, approximately spanning residues 3–10, 14–19, and 22–32, connected by two loops. Aromatic and histidine residues are highlighted in orange: Phe6, Phe10, Phe17, Trp23, His27, and Phe35. Interactions among Phe6, Phe10, and Phe17 contribute to the formation of the hydrophobic core. Visualization was made with PyMOL \cite{pymol}.}
+    \includegraphics[width=0.4\linewidth]{figures/aromatic_structure.png}
+    \includegraphics[width=0.5\linewidth]{figures/pdb_contact_map.png}
+\caption{\small \textbf{Crystal structure and rel. contact map of HP35} (PDB: 2F4K \cite{PDB}). The folded structure consists of three $\alpha$-helices  (3-10), (14-19), and (22-32), connected by two loops. Highlighted in orange are aromatic residues Phe6, Phe10, Phe17, whose interactions contribute to the formation of the hydrophobic core. Visualization with PyMOL \cite{pymol}.}
     \label{fig:hp35_structure}
 \end{figure}
 This work is based on a single $305\,\mu\mathrm{s}$ MD trajectory of the fast-folding Lys24-Nle/Lys29-Nle mutant of the 35-residue villin headpiece subdomain (HP35), simulated at $360\,\mathrm{K}$. 
 The original trajectory is reported by Lindorff-Larsen \textit{et al.} \cite{Lindorff-Larsen2011}, while in this project a preprocessed version of that trajectory is employed, which is publicly distributed by Nagel \textit{et al.} \cite{selecting_features}. 
-The dataset contains time series of approximately $1.5\times10^6$ samples, with a sampling interval of about $200,\mathrm{ps}$. Authors provide timeseries of two internal-coordinate representations which they selected and filtered specifically for employment in MSM construction, as they describe in detail \cite{selecting_features}.
-These are residue-residue contact distances ( \texttt{hp35.mindists2} - $42$ features) and backbone dihedral angles (\texttt{hp35.dihs.shifted} - $62$ features). Authors also provide timeseries of residue-residue distances for a separate set of contacts identified from the crystal structure PDB 2F4K, (\texttt{hp35.crystaldists} - $53$ features).
+The dataset contains time series of approximately $1.5\times10^6$ samples, with a sampling interval of about $200,\mathrm{ps}$. Authors provide timeseries of two internal-coordinate representations which they selected and filtered specifically for employment in MSM construction.
+These are residue-residue contact distances ( \texttt{hp35.mindists2} - $42$ features) and backbone dihedral angles (\texttt{hp35.dihs.shifted} - $62$ features).Details about the feature definition and filtering are reported in their work \cite{selecting_features}.
+Authors also provide timeseries of residue-residue distances for a separate set of contacts identified from the crystal structure PDB 2F4K, (\texttt{hp35.crystaldists} - $53$ features).
 
 \subsection{Methods for MSM construction}
 All code is written in Python and employs the library Deeptime \cite{deeptime} for MSMs construction, validation and analysis.
-The steps involved in MSM construction are, briefly:
+The pipeline for MSM construction employed in this project consists of the following steps:
 \begin{enumerate}
     \setlength{\itemsep}{0.01em}
-\item Feature selection,
-\item Dimensionality reduction,
-\item Clustering of the reduced coordinates into discrete states,
-\item Estimation of the transition matrix, selection of lag time and validation of markovianity,
-\item Validation of the final model against the data.
+\item Feature selection (distances or dihedrals),
+\item Dimensionality reduction (PCA or tICA),
+\item Clustering of the reduced coordinates into discrete states (kmeans),
+\item Estimation of the transition matrix, selection of lag time (implied timescales convergence test)
+\item Validation of the final model against the data (Chapman-Kolmogorov test).
 \end{enumerate}
-
-In the following the scope and implementation of each step is briefly described, focusing the most on the two steps that were varied this work: 
-feature selection and dimensionality reduction. More details about the pipeline are reported in the Supplementary Methods \ref{sec:SI_methods}.
-\newline\textit{Feature selection and dimensionality reduction} MSMs construction at its core necessitates to convert the trajectory frames of the MD simulation into a finite, discrete set of states. 
-Ideally, this procedure should preserve the kinetic information of the original continuous dynamics, but with the advantage of being 
-much simpler to analyze. The first two steps of the pipeline, feature selection and dimensionality reduction, 
-are used to compress the raw MD data in a space that is much lower dimensional, so that a clustering of samples into a finite number of states 
-is computationally feasible. Clustering algorithms such as k-means rely on Euclidean distance, so it is important that the reduced coordinates are constructed in such a way that conformations that interconvert rapidly are mapped to nearby points in the reduced space. Otherwise, conformations separated by substantial kinetic barriers may be assigned to the same cluster and the markov property will be violated.
-These requirements make the choice of features and dimensionality reduction method a crucial step in the MSM pipeline, and their optimization
-is not trivial and has traditionally mostly relied on heuristics. 
-Two different feature sets are considered, which are \texttt{hp35.mindists2} and \texttt{hp35.dihs.shifted} as previously described. As for the dimensionality reduction step, I compared two classical approaches: principal component analysis (PCA) and nd time-lagged independent component analysis (tICA),
-for which I provide a detailed derivation in the Supplementary Methods \ref{subsec:SI_dimred}. In short, both methods find linear combinations of the original provided features but with a different optimization objective.
-PCA identifies directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation. tICA is explicitly designed to better encode the slow dynamics of the system: while PCA
-identifies the degrees of freedom that vary the most, tICA looks for those that vary the most slowly. Therefore, the tICA coordinates are expected to 
-encode the slowest degrees of freedom of the system and the notion of euclidean distance in reduced space  defined by tICA is should ideally be related to a notion of "kinetic distance", with conformations that interconvert rapidly being mapped to nearby points in the reduced space.
-tICA is usually found to outperform PCA in this task, but if this is the case for the system is a question I am going to address. Overall, four MSMs are built, combining the two feature sets and the two dimensionality reduction methods: tica-distances, tica-dihedrals, pca-distances and pca-dihedrals.
+The pipeline is standard in the field. Specifically, the implied timescale test and the Chapman-Kolmogorov test  and both explained in the book \cite{thebible}. 
+Therefore, this section will mostly focus on the first two steps, which are the ones that were varied in this work. MSMs construction at its core means to convert a high-dimensional continuous trajectory into a discrete-time, discrete-state one, while preserving the most information.
+The first two steps of the pipeline, feature selection and dimensionality reduction, are used to compress the raw MD data in a space that is much lower dimensional, so that clustering becomes feasible.
+Clustering algorithms most often rely on Euclidean distance, so it is important that conformations that interconvert rapidly are mapped to nearby points in the reduced space, and viceversa. Otherwise Markov property could be violated. These requirements make the choice of features and dimensionality reduction method a crucial step in the MSM pipeline.
+\newline \textit{Feature Selection}
+I employed as features the two sets of internal coordinates provided by Nagel \textit{et al.}  previously described. As suggested by the authors, I applied a gaussian low-pass filter with $\sigma = 2\,ns$ to the time series of each feature. This is expected to improve the MSM construction by removing high frequency recrossings between states.
+\newline \textit{Dimensionality reduction}
+I compared two classical approaches: principal component analysis (PCA) and time-lagged independent component analysis (tICA) (see Supplementary Methods \ref{subsec:SI_dimred} for details).
+Both methods find linear combinations of the original features. However, PCA identifies directions of maximal variance in the data, whereas tICA identifies directions of maximal autocorrelation at a fixed lag time $\tau_{tICA}$ which must be provided as a parameter.  Therefore, the tICA coordinates are expected to 
+outperform PCA in connecting the notion of "kinetic distance" and euclidean distance in reduced space. Overall, four MSMs are built, combining the two feature sets and the two dimensionality reduction methods: tica-distances, tica-dihedrals, pca-distances and pca-dihedrals.
 \vspace{0.1em}\newline
 \textit{Clustering:}
-The reduced coordinates were clustered using k-means with $10, 30, 50, 100, 150$ clusters.
-Cluster centres were initialized uniformly and the algorithm was run for a maximum of $100$ iterations. Transition matrices were estimated using a maximum-likelihood 
-MSM estimator at lag times $\tau$ ranging from $10$ to $1000$ frames ($\sim 2-200\,ns$). The counting scheme used was the "sliding window" scheme, which counts transitions at every time step, as opposed to the "discrete" scheme, which counts transitions only at multiples of $\tau$ \cite[Chap. 4.1]{thebible}.
-Detailed balance was enforced during the estimation of the transition matrix and the largest connected component was taken as the state space of the MSM.
-The range of lagtimes investigated was chosen to remain substantially shorter than the characteristic folding timescale ($\sim 1-3 \,\mu s$), ensuring that the process of interest
-remained temporally resolved.
-\vspace{0.1em} \newline \textit{Lagtime choice:}
-Estimation of the transition matrix requires specification of the lag time $\tau$ ($= 1, 2, 3\cdots$ in number of frames) at which to count transitions between states. Choice of lag time is done through the
-timescale convergence test. Briefly (see Supplementary Methods \ref{suppsec:markov_theory} for more details), the transition matrix $T(\tau)$  is estimated at different lag times and its eigenvalues are used to compute the implied timescales $t_i(\tau)$, which are then plotted as a function of $\tau$. 
-If the Markovian assumption is valid, the implied timescales should be approximately constant for sufficiently large $\tau$. The lag time is then selected as the minimum value in the region of convergence, as this choice minimizes the loss of temporal resolution while ensuring that the process of interest is approximately Markovian\cite[Ch. 4.7]{thebible}.
-\vspace{0.1em} \newline \textit{MSM validation:} to validate the model against the original trajectory, I compare the autocorrelation function of the root mean square deviation (RMSD) to the crystal structure computed from the trajectory (\texttt{hp35.crystaldist}) and predicted by the MSMs (see \ref{suppsec:markov_theory}).
-%
+The reduced coordinates were clustered using k-means a variable number of clusters ($30, 50, 100$), with kmeans++ initialization and $100$ max iterations. 
+\textit{Estimation of transition matrices:}
+Transition matrices were computed with a maximum-likelihood estimator with a "sliding window" scheme  \cite[Chap. 4.1]{thebible} and enforced detailed balance.
+The largest connected component was taken as the state space of the MSM.
+
 %
 %
 \subsection{Methods for MSM analysis}
@@ -378,6 +367,13 @@ All code necessary to replicate the analysis shoId in this work is available on 
     Journal of Chemical Theory and Computation 2023 19 (11), 3391-3405
     DOI:  10.1021/acs.jctc.3c00240.
 
+\bibitem{hierarchical_hp35}
+    Abhinav Jain and Gerhard Stock,
+    \textit{Hierarchical Folding Free Energy Landscape of HP35 Revealed by
+    Most Probable Path Clustering}
+    J. Phys. Chem. B 2014, 118, 28, 7750-7760
+    https://doi.org/10.1021/jp410398a
+    Published January 9, 2014
 
 \bibitem{thebible}
     G.R. Bowman, V.S. Pande and F. Noé,
