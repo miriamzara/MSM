@@ -172,7 +172,7 @@ on the microsecond timescale. Therefore I will try to have a lagtime that is sig
 the implied timescales test is alone not sufficient to select the lagtime, and if the convergence is enough remains to be decided rather qualitatively.
 I tried with $30, 50, 100$ clusters and lagtimes between $10$ and $100$ ns. I report the results of the implied timescale test in Fig. \ref{fig:msm_results} and the corresponding populations of the largest connected component in Supp. Fig \ref{suppfig:largest_connected_component_vs_lag}. I selected $50$ clusters and a lagtime of $50\,ns$ for all four pipelines, as this seemed the best compromise between resolution, Markovianity and connectivity.
 Importantly, the slowest timescale is approximately converged at this lagtime for all four pipelines and in the correct order of magnitude ($\mu s$), which is consistent with the known folding timescale of HP35. Also it can be noticed that
-the implied timescales depend much more strongly on the pipeline (features+dimensionality reduction) than on the number of clusters, and the PCA-pipelines give lower timescales, which suggests that they are less accurate in approximating the underlying continuous dynamics \textcolor{blue}{add citation about variational principle}.
+the implied timescales depend much more strongly on the pipeline (features+dimensionality reduction) than on the number of clusters, and the PCA-pipelines give lower timescales, which suggests that they are less accurate in approximating the underlying continuous dynamics \cite{NoeNuske2013}.
 A quick validation with the CK test was performed (Fig. \ref{suppfig:ck_test}) which show reasonable behaviour for all four pipelines.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -248,6 +248,8 @@ The $10$ most important contacts according to this score are reported in Supp. T
 It is evident that the most important contacts for discrimination of the folded basin are those that form the hydrophobic core, in particular a set of contacts in the neighbourhood of Phe6 and Phe10. Instead,
 the contacts defining the three helices are the least important, which is consistent with the fact that the helices are formed in both folded and unfolded configurations, while the hydrophobic core is only formed in the folded basin. 
 
+
+\textcolor{blue}{TODO: add HISTOGRAM for the distribution of folding times}
 To conclude this analysis I will provide an indicative estimate the folding time as the average waiting time in the folded basin. This is only indicative, as for an accurate estimate of the folding time one should consider the full microstate model and use transition path theory, which is not done here.
 A first rough estimate can be obtained from the transition matrix of the coarse-grained PCCA++ model:
 
@@ -296,14 +298,19 @@ I wish to understand first what this is and second if it corresponds to somethin
 \vspace*{0.1em}\newline
 \textit{tICA-distances:} Comparison of dihedrals and helix contacts shown in  \ref{suppfig:threestate_distances_comparison}.macrostate $S_0$ is a lowly populated ($\sim 1\%$) unfolded state where helix $3$ is formed, while helix $1$  and helix $2$ are completely extended (see Figure \ref{fig:threestate_distances_macro0}). Key structural descriptors that distinguish this macrostate from the others are
 the dihedral angles of residues $Phe6, Lys7, Gly15$ which populate the $\beta$-region of the Ramachandran plot in $S0$, while they populate both the $\alpha$ and the $\beta$ region ins $S1$ and only the $\alpha_R$ region in $S2$. This state is compact but lacks secondary structure, and it is therefore likely to be a kinetic trap in the folding process. 
-
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\linewidth]{figures/tica_3state_macro0.png}
     \caption{\small Representative structure of macrostate $S_0$ of the tICA-distances three-state PCCA++ model. Helix $3$ is formed, while helix $1$ is completely extended.}
     \label{fig:threestate_distances_macro0}
 \end{figure}
-
+An inspection of the trajectory shows that this state is visited only once, with a residence time of $\sim 1\,\mu s$ (see Supplementary Figure \ref{suppfig:threestate_tica_distances}). A visual inspection shows this is a well defined state, caracterized by helix $3$ which never unfolds, compact structure and a stable beta-hairpin formed in the region of residues $6-14$. At all effect this appears to be a kinetic trap in the folding process. 
+Notably, this state resembles closely the state $I_3$ identified by Stock \textit{et al.} \cite{hierarchical_hp35}, which is also a compact state with helix $3$ formed and a beta-hairpin-like formation in the region where helix $1$ should be. Populations also agree, with $\simeq 1\%$ in this work and $\simeq 1.49\%$ in \cite{hierarchical_hp35}. 
+\vspace*{0.1em}\newline
+\textit{tICA-dihedrals:} it is not obvious to structural caracterize $S0$. From a careful comparison of dihedral angles distribution, it appears that the
+most striking difference between $S0$ and the other two macrostates is in the dihedral angles of the residue pair $Leu20-Pro21$, which form the loop connecting helix $2$ and helix $3$ in the folded structure. In $S0$ the $Leu20$ residue populates the $\beta$ region of the Ramachandran plot, while in the
+other two it populates the $\alpha_R$ region. So it seems that the transition from $S0<->S1$ represents a local rearrangement in the region of the second loop. This state is visited several times in the trajectory, always from $S1$, and 
+has a median permanence time of $0.32\, \mu s$ and a population of $\sim 3\%$. See Supplementary Figure \ref{suppfig:threestate_tica_dihedrals}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -400,6 +407,11 @@ All code necessary to replicate the analysis shoId in this work is available on 
     \textit{An Introduction to Markov State Models and Their Application to Long Timescale Molecular Simulation}
     Advances in Experimental Medicine and Biology, Springer Dordrecht (2013)
     DOI:  10.1007/978-94-007-7606-7.
+
+\bibitem{NoeNuske2013} 
+    F. Noe and F. Nuske, "A variational approach to modeling slow
+    processes in stochastic dynamical systems," Multiscale Model.
+    Simul. 11(2), 635-655 (2013). DOI: 10.1137/110858616
 
 
 \bibitem{deeptime}
