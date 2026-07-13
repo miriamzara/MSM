@@ -29,7 +29,7 @@ hide everything, all
 bg_color white
 
 # Delete some frames if too cluttered
-delete ens_0001 or ens_0002 or ens_0003 or ens_0005 or ens_0006 or ens_0007 or ens_0008 or ens_0012
+#delete ens_0001 or ens_0002 or ens_0003 or ens_0005 or ens_0006 or ens_0007 or ens_0008 or ens_0012
 
 # All ensemble frames: thin, transparent cyan traces
 show cartoon, ens_*
@@ -40,9 +40,9 @@ set cartoon_helix_radius, 0.2
 
 # Representative frame: darker and less transparent
 
-show cartoon, ens_0004
-color gray80, ens_0004
-set cartoon_transparency, 0.0, ens_0004
+show cartoon, ens_0001
+color gray80, ens_0001
+set cartoon_transparency, 0.0, ens_0001
 set cartoon_fancy_helices, 1
 set cartoon_helix_radius, 0.2
 
@@ -63,8 +63,8 @@ set shininess, 15
 set orthoscopic, on
 
 # Use a consistent view
-orient ens_0004
-zoom ens_0004, 4
+orient ens_0001
+zoom ens_0001, 4
 
 # Fast output
 png out/native_basin_ensemble_overlay_fast.png, width=2200, height=1600, dpi=300, ray=0
