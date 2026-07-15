@@ -23,7 +23,16 @@ Rows correspond to PCA dihedrals, PCA contact distances, tICA dihedrals, and tIC
     \label{suppfig:dimred_figure}
 \end{figure}
 
-
+% ---------------Implied timescales test
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/implied_timescales_report.pdf}
+    \caption{\textit{\small \textbf{Results of the timescale convergence test}:
+     First three implied timescales as a function of the MSM lagtime. Colors denote the four combinations of feature set and dimensionality reduction method, while marker styles indicate the number of microstates used in the state-space discretization. 
+        The shaded region corresponds to $t_i \leq \tau_{MSM}$, where $t_i$ is the implied timescale and $\tau_{MSM}$ the MSM lagtime. Timescales falling within this region are not resolved by the model, 
+        as the associated relaxation process occurs on a timescale shorter than a single Markov-chain transition step.}}
+    \label{suppfig:timescales_test}
+\end{figure*}
 % --------------- MSM connectivity and active population as a function of lag time
 \begin{figure}[h!]
     \includegraphics[width=0.7\linewidth]{figures/largest_connected_component_vs_lag.pdf}
