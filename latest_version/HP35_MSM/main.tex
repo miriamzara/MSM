@@ -254,8 +254,7 @@ Taken together, these results indicate that the folded and unfolded ensembles ar
 \label{sec:kinetic_estimates}
 Interpreting $S_0$ and $S_1$ as the unfolded and folded basins, respectively, allows a rough estimate of the folding kinetics to be obtained. Although the resulting times should be regarded as indicative only, they provide a useful basis for comparing the different models. A more rigorous analysis would require computation of mean first-passage times and reactive fluxes on the full microstate MSM using transition path theory, which lies beyond the scope of the present work. To estimate lifetimes and populations from the trajectory, first I apply dynamical coring as explained in Methods. The resulting cored trajectory is shown in Supp. Fig.~\ref{suppfig:twostate_traj}. The folding time,
 $t_{\mathrm{fold}}$, is then approximated as the average waiting time between successive unfolded-to-folded transitions in this cored trajectory. Results of folding times and relative populations are reported in Table~\ref{tab:pop_and_times}.
-\newline The results are model dependent. Overall, trajectory-based estimates of the $\Delta G$ agree within one standard deviation with the original estimate of $-0.6 \pm 0.2\, kcal/\,mol^{-1}$ reported by \textit{Piana et al.} \cite{Piana2012} from direct analysis of the trajectory, while all models predict a shorter folding time (as the mean/median residence time in the state $S_0$) when compared to the reference value of $3.2\pm0.6\,\mu$s reported in \cite{Piana2012}. The systematic underestimation is most likely attributable to the relatively short Markov lag time used
-here, at which the slowest timescale has not yet fully converged. 
+\newline The results are model dependent. Overall, trajectory-based estimates of the $\Delta G$ agree within one standard deviation with the original estimate of $-0.6 \pm 0.2\, kcal/\,mol^{-1}$ reported by \textit{Piana et al.} \cite{Piana2012} from direct analysis of the trajectory, while all models predict a shorter folding time (as the mean/median residence time in the state $S_0$) when compared to the value reported by \cite{Piana2012} ($3.2\pm0.6\,\mu$s).
 Note that in principle another estimate can be derived directly from the PCCA coarse-grained transition matrix and fuzzy membership probabilities (see Suppl. Table \ref{supptab:pcca_model_estimates}).
 \newline The thermodynamics are therefore robust across pipelines, whereas the kinetics are underestimated at this lag, most plausibly because the slowest timescale is not yet fully converged.
 %
@@ -333,53 +332,34 @@ This analysis suggests that the folded basin is is itself heterogeneous, split b
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Discussion}
+\section{Discussion and Conclusions}
 
 % Briefly phrase your biological problem again.
-This project aimed to investigate the conformational ensemble of HP35 Nle Nle
-mutant from a structural point of view. In order to partially overcome the bias of a single MSM pipeline, four MSMs were compared, built varying feature + dimensionality reduction steps.
+This project set out to characterize the conformational ensemble of the HP35 Nle/Nle mutant from a structural standpoint. To limit the bias inherent in any single MSM pipeline, four models were built and compared, varying the feature set and the dimensionality-reduction step.
 
 % Briefly summarise the results (max one paragraph). You do not repeat the words you used earlier, make it concise. Make it evident how your results answer the question you have asked.
 % If possible, present a model. This can be a molecular 'mechanism', 'scenario', 'reason'. For example: 'A and B belong to the same family'; 'mutation XD likely changes the interaction in liver'; 'in disease T we have less phosphorylation sites or the level of phosphorylation decreased'; 'in this experiment, there is a problem with degradation of protein P. ' etc.– The model can be presented as: 'propose', 'suggest', 'indicate','hypothesize', or even 'support' or 'demonstrate'. If possible try to present a cartoon figure or scheme.
-Taking all the model results together, what emerges about the folding landscape of HP35 is the following:
+Taken together, the four models yield the following picture of the HP35 folding landscape:
 \begin{enumerate}
-    \item there exists a dominant barrier that separates a metastable basin consisting of unfolded conformations, and a basin containing the folded/partially folded structures. The two basins are not distinguished by secondary structure content, but mainly from the presence/absence of the key native contacts of the hydrophobic core and the packing of helices 1-3 (Section \ref{sec:consensus});
-    \item a compact, misfolded and metastable state (probably a kinetic trap) exists that has a folded helix 3, a correct loop between 2 and 3, but has an extended- hairpin like formation in place of helix 1 (Section \ref{sec:tica_threestate});
-    \item on the folded basin side, two metastable substates exist which differ in details of the N terminus (locked vs unlocked) (Section \ref{sec:dihedrals_substates}).
+    \item A dominant free-energy barrier separates two metastable basins: an unfolded basin ($\simeq 31$--$32\%$) and a folded/partially folded basin ($\simeq 67$--$68\%$). The two are distinguished not by secondary-structure content but mainly by the presence or absence of the native hydrophobic-core contacts and the close packing of helices 1 and 3 (Sec.~\ref{sec:consensus}, \ref{sec:kinetic_estimates});
+    \item A lowly populated ($\simeq 1\%$), compact metastable state with a lifetime of $\sim 1\,\mu$s, in which helix 3 and the helix-2--helix-3 loop are folded but an extended, hairpin-like segment replaces helix 1 (Sec.~\ref{sec:tica_threestate});
+    \item Two substates within the folded basin, $F_1$ and $F_2$, of comparable population ($33.8$--$35\%$ and $31$--$32\%$, respectively). They differ in the configuration of the N-terminus and are discriminated mainly by the $(\phi,\psi)$ angles of Asp3 ($\alpha_R$ in $F_1$, $\alpha_L$ in $F_2$) and by the presence ($F_1$) or absence ($F_2$) of several native contacts involving Leu1 (Sec.~\ref{sec:dihedrals_substates}).
 \end{enumerate}
 %Compare your results with something in the literature (use PubMed, or literature indicated in UniProt, PDB or any datasets we learnt about). 1-2 articles enough. The point is that you show how your results relate to previous ones. Different scenarios: 'support', 'in contrast', 'in addition', 'gives insights into'.
-In dihedrals representation, opposed to distance representation, additional structure is revealed as two distinct conformational substates emerge, distinguished primarily by the orientation of Asp3 and the associated structural details of helix 1 (Fig. \ref{fig:rama_asp3}).
-The existence of these two configurations is in agreement with the finding of both \cite{hierarchical_hp35} and \cite{selecting_features}. In particular, the $\alpha_L$-state appears to coincide with the "$N1$, $N2$" states in \cite{hierarchical_hp35}, whereas the $\alpha_R$ state closely resembles their "$I_1$" state.
-Conversely, the tICA-distance model is the only representation that appears to resolve a well-defined misfolded state, characterized by a stable helix 3 and the formation of a $\beta$-hairpin in place of helix 1 (Fig. \ref{fig:threestate_distances_macro0}). Notably, this state bears a strong resemblance to the $I_3$intermediate identified by Stock \textit{et al.}~\cite{hierarchical_hp35}, which is likewise a compact conformation featuring a fully formed helix 3 and a $\beta$-hairpin-like structure in the region occupied by helix 1 in the native state.
- Jain and
-Stock ~\cite{hierarchical_hp35}, using most-probable-path clustering,
-described the HP35 landscape as hierarchical and identified a sparsely
-populated compact intermediate, $I_3$, in which helix~3 is formed while
-the N-terminal region collapses into a helix-1-like hairpin. The third
-state resolved here by the tICA-distances model reproduces that object
-closely---a compact, singly-visited trap with helix~3 intact, a
-$\beta$-hairpin around residues 6--14, and a population of $\simeq 1\%$
-against their $\simeq 1.5\%$---so on this point the analysis in this work \emph{supports} their hierarchical description and, \emph{in addition},
-shows that the intermediate is recoverable by a standard
-tICA/PCCA++ pipeline provided the features are contacts rather than
-dihedrals. 
+This picture agrees on several points with the macrostate model of Jain and Stock~\cite{hierarchical_hp35}, obtained from a MSM construction pipeline which used dihedral representation and with most-probable-path clustering. Their intermediate $I_1$ corresponds closely to the substate $F_2$ found here. They also report an off-pathway, partially folded state $I_3$ in which an extended conformation replaces helix 1; this matches the putative kinetic trap resolved by my tICA--distances model, both structurally and in population ($1.49\%$ vs.\ $\simeq 1\%$ here). On these points the present analysis supports their description, and it further shows that $I_3$ is recoverable with a standard tICA/PCCA++ pipeline---here, specifically when the features are contacts rather than dihedrals.
 
-\section{Conclusions}
-%Conclusion. One paragraph, emphasizing the main finding and formulate a message for the future (perspective), how to continue from here, what kind of further studies are needed. You may have Conclusion as chapter 5.
+On the methodological side, this project is a concrete illustration of how strongly the choice of MSM pipeline can shape the results,  even for a small protein and a high-quality dataset. Apart from the dominant two-state transition, on which all four pipelines agree, the finer structure they resolve differs markedly: the kinetic trap (Sec.~\ref{sec:tica_threestate}) was recovered only by the tICA--distances model, and the two folded-basin substates only by the two dihedral-based models (Sec.~\ref{sec:dihedrals_substates}). This is not suprising, as any single pipeline reduces the dynamics to one particular low-dimensional representation, the resulting models are therefore best read not as competing definitive descriptions but as complementary views of the same underlying dynamics.
 
-On the methodological side, we have seen with a pratical experiment how much the pipeline of a markov model can influence the results. With exception made of the dominant two-state transition, the four pipelines provide different descriptions of the finer structure. Notably, "the kinetic trap" (Sec.\ref{fig:threestate_distances_macro0}) was only identified by tica-distances, and the two substates of the folded-side only by the two dihedral-based models (Sec. \ref{fig:threestate_distances_macro0}).
-This is unsurprising, as low-dimensional projections of the free-energy surface are inherently incomplete and somewhat arbitrary. Rather than being viewed as definitive descriptions, they are best interpreted as complementary representations of the underlying dynamics. Differences arise both from changing features and from changing dimensionality reduction method.
+A related point is the limitation of relying on PCCA++ alone for coarse-graining, especially when---as here---the implied-timescale spectrum shows no clear gap. PCCA++ failed to separate the two folded-basin substates even though their dwell time is comparable to that of the loop rearrangement it did resolve. This highlights that metastability (a long dwell time) and spectral slowness (what PCCA++ ranks) are related but not identical: a state can be long-lived without its interconversion being among the slowest processes, and such states are then easily missed by a purely spectral coarse-graining \cite{Sittel2018}.
 
-Another point that emerges is the potential limitation of relying solely upon the PCCA++ algortihm for coarse-graining, especially in cases - such as this - were the implied timescales do not show a sharp decay. Indeed, PCCA++ was not able to identify the two substates of the folded-side, although they have the a lifetime that is totally comparable to the lifetime of the loop rearrangement. 
-
-To conclude, numerous ways remain for improving and extending the present analysis. numberous things can be added to the present work for a more complete analysis. On the structural point of view, probably the single most useful step would be to analyze robustness of results with respect to the metastable-state identification procedure itself, for example by comparing PCCA++ with alternative approaches such as MPP, which was employed in several of the reference studies, including \cite{hierarchical_hp35} and \cite{selecting_features}. Likewise, a far more complete kinetic characterization would require construction of the full microstate MSM and a subsequent transition path theory (TPT) analysis.
-Despite these limitations, the project achieved its primary objective as a didactic exploration of the MSM framework. More broadly, it illustrates the challenges involved in constructing and interpreting Markov state models, even for a relatively small protein and a high-quality simulation dataset. The analysis shows that different but seemingly reasonable modeling choices can lead to distinct descriptions of the slow dynamics and metastable structure. These observations underscore the importance of rigorous validation procedures, sensitivity analyses, and standardized protocols in improving the reproducibility of MSM-based studies and, ultimately, their usefulness as tools for understanding molecular dynamics simulations.
+Several possibilities remain for extending this analysis. The single most useful next step would be to test how robust the results are to the metastable-state identification procedure itself---for instance by comparing PCCA++ with alternatives such as MPP which was used in several MSM studies of HP35~\cite{hierarchical_hp35,  Sittel2018, selecting_features}. A more complete kinetic characterization would, in turn, require constructing the full microstate MSM and applying transition-path-theory (TPT) analysis. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{References}
+{ \small
 \textbf{Data availability statement:} Preprocessed trajectories of the HP35 villin headpiece are kindly made available by Nagel et al. and downloadable at their GitHub \url{https://github.com/moldyn/HP35-DESRES}.
 All code necessary to replicate this analysis is available on GitHub at \url{https://github.com/miriamzara/MSM}.
 
@@ -420,6 +400,7 @@ All code necessary to replicate this analysis is available on GitHub at \url{htt
 \bibitem{Beauchamp2012}
     K.A. Beauchamp, R. McGibbon, Y. Lin,  and V.S. Pande,   \textit{Simple few-state models reveal hidden complexity in protein folding}, Proc. Natl. Acad. Sci. U.S.A. 109 (44) 17807-17813, DOI: 10.1073/pnas.1201810109 (2012).
 
+% COMPLETE PERSPECTIVE
 \bibitem{Sittel2018}
     Florian Sittel, Gerhard Stock; Perspective: \textit{Identification of collective variables and metastable states of protein dynamics}. J. Chem. Phys. 21 October 2018; 149 (15): 150901. DOI: 10.1063/1.5049637
 
@@ -484,6 +465,7 @@ Daniel Nagel, Anna Weber, Benjamin Lickert, Gerhard Stock; "Dynamical coring of 
     \textit{PyMOL}
     The PyMOL Molecular Graphics System, Version 3.0 Schrödinger, LLC.
 \end{thebibliography}
+}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
