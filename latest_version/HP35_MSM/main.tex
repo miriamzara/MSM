@@ -263,7 +263,7 @@ Note that in principle another estimate can be derived directly from the PCCA co
 %
 %
 \newline
-\subsection{Beyond two states: model-dependent metastable substructure}
+\subsection{Three-states PCCA++ on tICA models reveal a misfolded state and a loop rearrangement}
 \label{sec:beyond_two_state}
 %\subsection{A three-state decomposition of the tICA models reveals a compact misfolded trap and a loop rearrangement}
 %
@@ -305,16 +305,21 @@ Inspection of the dynamically cored macrostate trajectory shows that this state 
 %
 %
 %
+\subsection{Dihedral-based models resolve substructure within the folded basin}
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/dihedrals_ramachandran_N1_N2_comparison.png}
+    \includegraphics[width = \linewidth]{figures/F1_F2_contact_comparison.png}
     \caption{\small \textit{\textbf{Structural distinction between the two folded substates identified by the dihedral-based MSMs:} ($\phi, \psi$) distribution of the residue Asp3 in the two subpopulations corresponding to the distinct minima observed within the folded basin.}} 
     \label{fig:rama_asp3}
 \end{figure} 
-
-
+%
+%
+%
 Interestingly, several observables, including the RMSD and specific long-range contacts such as $10$--$29$, display bimodal distributions within the consensus folded ensemble. The same bimodality is visible in the free-energy projections obtained from the dihedral-based models and is reflected in the distribution of the PCCA++ membership probability for macrostate $1$. These observations suggest that the folded basin identified by the dihedral-based MSMs is itself heterogeneous and may contain two structurally distinct substates. To investigate this possibility, I partition the folded ensemble identified by the dihedral-based models using the peaks in the PCCA++ membership probabilities (see Supp. Figure \ref{suppfig:fuzzy_memberships_models}) and compare their structural characteristics. The two sets of microstates are found to be distinguished primarily by the conformational state of a single residue, \textit{Asp3}. In one state, \textit{Asp3} predominantly occupies the $\alpha_R$ region of Ramachandran space, whereas in the other it preferentially populates the $\alpha_L$ region (Fig. \ref{fig:rama_asp3}).
-This analysis suggests that the folded basin is is itself heterogeneous, split by the Asp3 backbone conformation which however do not appear among the slowest processes.
+This analysis suggests that the folded basin is is itself heterogeneous, split by the Asp3 backbone conformation which however do not appear among the slowest processes. So this analysis, differently from the previous ones, is not an analysis of macrostates. PCCA, at least with $n \leq 3$ states, does not identify the interconversion between these two substates as one of the slow processes.  I want to check the lifetimes of these substates, to see if they qualify as "metastable" even if PCCA hasnt found them. At the end, PCCA is an algorithm, it is not the ground truth.
+
+From a more detailed analysis, it turns out that these substates actually do qualify as metastable, with a dwell time of $\simeq 0.3 \mu s$ (Supp. Table: \ref{tab:f1_f2_dwell_times}) which is totally comparable with the dwell time of  the third macrostate identified by pcca on tica-dihedrals and, even more notably, a very nice single-exponential distirbution (Supp. Fig: \ref{suppfig:f1f2_figure}). So even if PCCA did not find it, this partition is important and no less important than the one that it found. Concluding the analysis on this results, it demostrates the limitations of making partitioning the state space relying on a single algorithm (PCCA in this case).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -327,6 +332,7 @@ This analysis suggests that the folded basin is is itself heterogeneous, split b
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Discussion and Conclusions}
+
 % Briefly phrase your biological problem again.
 This project aimed to investigate the robustness of the traditional Markov State Modelling pipeline, using as a benchmark a simple protein that has been extensively simulated and used as a model system. In particular, the central question was the investigation of the effects of i) selecting different internal coordinate representations as features ii) changing the dimensionality reduction method from PCA to tICA.
 

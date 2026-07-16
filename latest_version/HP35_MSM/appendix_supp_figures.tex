@@ -130,3 +130,30 @@ Stationary populations, mean residence times, and relative free energies obtaine
     Bottom: trajectory of the three-state PCCA++ model for tICA-dihedrals, with hard assignations and cored assignations (transitions are counted if they remain in the destination for at least one markov step, which is $\tau = 50\,ns$).}}
     \label{suppfig:threestate_tica_dihedrals}
 \end{figure*}
+
+
+% ---------- Manual analysis of the dihedral model
+\begin{figure}[h!]
+    \centering
+    %\includegraphics[width=0.45\linewidth]{figures/f1_f2_dwell_time_histograms.pdf}
+    \includegraphics[width=0.8\linewidth]{figures/f1_f2_dwell_time_survival.pdf}
+    \includegraphics[width = \linewidth]{figures/f1_f2_raw_vs_cored_assignments.pdf}
+    \caption{Manual analysis of dihedral-resolved substates.}
+    \label{suppfig:f1f2_figure}
+\end{figure}
+
+
+\begin{table}[h!]
+\begin{tabular}{llrrrr}
+\hline
+Model & State & $N_{\mathrm{visits}}$ & Mean [$\mu$s] & Median [$\mu$s] & Population \\
+\hline
+tica\_dihedrals & F1 & 177 & 0.603 & 0.463 & 0.350 \\
+tica\_dihedrals & F2 & 145 & 0.658 & 0.435 & 0.313 \\
+pca\_dihedrals & F1 & 195 & 0.529 & 0.412 & 0.338 \\
+pca\_dihedrals & F2 & 145 & 0.676 & 0.480 & 0.321 \\
+\hline
+\end{tabular}
+\caption{Dwell times in the folded sub-basins $F_1$ and $F_2$, computed from the cored microstate trajectory of each dihedral model. $N_{\mathrm{visits}}$ is the number of continuous visits to the sub-basin, and the population is the fraction of cored frames assigned to it.}
+\label{tab:f1_f2_dwell_times}
+\end{table}
