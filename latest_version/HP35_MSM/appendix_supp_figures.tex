@@ -73,14 +73,15 @@ model. Close agreement indicates approximate Markovianity at the chosen lag.}
 \end{figure}
 
 
-
-\begin{figure}[h!]
+\begin{figure*}[ht]
     \centering
-    \includegraphics[width=0.45\linewidth]{figures/pairwise_pcca_membership_scatter_quadrants_report.pdf}
-        \includegraphics[width=0.39\linewidth]{figures/pcca_membership_probability_distributions.pdf}
-    \caption{\small \textbf{Fuzzy membership probabilities of the trajectory frames to the two macrostates across models.} Left: Each panel shows the fuzzy membership probability of each frame in the trajectory to macrostate $S_0$ ($\simeq$ denatured basin) and macrostate $S_1$ ($\simeq$folded basin) for a different model. The models based on distances (tica-distances and pca-distances) show very similar distributions, while the tica-dihedrals model exhibits a broader distribution, particularly for frames assigned to the denatured basin. This indicates that the tica-dihedrals model has more uncertainty in assigning frames to the denatured basin. Right: Distribution of the fuzzy membership probability of each frame to macrostate $1$ for the four MSMs. Probabilities close to $0$ or $1$ correspond to frames that are confidently assigned to a single macrostate.}
+    \includegraphics[width=0.7\linewidth]{figures/pairwise_pcca_hist2d.pdf}
+    \includegraphics[width = 0.5 \linewidth]{figures/pcca_membership_probability_distributions.pdf}
+    \caption{\small \textit{Fuzzy membership probabilities of the trajectory frames to the two macrostates across models. Top: Each panel shows the fuzzy membership probability of each frame in the trajectory to macrostate $S_0$ ($\simeq$ denatured basin) and macrostate $S_1$ ($\simeq$folded basin) for a different model. The models based on distances (tica-distances and pca-distances) show very similar distributions, while the tica-dihedrals model exhibits a broader distribution, particularly for frames assigned to the denatured basin. This indicates that the tica-dihedrals model has more uncertainty in assigning frames to the denatured basin. Bottom: Distribution of the fuzzy membership probability of each frame to macrostate $1$ for the four MSMs. Probabilities close to $0$ or $1$ correspond to frames that are confidently assigned to a single macrostate. }}
     \label{suppfig:fuzzy_memberships_models}
-\end{figure}
+\end{figure*}
+
+
 % ----- Helix content in the consensus vs other
 \begin{figure}[h!]
     \centering
