@@ -63,7 +63,7 @@ The villin headpiece subdomain HP35  is one of the smallest proteins that folds 
 A protein that folds this fast, over so low a barrier, is expected to populate only marginally stable intermediates that are difficult to resolve; yet a strict two-state description has never fully accounted for it. Both experimental \cite{Reiner2010} and simulation based studies \cite{Beauchamp2012, hierarchical_hp35, Sittel2018} have reported evidence of structural heterogeneity within its conformational ensemble. 
 %DEFINING THE QUESTION
 
-In this project, I analyse the well-known $305\,\mathrm{\mu s}$ trajectory of the Lys24-Nle/Lys29-Nle mutant published by Lindorff-Larsen \textit{et al.}~\cite{Lindorff-Larsen2011}, which estimated the folding time at $3.2 \pm 0.6\, \mathrm{\mu s}$~\cite{Piana2012}. I build Markov State Models (MSMs)~\cite{thebible} to ask whether HP35 possesses resolvable metastable substructure (e.g. off-pathway traps, intermediates, or substates within the folded basin itself). Building MSM and here a difficulty arises that is not merely technical. The MSM pipeline (feature selection, dimensionality reduction, clustering) has no unique optimal recipe, and different reasonable choices can emphasise different slow processes.  As a result, different pipelines may produce different sets of metastable states, with different populations. This motivates a deliberately redundant design: rather than committing to one pipeline, I build several and ask which conclusions survive across all of them and which are model dependent, if the description of the various model is compatible (i.e. at most one has more resolution and one less, but they need to agree at the coarsest level).
+In this project, I analyse the well-known $305\,\mathrm{\mu s}$ trajectory of the Lys24-Nle/Lys29-Nle mutant published by Lindorff-Larsen \textit{et al.}~\cite{Lindorff-Larsen2011}, which estimated the folding time at $3.2 \pm 0.6\, \mathrm{\mu s}$~\cite{Piana2012}. I build Markov State Models (MSMs)~\cite{thebible} to ask whether HP35 possesses resolvable metastable substructure (e.g. off-pathway traps, intermediates, substates within the folded basin, or partially folded states). Building MSM and here a difficulty arises that is not merely technical. The MSM pipeline (feature selection, dimensionality reduction, clustering) has no unique optimal recipe, and different reasonable choices can emphasise different slow processes.  As a result, different pipelines may produce different sets of metastable states, with different populations. This motivates a deliberately redundant design: rather than committing to one pipeline, I build several and ask which conclusions survive across all of them and which are model dependent, if the description of the various model is compatible (i.e. at most one has more resolution and one less, but they need to agree at the coarsest level).
 
 % DEFINING THE PLAN: TRANSLATING INTO THE LANGUAGE OF  THE COMPUTER
 
@@ -83,7 +83,7 @@ Concretely, four MSMs are constructed from two internal-coordinate representatio
     \label{fig:hp35_structure}
 \end{figure}
 Rather than the original all-atom trajectory of Lindorff-Larsen \textit{et al.}~\cite{Lindorff-Larsen2011}, I use the preprocessed version publicly distributed by Nagel \textit{et al.}~\cite{selecting_features}, which provides internal-coordinate representations selected and filtered specifically for MSM construction (see \cite{selecting_features} for feature definitions). Each time series contains $\simeq 1.5\times10^6$ frames at a sampling interval of $\simeq 200\,\mathrm{ps}$. I employ two of these representations as alternative feature sets: residue--residue contact distances (\texttt{hp35.mindists2}, 42 features) and backbone dihedral angles (\texttt{hp35.dihs.shifted}, 62 features). A third set of crystal-structure contact distances (\texttt{hp35.crystaldists}, 53 features) is used as an additional structural descriptor in later analysis. To enable structural visualization, I reconstructed the backbone atom coordinates from the raw dihedral-angle time series (\texttt{hp35.dihs}); all molecular renderings shown below are obtained this way.
-\subsection{Methods}
+\subsection{Methods for MSM construction}
 All code is written in Python, using Deeptime \cite{deeptime} for MSM construction and validation and BioPython \cite{biopython} for analysis of the crystal structure (PDB 2F4K). A Markov state model discretizes the continuous high-dimensional dynamics into a finite set of states with transitions observed at a fixed time interval, aiming for a reduced representation that preserves the slow dynamical processes of the original system. The pipeline used here consists of the following steps:
 \begin{enumerate}
     \setlength{\itemsep}{0.01em}
@@ -93,31 +93,22 @@ All code is written in Python, using Deeptime \cite{deeptime} for MSM constructi
 \item Estimation of the transition matrix and selection of the Markov lag time $\tau_{MSM}$ (implied-timescale convergence test; see Supp. Methods \ref{sec:SI_methods} or \cite[Ch. 2.4.1]{thebible}),
 \item Validation against the data (Chapman--Kolmogorov test; see \cite[Ch. 4.8]{thebible}).
 \end{enumerate}
-The first two steps are the ones explored most in this work. Together they compress the raw MD data into a low-dimensional space where clustering becomes feasible. Since k-means relies on Euclidean distance, rapidly interconverting conformations must map to nearby points in the reduced space; failing this leads to poor markovianity \cite{thebible}.
+The first two steps are the ones explored most in this work. Together they compress the raw MD data into a low-dimensional space where clustering becomes feasible. Since k-means relies on Euclidean distance, rapidly interconverting conformations must map to nearby points in the reduced space; failing this leads to poor markovianity \cite{pyemma_tutorial}.
 
 \vspace{0.2em}
 \noindent\textit{Feature selection.}
 Two feature sets are used: contact distances (\texttt{hp35.mindists2}) and backbone dihedrals (\texttt{hp35.dihs.shifted}). Following \cite{selecting_features}, a Gaussian low-pass filter ($\sigma = 2\,\mathrm{ns}$) is applied to each feature to suppress high-frequency recrossings between states.
-
-\vspace{0.1em}
-\noindent\textit{Dimensionality reduction.}
+%%%
+\smallskip \newline \textit{Dimensionality reduction.}
 Two linear methods are compared: PCA, which finds directions of maximal variance, and tICA, which finds directions of maximal autocorrelation at a lag time $\tau_{\mathrm{tICA}}$. PCA therefore captures the largest structural fluctuations, whereas tICA emphasizes the slowest dynamical processes: configurations far apart in tICA space tend to interconvert slowly, giving a closer correspondence between geometric and kinetic separation (see Supp. Methods \ref{subsec:SI_dimred}). Because MSMs aim to resolve slow kinetics, tICA is generally preferred. Combining the two feature sets with the two reduction methods gives four pipelines: \textit{tica-distances}, \textit{tica-dihedrals}, \textit{pca-distances}, and \textit{pca-dihedrals}.
 Since HP35 folds on the microsecond timescale, $\tau_{\mathrm{tICA}}$ was inspected over $100$--$1000$ frames ($\simeq 20$--$200\,\mathrm{ns}$), well below the folding time, and fixed at $20\,\mathrm{ns}$ after checking that the leading tICA components were stable across this range. The number of retained components was chosen with an heuristic criterion so that the reduced coordinates can be expected to separate metastable states: relevant coordinates should show multimodal free-energy profiles and time series with long-lived plateaus separated by rapid jumps (Supp. Fig.~\ref{suppfig:dimred_figure}). This yielded 7 components for tica-dihedrals and 5 for the other three pipelines.
-\newline\textit{Clustering and lag-time selection.}
+%%%
+\smallskip \newline \textit{Clustering and lag-time selection.}
 The reduced coordinates were clustered with k-means (k-means++ initialization, up to 100 iterations), testing $k = 30$, $50$, and $100$. The number of clusters and the lag time were chosen together, since they jointly control resolution and statistical reliability: more clusters provide higher resolution and speed up implied-timescale convergence, but leave fewer transitions per microstate and can disconnect the microstate network. The lag time must also stay well below the microsecond folding time \cite{Lindorff-Larsen2011}, or intermediate kinetic details are lost. Because the implied-timescale test alone does not fix the lag time, the final choice was a compromise between timescale convergence, network connectivity, and adequate sampling of transitions, and so remains partly qualitative. Transition matrices were then estimated by maximum likelihood with a sliding-window scheme \cite[Ch. 4.1]{thebible} enforcing detailed balance, retaining the largest connected component as the state space. From a grid search with $n_{clusters}=\{30, 50, 100\}$ clusters and lag times between $10$ and $100$ ns; $n_{clusters}=50$  and a lag time of $50\,ns$ is selected for all four pipelines, as this seemed the best compromise between resolution, markovianity and connectivity (Supp. Fig.~\ref{suppfig:timescales_test} and \ref{suppfig:largest_connected_component_vs_lag}).
-\vspace{0.1em}\newline
-\noindent\textit{Spectral analysis.} Macrostates are defined with PCCA++ (Perron-cluster cluster analysis) \cite[Ch. 2.5.1--2.5.2]{thebible} from the implied timescales and the sign patterns of the corresponding eigenvectors, using the largest timescale gap to choose the number of macrostates.
-\subsection{Statistical Analysis}
-\textit{CK test:} performed using built-in Deeptime method and qualitatively evaluated.
-Model self-consistency was assessed with the Chapman--Kolmogorov (CK) test as
-implemented in Deeptime. The microstate MSM estimated at the selected lag
-$\tau_{MSM} = 50$\,ns was coarse-grained into four metastable sets with PCCA++. For a
-range of lag times $k\tau_{MSM}$, the coarse-grained transition probabilities predicted
-by the reference model (propagated to $k\tau_{MSM}$ and projected onto the four sets)
-were compared with those from MSMs estimated independently at each lag $k\tau_{MSM}$.
-%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\smallskip \newline \textit{Spectral analysis and coarse-graining.}
+The number of macrostates is chosen from the implied-timescale spectrum, taking the largest gap between successive timescales as the number of resolved slow processes. Microstates are then lumped into macrostates with PCCA++ (robust Perron-cluster cluster analysis) \cite[Ch. 2.5.1--2.5.2]{thebible}. The algorithm uses the sign pattern of the dominant eigenvectors of the transition matrix to identify the slow probability-exchange modes that govern relaxation to equilibrium, and groups microstates accordingly (see Supp. Methods~\ref{sec:SI_methods}). The resulting macrostates are expected to correspond to the distinct metastable states of the system \cite{thebible}. PCCA++ returns for each microstate $i$ a vector of \textit{fuzzy memberships} $\chi_{ik} \in [0,1]$, the probability that $i$ belongs to macrostate $k$ (with $\sum_k \chi_{ik} = 1$); each frame inherits the memberships of its microstate. How assignments are used depends on the analysis and is stated in each case.
+%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 %
@@ -126,71 +117,51 @@ were compared with those from MSMs estimated independently at each lag $k\tau_{M
     \includegraphics[width =\linewidth]{figures/free_energy_projection_3d_report.pdf}
     \caption{\small
     \textit{\textbf{Two-dimensional free-energy surfaces projected onto the first two reduced coordinates.}
-    Because projection can obscure barriers and metastable states, these landscapes should be interpreted qualitatively. Nevertheless, substantial differences are observed among the four pipelines. Distance-based models exhibit a single dominant minimum, whereas dihedral-based models show two major minima. The tICA projections additionally contain a low-free-energy basin well separated from the main funnel.}}
+    Because projection do not have a clear interpretation in terms of dynamics, these landscapes should be interpreted qualitatively. Nevertheless, substantial differences are observed among the four pipelines which later reflect differences in the metastable structure resolved by the MSMs. Distance-based models exhibit a single dominant minimum, whereas dihedral-based models show two major minima. The tICA projections additionally contain a low-free-energy basin well separated from the main funnel.}}
     \label{fig:free_energy_surfaces}
 \end{figure*}
 %
 %
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\smallskip \newline \textit{Dynamical coring.}
+Assigning each frame to its highest-membership macrostate produces a hard state trajectory, but near a state boundary rapid recrossings inflate the apparent number of transitions: these are more likely to reflect boundary noise than genuine interstate crossings. Dynamical coring \cite{dynamical_coring} is a heuristic procedure to suppress them: starting from the hard-assigned trajectory, a transition into a new macrostate is registered only once the trajectory remains there for at least a threshold time $t_{\min}$, so that only long-lived occupancies survive. In this work I applied coring to the discretized macrostate trajectories with $t_{\min}$ equal to one lag time ($t_{\min} = \tau_{\mathrm{MSM}} = 50\,\mathrm{ns}$).
+%
+%
+%
+\subsection{Statistical analysis}
+\label{sec:methods_statistical_analysis}
+\noindent\textit{Chapman--Kolmogorov test.}
+Model self-consistency was assessed with the CK test as implemented in Deeptime \cite{deeptime}. The microstate MSM at $\tau_{MSM} = 50$\,ns was coarse-grained into four metastable sets with PCCA++; for a range of lag times $k\tau_{MSM}$, the coarse-grained transition probabilities predicted by the reference model (propagated to $k\tau_{MSM}$) were compared with those estimated independently at each lag. Predicted and independent curves track closely and relax to consistent stationary values (Supp. Fig.~\ref{suppfig:ck}, shown for pca-dihedrals; the others behave similarly).
+%%%
+\smallskip \newline\textit{State populations.}
+Macrostate populations are estimated in two ways. From the trajectory, after dynamical coring (above), as the fraction of frames assigned to each state. From the coarse-grained MSM, using the soft memberships as weights on the microstate stationary distribution,
+$P(S_k) = \sum_i \pi_i\,\chi_{ik},$
+where $\pi_i$ is the stationary probability of microstate $i$. The membership weighting down-weights boundary microstates that cannot be confidently assigned to a single set.
+%%%
+\smallskip\newline\textit{State lifetimes.}
+Macrostate lifetimes are likewise estimated in two ways. From the cored trajectory, as the average residence time in each state. From the coarse-grained transition matrix $T$, as $\langle t_k\rangle = \tau_{MSM}/(1 - T_{kk})$, the mean residence time of a single-exponential process leaving state $k$.
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}
 \subsection{The four pipelines yield valid Markov models that already differ in their projected landscapes and timescales} 
-Projecting each trajectory onto its first two reduced coordinates already shows that the pipelines describe the landscape differently (Fig.~\ref{fig:free_energy_surfaces}): the distance-based models yield a single dominant minimum, while both dihedral-based models resolve two, and the tICA projections show an additional well-separated basin. Since projection can hide barriers, these surfaces are only indicative, but the differences already anticipate a pipeline dependence in the metastable structure resolved later.
-At the selected discretization ($n_{\mathrm{clusters}} = 50$, $\tau_{MSM} = 50\,\mathrm{ns}$; see Methods), the implied-timescale test (Supp. Fig.~\ref{suppfig:timescales_test}) shows that the slowest timescale is \textit{approximately} converged for all four pipelines and falls in the microsecond range, consistent with the known folding time of HP35. Two observations: first, the implied timescales depend far more strongly on the pipeline (features $+$ reduction method) than on the number of clusters. Second, the PCA pipelines yield systematically lower timescales than the tICA ones, indicating that they approximate the underlying slow dynamics less faithfully \cite{NoeNuske2013}, as expected since PCA does not optimize for kinetic separation.
 \begin{figure}[h!]
     \centering
-    \includegraphics[width = 0.8\linewidth]{figures/msm_timescale_spectra_report.pdf}
+    \includegraphics[width = \linewidth]{figures/msm_timescale_spectra_report.pdf}
 \caption{\small \textit{\textbf{Relaxation timescales spectra} at selected lag time $\tau_{MSM}=50\,\mathrm{ns}$. The horizontal grey line marks the MSM resolution limit ($t=\tau_{MSM}$).}}
     \label{fig:timescales_spectra}
 \end{figure}
-The full relaxation spectra at $\tau_{MSM} = 50\,\mathrm{ns}$ (Fig.~\ref{fig:timescales_spectra}) sharpen this picture and reveal how differently each pipeline partitions the slow dynamics. The PCA-distance model shows the largest gap between the first and second timescales, pointing to a strongly metastable, essentially two-state process: probability redistributes quickly within each set and slowly between them, so the dominant process is the rare interconversion of two well-defined basins. The other three models show a less pronounced gap. The tICA-dihedral model departs most from a two-state picture, with a slowly decaying spectrum in which several timescales remain above the resolution limit ($t = \tau_{MSM}$) even though its slowest timescale matches the distance-based models—suggesting a metastable structure more complex than two states.
+Projecting each trajectory onto its first two reduced coordinates already shows that the pipelines describe the landscape differently (Fig.~\ref{fig:free_energy_surfaces}): the distance-based models yield a single dominant minimum, while both dihedral-based models resolve two, and the tICA projections show an additional well-separated basin. Very importantly, free energy surfaces do not generally have a simple interpretation in terms of dynamics (e.g. free energy maxima may not be kinetic barriers), therefore these surfaces are only indicative, but the differences already anticipate a pipeline dependence in the metastable structure resolved later.
+At the selected common discretization ($n_{\mathrm{clusters}} = 50$, $\tau_{MSM} = 50\,\mathrm{ns}$; see Methods), the implied-timescale test (Supp. Fig.~\ref{suppfig:timescales_test}) shows that the slowest timescale is \textit{approximately} converged for all four pipelines and falls in the microsecond range, consistent with the known folding time of HP35. Two observations: first, the implied timescales depend far more strongly on the pipeline (features $+$ reduction method) than on the number of clusters. Second, the full relaxation spectra at $\tau_{MSM} = 50\,\mathrm{ns}$ (Fig.~\ref{fig:timescales_spectra}) shows that
+the PCA pipelines yield systematically lower timescales than the tICA ones, indicating that they approximate the underlying slow dynamics less faithfully \cite{NoeNuske2013}, as expected since PCA does not optimize for kinetic separation.
 \newline
-Model self-consistency was confirmed by the Chapman--Kolmogorov test (Supp. Fig.~\ref{suppfig:ck}, shown for pca-dihedrals; the others behave similarly): predicted and independently estimated curves track closely and relax to consistent stationary values. 
-\newline
-Taken together, these checks show that all four MSMs are approximately Markovian at $\tau_{MSM} = 50\,\mathrm{ns}$ and are expected to resolve the folding-unfolding transition as the slowest process, providing a valid common basis for the comparison that follows; at the same time, their timescale spectra already indicate that the pipelines disagree on how many slow processes exist beyond the dominant one.
+Taken together, these checks show that all four MSMs are approximately Markovian at $\tau_{MSM} = 50\,\mathrm{ns}, n_{clusters}=50$ and are expected to resolve the folding-unfolding transition as the slowest process, providing a valid common basis for the comparison that follows; at the same time, their timescale spectra already indicate that the pipelines disagree on how many slow processes exist beyond the dominant one.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\
-\subsection{The folding–unfolding transition is resolved consistently across pipelines}
-As a first step towards model comparison we construct a two-state PCCA++ decomposition for each of them, including those whose timescale spectra suggest more complex dynamics. We then examine the extent to which the resulting metastable sets agree.
-Since the dominant implied timescale is similar across three of the models, it is natural to ask whether it corresponds to the folding--unfolding transition. A first indication that the slowest dynamical process corresponds to folding and unfolding is obtained from the first right eigenvector. Its sign pattern closely follows the distribution of the fraction of native contacts, $Q$ (Supplementary Figure \ref{suppfig:first_right_eigenvector}), suggesting that the dominant relaxation mode separates folded and unfolded conformations.
-To investigate this, we use the fuzzy state memberships provided by PCCA++ to compute membership-weighted ensemble averages, reducing the influence of configurations that cannot be clearly assigned to a single state.
-
-The fuzzy PCCA++ membership probabilities of i) microstates and ii) single trajectory frames is computed. Then, the distribution of the fuzzy membership probabilities of frames across models is checked  (see Supp.Fig. \ref{suppfig:fuzzy_memberships_models}).The highest concordance is observed between the tICA-distance and PCA-distance models, which disagree on only $\simeq 1.6\%$ of the frames, followed by the PCA-distance and PCA-dihedral models, with a disagreement of $\simeq 2.3\%$ In contrast, the tICA-dihedral model exhibits the lowest agreement with the other representations, differing on approximately $8\%$ of the frames.
-
-Inspection of the PCCA++ membership probabilities for state $S1$ reveals differences among the models (Supp. Fig.\ref{suppfig:fuzzy_memberships_models}). The PCA-based representations produce sharply bimodal distributions, whereas the tICA-dihedral model yields substantially broader distributions and, consequently, much fuzzier assignments. This behavior is consistent with its implied timescale spectrum, which lacks a pronounced separation between the dominant processes and therefore does not naturally support a two-state decomposition. Interestingly, both dihedral-based models display a bimodal distribution of assignment probabilities, with peaks near $0.8$ and $1.0$ This is consistent with the free-energy projections onto the first $2D$ coordinates, which suggests the presence of two minima that might correspond to alternative folded conformations.
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width = 0.3\linewidth]{figures/consensus_rmsd_violin.pdf}
-    \includegraphics[width =0.5\linewidth]{figures/consensus_pymol.png}
-    \includegraphics[width=0.5\linewidth]{figures/consensus_important_contacts.png}
-    \caption{\small \textbf{Structural Analysis of $S_1$ consensus frames:} \textit{Top left: distribution of RMSD from the crystal structure. Top right: overlay of a random ensemble of $8$ consensus frames.  Bottom: distribution of most important contacts as identified by the score defined in the text.}}
-    \label{fig:consensus_frames}
-\end{figure}
-\subsection{The folded basin is defined by the hydrophobic core and harbours two dihedral-resolved substates}
-Consensus microstates were defined as those assigned a probability greater than $0.80$ of belonging to state $S_1$ by all four models. This subset comprises approximately $\simeq 61\%$ of the trajectory frames. To validate the interpretation of macrostate $S_1$ as the folded basin, a structural characterization of the consensus frames was performed. A simple characterization of $S_1$ can be obtained from native contacts. For each contact observed in the crystal structure (\texttt{hp.crystaldist}), the distance distribution computed over the consensus frames was compared with the distance distribution computed from all remaining trajectory frames.  Contacts that distinguish the two ensembles were identified using a robust standardized difference between their median distances:
-\small{
-\begin{equation*}
-    \mathrm{score}_{i,j} = \frac{
-    \mathrm{median}(r_{ij}^{\mathrm{other}})-\mathrm{median}(r_{ij}^{\mathrm{consensus}})}
-    {\left[IQR_{ij}^{\mathrm{other}} + IQR_{ij}^{consensus}\right]/2
-    },
-\end{equation*}
-}
-The score is expected to be positive, as the contact distances should be shorter in the "consensus" set if that represents the folded basin. A large positive score indicates that contact $(i,j)$ is shorter in the consensus ensemble, relative to the variability of its distance distribution. 
-The distribution for the $10$ most important contacts according to this score, together with the visualization of a random subset of structures and the distribution of the Root Mean Square Deviation (RMSD) in the two sets are reported in Figure \ref{fig:consensus_frames}.
-From the contact analysis, the most important features for identifying the folded basin lie within the hydrophobic core, particularly those involving residues near Phe6 and Phe10. In contrast, contacts defining the three helices contribute little to the discrimination. This is consistent with the observation that substantial helical structure is present in both folded and unfolded conformations (Supplementary Figure \ref{suppfig:twostate_helix}), whereas formation of the hydrophobic core is largely restricted to the folded basin.
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/dihedrals_ramachandran_N1_N2_comparison.png}
-    \caption{\small \textit{\textbf{Structural distinction between the two folded substates identified by the dihedral-based MSMs:} ($\phi, \psi$) distribution of the residue Asp3 in the two subpopulations corresponding to the distinct minima observed within the folded basin.}} 
-    \label{fig:rama_asp3}
-\end{figure} 
-This analysis suggests that core packing, not helix formation, defines the folded basin.
-
-Interestingly, several observables, including the RMSD and specific long-range contacts such as $10$--$29$, display bimodal distributions within the consensus folded ensemble. The same bimodality is visible in the free-energy projections obtained from the dihedral-based models and is reflected in the distribution of the PCCA++ membership probability for macrostate $1$. These observations suggest that the folded basin identified by the dihedral-based MSMs is itself heterogeneous and may contain two structurally distinct substates. To investigate this possibility, I partition the folded ensemble identified by the dihedral-based models using the peaks in the PCCA++ membership probabilities (see Supp. Figure \ref{suppfig:fuzzy_memberships_models}) and compare their structural characteristics. The two sets of microstates are found to be distinguished primarily by the conformational state of a single residue, \textit{Asp3}. In one state, \textit{Asp3} predominantly occupies the $\alpha_R$ region of Ramachandran space, whereas in the other it preferentially populates the $\alpha_L$ region (Fig. \ref{fig:rama_asp3}).
-This analysis suggests that the folded basin is is itself heterogeneous, split by the Asp3 backbone conformation which however do not appear among the slowest processes.
-\begin{figure*}[t]
+\begin{table*}[t]
     \centering
         \begin{tabular}{lrrrrrr}
             \hline
@@ -216,13 +187,62 @@ This analysis suggests that the folded basin is is itself heterogeneous, split b
         $\Delta G_{1-0}=-k_{\mathrm B}T
         \ln[P(S_1)/P(S_0)]$ at $T=360$ K.
     }}
-    \label{fig:twostate_main_results}
-\end{figure*}
+    \label{tab:pop_and_times}
+\end{table*}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\
+\subsection{The dominant process relates to the folding-unfolding transition}
 
+Since the dominant implied timescale is reasonably close across most pipelines (Fig. \ref{fig:timescales_spectra}), it is natural to ask whether the corresponding process describes the folding-unfolding transition. Before coarse-graining, the dominant relaxation process can be characterized directly from the transition matrix. Its first non-trivial right eigenvector has a sign pattern that closely follows the fraction of native contacts $Q$ (Supp. Fig.~\ref{suppfig:first_right_eigenvector}), so it appears that the slowest resolved mode indeed separates folded from unfolded conformations.
+
+However, Fig.\ref{fig:timescales_spectra} suggests that models differ in what lies beyond that dominant process.
+The PCA-distance model shows the largest gap between the first and second timescales, pointing to a strongly metastable, essentially two-state process: probability redistributes quickly within each set and slowly between them, so the dominant process is the rare interconversion of two well-defined basins. The other three show a less pronounced gap, and the tICA-dihedral model departs most from a two-state picture—its spectrum decays slowly, with several timescales remaining above the resolution limit ($t = \tau_{MSM}$) even though its slowest timescale matches the distance-based models.
+
+
+To compare the models at the coarsest level, I impose a two-state PCCA++ decomposition on each, including those whose timescale spectra suggest more complex substructure, and measure the fraction of frames on which two models disagree, using hard assignments (Supp. Fig.~\ref{suppfig:fuzzy_memberships_models}, left). The highest concordance is observed between the tICA-distance and PCA-distance models, which disagree on only $\simeq 1.6\%$ of the frames, followed by the PCA-distance and PCA-dihedral models, with a disagreement of $\simeq 2.3\%$ In contrast, the tICA-dihedral model exhibits the lowest agreement with the other representations, differing on approximately $8\%$ of the frames.
+
+This outlier reflects how sharply each model separates the two basins rather than a genuinely different partition. The single-model $S_1$ membership distributions (Supp. Fig.~\ref{suppfig:fuzzy_memberships_models}, right) are sharply bimodal and near $\{0,1\}$ for the PCA-based representations, but broad and much fuzzier for tICA-dihedral—consistent with its shallow timescale gap, which does not naturally support a two-state split. The disagreement therefore concerns borderline frames near the folding--unfolding boundary, not the identity of the two basins. 
+
+Taken together, all four pipelines place $\simeq 92$--$98\%$ of frames on the same side of that boundary, so the two-state separation is largely model-independent; the representations differ mainly in how sharply they resolve it.
+
+%Interestingly, both dihedral-based models display a bimodal distribution of assignment probabilities, with peaks near $0.8$ and $1.0$ This is consistent with the free-energy projections onto the first $2D$ coordinates, which suggests the presence of two minima that might correspond to alternative folded conformations.
+
+% MISSING CONCLUDING SENTENCE SUMMARIZING KEY FINDINGS
+%
+%
+%
+\subsection{The folded basin is mostly defined by the hydrophobic core}
+\label{sec:consensus}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = 0.3\linewidth]{figures/consensus_rmsd_violin.pdf}
+    \includegraphics[width =0.5\linewidth]{figures/consensus_pymol.png}
+    \includegraphics[width=0.5\linewidth]{figures/consensus_important_contacts.png}
+    \caption{\small \textbf{Structural Analysis of $S_1$ consensus frames:} \textit{Top left: distribution of RMSD from the crystal structure. Top right: overlay of a random ensemble of $8$ consensus frames.  Bottom: distribution of most important contacts as identified by the score defined in the text.}}
+    \label{fig:consensus_frames}
+\end{figure}
+Consensus microstates were defined as those assigned a probability greater than $0.80$ of belonging to state $S_1$ by all four models. This subset comprises approximately $\simeq 61\%$ of the trajectory frames. To validate the interpretation of macrostate $S_1$ as the folded basin, a structural characterization of the consensus frames was performed. A simple characterization of $S_1$ can be obtained from native contacts. For each contact observed in the crystal structure (\texttt{hp.crystaldist}), the distance distribution computed over the consensus frames was compared with the distance distribution computed from all remaining trajectory frames.  Contacts that distinguish the two ensembles were identified using a robust standardized difference between their median distances:
+{
+\small
+\begin{equation*}
+    \mathrm{score}_{i,j} = \frac{
+    \mathrm{median}(r_{ij}^{\mathrm{other}})-\mathrm{median}(r_{ij}^{\mathrm{consensus}})}
+    {\left[IQR_{ij}^{\mathrm{other}} + IQR_{ij}^{consensus}\right]/2
+    },
+\end{equation*}
+}
+
+The score is expected to be positive, as the contact distances should be shorter in the "consensus" set if that represents the folded basin. A large positive score indicates that contact $(i,j)$ is shorter in the consensus ensemble, relative to the variability of its distance distribution. 
+The distribution for the $10$ most important contacts according to this score, together with the visualization of a random subset of structures and the distribution of the Root Mean Square Deviation (RMSD) in the two sets are reported in Figure \ref{fig:consensus_frames}.
+From the contact analysis, the most important features for identifying the folded basin lie within the hydrophobic core, particularly those involving residues near Phe6 and Phe10. In contrast, contacts defining the three helices contribute little to the discrimination. This is consistent with the observation that substantial helical structure is present in both folded and unfolded conformations (Supplementary Figure \ref{suppfig:twostate_helix}), whereas formation of the hydrophobic core is largely restricted to the folded basin. Notably, the consensus folded ensemble is itself bimodal in RMSD and specific long-range contacts, indicating substructure within the folded basin that I caracterize in Sec. \ref{sec:beyond_two_state}.
+%
+%
+%
 \subsection{Two-state thermodynamics are robust across pipelines but folding times are systematically underestimated}
-Interpreting $S_0$ and $S_1$ as the unfolded and folded basins, respectively, allows a rough estimate of the folding kinetics to be obtained. Although the resulting times should be regarded as indicative only, they provide a useful basis for comparing the different models. A more rigorous analysis would require computation of mean first-passage times and reactive fluxes on the full microstate MSM using transition path theory, which lies beyond the scope of the present work.
-To reduce the effect of rapid recrossings between the two macrostates, dynamical coring was applied to the trajectory \cite{dynamical_coring}. Frames were assigned to macrostates using a hard assignment, and a transition was counted only if the trajectory remained in the new macrostate for at least one MSM lag time ($\tau_{\mathrm{MSM}} = 50\,\mathrm{ns}$). The resulting cored trajectory is shown in Supp. Fig.~\ref{suppfig:twostate_traj}. The folding time,
-$t_{\mathrm{fold}}$, is then approximated as the average waiting time between successive unfolded-to-folded transitions in this cored trajectory. Results of folding times and relative populations are reported in Fig.~\ref{fig:twostate_main_results}.
+\label{sec:kinetic_estimates}
+Interpreting $S_0$ and $S_1$ as the unfolded and folded basins, respectively, allows a rough estimate of the folding kinetics to be obtained. Although the resulting times should be regarded as indicative only, they provide a useful basis for comparing the different models. A more rigorous analysis would require computation of mean first-passage times and reactive fluxes on the full microstate MSM using transition path theory, which lies beyond the scope of the present work. To estimate lifetimes and populations from the trajectory, first I apply dynamical coring as explained in Methods. The resulting cored trajectory is shown in Supp. Fig.~\ref{suppfig:twostate_traj}. The folding time,
+$t_{\mathrm{fold}}$, is then approximated as the average waiting time between successive unfolded-to-folded transitions in this cored trajectory. Results of folding times and relative populations are reported in Table~\ref{tab:pop_and_times}.
 \newline The results are model dependent. Overall, trajectory-based estimates of the $\Delta G$ agree within one standard deviation with the estimate of $-0.6 \pm 0.2\, kcal/\,mol^{-1}$ reported by \cite{Piana2012} while all models predict a shorter folding time (as the mean/median residence time in the state $S_0$) when compared to the reference value of $3.2\pm0.6\,\mu$s reported in \cite{Piana2012}. The systematic underestimation is most likely attributable to the relatively short Markov lag time used
 here, at which the slowest timescale has not yet fully converged. 
 Note that in principle another estimate can be derived directly from the PCCA coarse-grained transition matrix and fuzzy membership probabilities (see Suppl. Table \ref{supptab:pcca_model_estimates}).
@@ -232,7 +252,9 @@ Note that in principle another estimate can be derived directly from the PCCA co
 %
 %
 \newline
-\subsection{A three-state decomposition of the tICA models reveals a compact misfolded trap and a loop rearrangement}
+\subsection{Beyond two states: model-dependent metastable substructure}
+\label{sec:beyond_two_state}
+%\subsection{A three-state decomposition of the tICA models reveals a compact misfolded trap and a loop rearrangement}
 %
 % tica distances
 %
@@ -265,6 +287,22 @@ The implied timescale spectra of the tICA-based models (Fig.~\ref{fig:timescales
 \textit{tICA-distances:} A three-state PCCA partitioning produces a lowly populated ($\sim 1\%$) additional macrostate. Key structural descriptors that distinguish this macrostate from the others are the dihedral angles of residues $Phe6, Lys7, Gly15$ which populate the $\beta$-region of the Ramachandran plot in $S0$, while they populate both the $\alpha$ and the $\beta$ region in $S1$ and only the $\alpha_R$ region in $S2$ (Fig.\ref{fig:threestate_distances_macro0}). A visual inspection shows this is a well defined state, caracterized by helix $3$ which never unfolds, compact structure and a stable beta-hairpin formed in the region of residues $6-14$. At all effects this appears to be a kinetic trap in the folding process. Populations also agree, with $\simeq 1\%$ in this work and $\simeq 1.49\%$ in \cite{hierarchical_hp35}. Inspection of the dynamically cored macrostate trajectory shows that this state is visited only once, where it remains occupied for approximately $1\,\mu\mathrm{s}$.
 \vspace*{0.1em}\newline
 \textit{tICA-dihedrals:} A clear structural interpretation of macrostate $S_0$ is not immediately apparent. Comparison of the dihedral-angle distributions (Supp. Fig.~\ref{suppfig:threestate_tica_dihedrals}) indicates that the most pronounced difference between $S_0$ and the other two macrostates is localized in the $Leu20$--$Pro21$ loop connecting helices 2 and 3 in the native structure. In $S_0$, the $\phi/\psi$ angles of $Leu20$ predominantly occupy the $\beta$ region of the Ramachandran plot, whereas in $S_1$ ($\simeq$ the unfolded basin) and $S_2$ ($\simeq$ the folded basin) they are concentrated in the $\alpha_R$ region. The transition $S_0 \leftrightarrow S_1$ therefore appears to correspond to a local conformational rearrangement of the second loop within the unfolded ensemble. Inspection of the dynamically cored macrostate trajectory shows that $S_0$ is visited multiple times, always from $S_1$. The state has a stationary population of approximately $3\%$ and a median residence time of $0.32\,\mu\mathrm{s}$.
+%
+%
+%
+%
+%
+%
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/dihedrals_ramachandran_N1_N2_comparison.png}
+    \caption{\small \textit{\textbf{Structural distinction between the two folded substates identified by the dihedral-based MSMs:} ($\phi, \psi$) distribution of the residue Asp3 in the two subpopulations corresponding to the distinct minima observed within the folded basin.}} 
+    \label{fig:rama_asp3}
+\end{figure} 
+This analysis suggests that core packing, not helix formation, defines the folded basin.
+
+Interestingly, several observables, including the RMSD and specific long-range contacts such as $10$--$29$, display bimodal distributions within the consensus folded ensemble. The same bimodality is visible in the free-energy projections obtained from the dihedral-based models and is reflected in the distribution of the PCCA++ membership probability for macrostate $1$. These observations suggest that the folded basin identified by the dihedral-based MSMs is itself heterogeneous and may contain two structurally distinct substates. To investigate this possibility, I partition the folded ensemble identified by the dihedral-based models using the peaks in the PCCA++ membership probabilities (see Supp. Figure \ref{suppfig:fuzzy_memberships_models}) and compare their structural characteristics. The two sets of microstates are found to be distinguished primarily by the conformational state of a single residue, \textit{Asp3}. In one state, \textit{Asp3} predominantly occupies the $\alpha_R$ region of Ramachandran space, whereas in the other it preferentially populates the $\alpha_L$ region (Fig. \ref{fig:rama_asp3}).
+This analysis suggests that the folded basin is is itself heterogeneous, split by the Asp3 backbone conformation which however do not appear among the slowest processes.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -399,6 +437,12 @@ DOI: 10.1088/2632-2153/ac3de0.
 \bibitem{biopython}
     Peter J. A. Cock, Tiago Antao, Jeffrey T. Chang, Brad A. Chapman, Cymon J. Cox, Andrew Dalke, Iddo Friedberg, Thomas Hamelryck, Frank Kauff, Bartek Wilczynski, Michiel J. L. de Hoon, \textit{Biopython: freely available Python tools for computational molecular biology and bioinformatics}, Bioinformatics, Volume 25, Issue 11, June 2009, Pages 1422–1423, DOI: 10.1093/bioinformatics/btp163
 
+
+\bibitem{pyemma_tutorial}
+PyEMMA Developers,
+\textit{Model Selection and Validation (PyEMMA Tutorials)},
+available at \url{http://www.emma-project.org/v2.0.4/generated/model_selection_validation.html}
+(accessed July 16, 2026).
 % -----------------------
 
 \bibitem{NoeNuske2013} 
