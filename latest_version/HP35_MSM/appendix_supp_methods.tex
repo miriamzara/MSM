@@ -1,14 +1,13 @@
+\clearpage
+\twocolumngrid
 \section{Supplementary Methods}
-\label{sec:SI_methods}
-Here I provide the technical details of the procedure summarized in Methods.
-
+\small
 \renewcommand{\thesubsection}{S\arabic{subsection}}
 \setcounter{subsection}{0}
 
 \subsection{Derivation of PCA and tICA}
+\label{supsec:derivation_PCA_TICA}
 
-
-\label{subsec:SI_dimred}
 The presentation of tICA in this section follows closely that of \cite{my_tica_ref}.
 
 
@@ -213,12 +212,12 @@ The most commonly used choice is the \textit{kinetic map} in which each tIC comp
 \tilde z_i(t) = \lambda_i z_i(t).
 \end{equation}
 
-With this normalization, the coordinates representing the sloIst processes "Iight more", and a unit step in those directions in the reduced space is assigned a larger distance.
+With this normalization, the coordinates representing the slowest processes "weight more", and a unit step in those directions in the reduced space is assigned a larger distance.
 An alternative is the \textit{commute map}, where each coordinate is rescaled according to its implied timescale,
 \begin{equation}
 \tilde z_i(t) = \sqrt{\frac{t_i}{2}} z_i(t), \qquad t_i = -\frac{\tau}{\ln \lambda_i}.
 \end{equation}
-With this normalization, Euclidean distances approximate commute distances, i.e. the expected time required to travel from one configuration to another and back. This is a variation on the same idea behind the kinetic map, being eigenvalues and timescales connected by \eqref{eq:eigvals_and_timescales}.
+With this normalization, Euclidean distances approximate commute distances, i.e. the expected time required to travel from one configuration to another and back. This is a variation on the same idea behind the kinetic map, being eigenvalues and timescales connected by \eqref{eq:eigvals_and_timescales}. Both normalizations are defined in Deeptime \cite{deeptime}.
 %
 %
 %
@@ -236,15 +235,15 @@ With this normalization, Euclidean distances approximate commute distances, i.e.
 %
 %
 
-
+\begin{comment}
 \subsection{Elements of Markov theory}
-
+\label{supsec:markov_theory}
 \paragraph{Transition matrix and spectral decomposition.}
 A Markov state model approximates the conformational dynamics as a
 memoryless jump process on the discrete microstates, encoded in the
-transition matrix $T(\tau)$ estimated at a fixed lag time $\tau$.
-Following the convention used in \textsc{deeptime}~\cite{Deeptime2021},
-$T$ is taken to be row-stochastic,
+transition matrix $T(\tau_{MSM})$ estimated at a fixed lag time $\tau_{MSM}$.
+Following the convention used in Deeptime \cite{deeptime}, consider
+$T$ row-stochastic,
 \begin{equation}
   \sum_j T_{ij} = 1, \qquad T_{ij} \geq 0,
   \label{eq:rowstoch}
@@ -260,7 +259,7 @@ The stationary distribution $\pi$ is the left eigenvector with unit
 eigenvalue, $\pi T = \pi$ with $\sum_i \pi_i = 1$, and the estimator used
 here enforces detailed balance, $\pi_i T_{ij} = \pi_j T_{ji}$.
 
-Assuming $T$ is diagonalisable, it admits the spectral decomposition
+$T$ it admits the spectral decomposition
 \begin{equation}
   T = \sum_{i=1}^{N} \lambda_i\, r_i\, l_i^{\mathsf T},
   \label{eq:spectral}
@@ -286,10 +285,15 @@ The dominant term ($\lambda_1 = 1$) is the stationary distribution $\pi$;
 because $|\lambda_i| < 1$ for $i \geq 2$, every other mode decays with a
 characteristic relaxation (implied) timescale
 \begin{equation}
-  t_i = -\,\frac{\tau}{\ln \lambda_i}.
+  t_i = -\,\frac{1}{\ln \lambda_i}.
   \label{eq:timescale}
 \end{equation}
-
+where time is expressed in units the Markov step, or explicitly
+\begin{equation}
+  t_i = -\,\frac{\tau_{MSM}}{\ln \lambda_i}.
+  \label{eq:timescale}
+\end{equation}
+in another unit of measure.
 \paragraph{Relaxation modes and probability flux.}
 The left eigenvectors $\{l_i\}_{i\geq 2}$ describe the spatial structure
 of the relaxation processes: states whose components have opposite sign
@@ -327,12 +331,9 @@ and they are orthonormal in the $\pi$-weighted inner product,
 \end{equation}
 The sign structure of the dominant eigenvectors provides the geometric
 criterion used by PCCA++~\cite[Ch.~2.5.1--2.5.2]{thebible} to lump
-microstates into metastable macrostates. I use this to connect the
-slowest exchange modes of the Markov chain to the folded/unfolded
-thermodynamics of the protein, keeping in mind that spectral
-metastability and thermodynamic stability are related but not strictly
-identical notions.
+microstates into metastable macrostates. 
 
+\begin{comment}
 \paragraph{Implied-timescale test and lag-time selection.}
 Markovianity was assessed, and the lag time selected, through the
 implied-timescale (ITS) convergence test. The estimated timescales
@@ -348,3 +349,5 @@ interest approximately Markovian~\cite[Ch.~4.7]{thebible}. Because the
 number of microstates and the lag time jointly control resolution and
 statistical accuracy, the two were chosen together (see main text,
 Sec.~III~A).
+\end{comment}
+\end{comment}

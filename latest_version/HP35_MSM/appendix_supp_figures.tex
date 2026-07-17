@@ -64,7 +64,7 @@ model. Close agreement indicates approximate Markovianity at the chosen lag.}
     \vspace{1em}
     \includegraphics[width=0.5\linewidth]{figures/Q_reduced_projection.png}
     \caption{\small \textbf{Comparison between the slowest MSM relaxation mode and a structural folding descriptor.} 
-    Top row: values of the first non-trivial eigenvector projected onto the first two components of the reduced coordinate space.
+    Top row: values of the first non-trivial \textit{right}(*) eigenvector  projected onto the first two components of the reduced coordinate space. (*) Deeptime \cite{deeptime} represents transition matrices in the row-stochastic notation.
     Positive and negative components identify regions that exchange probability on the slowest resolved timescale of the Markov model. 
     Bottom row: projection of the fraction of native contacts, Q, onto the same coordinates. 
     The close correspondence between the eigenvector sign pattern and the distribution of $Q$ indicates that the slowest kinetic process 
@@ -98,6 +98,8 @@ For each MSM, the grey trace shows the instantaneous hard assignment of each fra
 }
     \label{suppfig:twostate_traj}
 \end{figure}
+
+\begin{comment}
 \begin{table}[h!]
     \begin{tabular}{lccccc}
         \hline
@@ -120,6 +122,7 @@ Stationary populations, mean residence times, and relative free energies obtaine
 }
     \label{supptab:pcca_model_estimates}
 \end{table}
+\end{comment}
 % ------------- Three state tica-dihedrals -------------------------
 \begin{figure*}[ht]
 \centering
