@@ -28,6 +28,12 @@ trajectory_path = os.path.join(base_path, "traj.dcd")
 
 cmd.load(topology_path, "recon")
 cmd.load_traj(trajectory_path, "recon")
+
+# Align all trajectory states to state 1 using a stable protein segment.
+cmd.intra_fit(
+    "recon and resi 19-25 and name CA",
+    state=1
+)
 python end
 
 # ---------- End Python for parsing filename argument ----------
@@ -54,7 +60,11 @@ show spheres, aromatics
 color orange, aromatics
 set sphere_scale, 0.45, aromatics
 
-
+# Highlight residue 3
+select res3, recon and resi 2 and name CA
+show spheres, res3
+color green, res3
+set sphere_scale, 0.45, res3
 
 zoom recon
 orient recon
