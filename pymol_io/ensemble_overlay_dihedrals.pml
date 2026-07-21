@@ -9,6 +9,8 @@ load_traj ../root/movies/tica_dihedrals_3state_macro0_frames_stride_1/traj.dcd, 
 # -----------------------------
 
 select aln_ensemble, ensemble and name CA and resi 6-10+14-19+22-29
+# align on the loop region
+#select aln_ensemble, ensemble and name CA and resi 19-25
 count_atoms aln_ensemble
 
 # Align all states to state 1 using the stable helical/core region
