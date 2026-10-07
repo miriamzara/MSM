@@ -6,6 +6,18 @@ This project aims to review of the pipeline for Markov State Model (MSM) constru
 
 The code is written in Python and relies on the package [deeptime](https://deeptime-ml.github.io/latest/index.html).
 
+To run the code, set up a new conda virtual environment and install all the packages listed in the file 'packages.txt'.
+
+'''{bash}
+conda create -n MSMenv --file packages.txt
+conda activate MSMenv
+'''
+
+
+
+
+
+
 Different MSM will be constructed, validated, analysed and quantitatively compared against each other, for a simple system (right now: HP35, a 35-residue protein known to be an ultra fast folder, for which very long MD simulations are available from the 2010s. Probably some other benchmark model will be added).
 
 *Work in progress*
